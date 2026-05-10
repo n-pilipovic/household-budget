@@ -1,0 +1,190 @@
+<div class="min-h-screen bg-bg text-on-bg flex flex-col">
+  <div class="flex-1 flex flex-col px-7 max-w-md w-full mx-auto">
+
+    @switch (mode()) {
+
+      @case ('chooser') {
+        <div class="pt-12">
+          <span class="block size-12 rounded-lg overflow-hidden ring-1 ring-border shadow-sm grid grid-cols-2 grid-rows-2">
+            <span class="bg-user-novica"></span>
+            <span class="bg-user-nada"></span>
+            <span class="bg-user-nada"></span>
+            <span class="bg-user-novica"></span>
+          </span>
+          <h1 class="text-[28px] font-semibold tracking-tight mt-6 leading-[1.15]">Welcome, {{ firstName() }}</h1>
+          <p class="text-[15px] text-on-bg-muted mt-2 leading-snug">Set up your household to get started.</p>
+        </div>
+
+        @if (errorMsg()) {
+          <div class="mt-6 rounded-md border border-danger-500/30 bg-danger-50 px-4 py-3 text-sm text-danger-700">{{ errorMsg() }}</div>
+        }
+
+        <div class="mt-10 space-y-3">
+          <button
+            type="button"
+            (click)="setMode('create')"
+            class="w-full text-left rounded-md border-2 border-brand-500 ring-4 ring-brand-100 bg-brand-50/40 p-4 transition hover:bg-brand-50/60">
+            <div class="flex items-start gap-3">
+              <span class="size-10 rounded-md bg-brand-500 grid place-items-center shrink-0">
+                <svg class="size-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M12 14v4M10 16h4"/></svg>
+              </span>
+              <div class="flex-1">
+                <p class="font-semibold tracking-tight">Create new household</p>
+                <p class="text-sm text-on-bg-muted leading-snug mt-0.5">Start fresh and invite the others later with a code.</p>
+              </div>
+              <svg class="size-5 text-brand-700 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </button>
+
+          <div class="relative py-1">
+            <div class="absolute inset-0 flex items-center"><div class="w-full h-px bg-border"></div></div>
+            <div class="relative flex justify-center"><span class="px-3 text-xs text-on-bg-faint bg-bg">or</span></div>
+          </div>
+
+          <button
+            type="button"
+            (click)="setMode('join')"
+            class="w-full text-left rounded-md border border-border hover:bg-surface-2 p-4 transition">
+            <div class="flex items-start gap-3">
+              <span class="size-10 rounded-md bg-on-bg/5 grid place-items-center shrink-0">
+                <svg class="size-5 text-on-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <div class="flex-1">
+                <p class="font-semibold tracking-tight">Join existing household</p>
+                <p class="text-sm text-on-bg-muted leading-snug mt-0.5">Enter a code shared by someone already in.</p>
+              </div>
+              <svg class="size-5 text-on-bg-muted mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </button>
+        </div>
+
+        <div class="mt-auto pb-10 pt-12">
+          <p class="text-xs text-on-bg-faint text-center leading-relaxed">A household holds your shared budget. Members are invited by code.</p>
+        </div>
+      }
+
+      @case ('create') {
+        <div class="pt-3">
+          <button (click)="setMode('chooser')" type="button" class="size-9 -ml-2 rounded-full hover:bg-surface-2 grid place-items-center mt-2">
+            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+        </div>
+        <div class="pt-6">
+          <h1 class="text-[26px] font-semibold tracking-tight leading-[1.2]">Name your household</h1>
+          <p class="text-[15px] text-on-bg-muted mt-2 leading-snug">Just a label — you can rename it later.</p>
+        </div>
+
+        @if (errorMsg()) {
+          <div class="mt-6 rounded-md border border-danger-500/30 bg-danger-50 px-4 py-3 text-sm text-danger-700">{{ errorMsg() }}</div>
+        }
+
+        <form (submit)="submitCreate($event)" class="mt-8 space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-on-bg-muted mb-1.5" for="name">Household name</label>
+            <input
+              id="name" type="text" autofocus required maxlength="60"
+              [value]="householdName()"
+              (input)="householdName.set($any($event.target).value)"
+              placeholder="Pilipović household"
+              class="w-full h-12 px-3 rounded-md bg-surface border border-border focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[15px] outline-none transition">
+            <p class="text-xs text-on-bg-faint mt-1.5">Shown in the top bar of the app.</p>
+          </div>
+          <button type="submit" [disabled]="busy()" class="w-full h-12 rounded-md bg-on-bg text-bg font-medium text-[15px] hover:opacity-90 disabled:opacity-50 transition active:scale-[0.99]">
+            {{ busy() ? 'Creating…' : 'Create household' }}
+          </button>
+          <p class="text-xs text-on-bg-faint text-center pt-2 leading-relaxed">By creating a household you become its first member.</p>
+        </form>
+      }
+
+      @case ('share') {
+        <div class="flex-1 flex flex-col">
+          <div class="pt-12 text-center">
+            <span class="size-12 mx-auto rounded-full bg-success-50 grid place-items-center">
+              <svg class="size-6 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <h1 class="text-[26px] font-semibold tracking-tight mt-5 leading-[1.2]">{{ householdName() }}</h1>
+            <p class="text-[15px] text-on-bg-muted mt-2 leading-snug">Created. Now invite anyone else who'll log expenses with you.</p>
+          </div>
+
+          <div class="mt-8 rounded-md bg-surface border border-border shadow-xs p-5">
+            <p class="text-[11px] uppercase tracking-[0.18em] text-on-bg-faint font-medium text-center">Invite code</p>
+            <p class="text-center mt-3 num font-semibold" style="font-size: 32px; letter-spacing: 0.18em;">{{ createdCode() }}</p>
+            <p class="text-xs text-on-bg-faint text-center mt-2">Expires in 7 days</p>
+
+            <div class="grid grid-cols-2 gap-2 mt-5">
+              <button (click)="copyCode()" type="button" class="h-10 rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-sm font-medium inline-flex items-center justify-center gap-1.5 transition">
+                @if (copied() === 'code') {
+                  <svg class="size-4 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                  Copied
+                } @else {
+                  <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copy code
+                }
+              </button>
+              <button (click)="copyLink()" type="button" class="h-10 rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-sm font-medium inline-flex items-center justify-center gap-1.5 transition">
+                @if (copied() === 'link') {
+                  <svg class="size-4 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                  Copied
+                } @else {
+                  <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51 8.59 10.49"/></svg>
+                  Copy link
+                }
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4 rounded-md bg-surface-2 border border-border p-4">
+            <div class="flex gap-3">
+              <svg class="size-5 text-on-bg-muted shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              <p class="text-xs text-on-bg-muted leading-relaxed">
+                Share the code or link. The recipient signs in with their own email or Google, then enters the code to join. They show up in your household once they're in.
+              </p>
+            </div>
+          </div>
+
+          @if (errorMsg()) {
+            <div class="mt-4 rounded-md border border-danger-500/30 bg-danger-50 px-4 py-3 text-sm text-danger-700">{{ errorMsg() }}</div>
+          }
+
+          <button (click)="finish()" class="mt-auto mb-10 w-full h-12 rounded-md bg-on-bg text-bg font-medium text-[15px] hover:opacity-90 transition">Continue to budget</button>
+        </div>
+      }
+
+      @case ('join') {
+        <div class="pt-3">
+          <button (click)="setMode('chooser')" type="button" class="size-9 -ml-2 rounded-full hover:bg-surface-2 grid place-items-center mt-2">
+            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+        </div>
+        <div class="pt-6">
+          <h1 class="text-[26px] font-semibold tracking-tight leading-[1.2]">Enter the invite code</h1>
+          <p class="text-[15px] text-on-bg-muted mt-2 leading-snug">Ask the person who set up the household for the code.</p>
+        </div>
+
+        @if (errorMsg()) {
+          <div class="mt-6 rounded-md border border-danger-500/30 bg-danger-50 px-4 py-3 text-sm text-danger-700">{{ errorMsg() }}</div>
+        }
+
+        <form (submit)="submitJoin($event)" class="mt-8 space-y-5">
+          <input
+            type="text" inputmode="text" autocapitalize="characters" autocomplete="off"
+            autofocus required
+            [value]="inviteCodeNormalised()"
+            (input)="onCodeInput($any($event.target).value)"
+            placeholder="XXX-XXXX"
+            maxlength="8"
+            class="w-full h-14 px-4 rounded-md bg-surface border-2 border-brand-500 ring-4 ring-brand-100 text-2xl font-semibold tracking-[0.16em] text-center uppercase num outline-none">
+
+          <button type="submit" [disabled]="busy() || !canSubmitJoin()" class="w-full h-12 rounded-md bg-on-bg text-bg font-medium text-[15px] hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition active:scale-[0.99]">
+            {{ busy() ? 'Joining…' : 'Join' }}
+          </button>
+
+          <button type="button" (click)="setMode('create')" class="w-full text-sm text-brand-600 hover:text-brand-700 font-medium">
+            I want to create a new household instead
+          </button>
+        </form>
+      }
+    }
+
+  </div>
+</div>

@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function isMember(hid) {
+      return isAuthed()
+        && exists(/databases/$(database)/documents/households/$(hid))
+        && request.auth.uid in get(/databases/$(database)/documents/households/$(hid)).data.members;
+    }
+
+    // A non-member is "joining" if the only fields they touch are
+    // `members` and `memberColors`, they're appending themselves to
+    // `members`, and they weren't already a member.
+    // Anti-abuse: invite codes are 7 chars from a 30-char alphabet
+    // (~22 billion combos) and validated client-side via the invites
+    // collection. Defense in depth would move this to a Cloud Function.
+    function isSelfJoining(hid) {
+      return isAuthed()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'memberColors'])
+        && !(request.auth.uid in resource.data.members)
+        && request.auth.uid in request.resource.data.members
+        && request.resource.data.members.size() == resource.data.members.size() + 1;
+    }
+
+    // Users — own profile only. Created on first sign-in.
+    match /users/{uid} {
+      allow read, write: if isAuthed() && request.auth.uid == uid;
+    }
+
+    // Households
+    match /households/{hid} {
+      allow read: if isMember(hid);
+      // Anyone authed can create a household; they become its first
+      // member and the only member at creation time.
+      allow create: if isAuthed()
+        && request.resource.data.members.hasOnly([request.auth.uid])
+        && request.resource.data.members.size() == 1;
+      allow update: if isMember(hid) || isSelfJoining(hid);
+      allow delete: if false;
+    }
+
+    // Invite codes — readable by any authed user (so a recipient can
+    // look up the householdId from a code), writable only by household
+    // members.
+    match /invites/{code} {
+      allow read: if isAuthed();
+      allow create: if isAuthed() && isMember(request.resource.data.householdId);
+      allow update: if isAuthed()
+        && (isMember(resource.data.householdId)
+            // joining: mark invite as used by recording usedBy/usedAt
+            || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy', 'usedAt'])
+                && request.resource.data.usedBy == request.auth.uid));
+      allow delete: if isAuthed() && isMember(resource.data.householdId);
+    }
+
+    // All household sub-collections (categories, transactions, budgets) —
+    // members can read/write any document.
+    match /households/{hid}/{collection}/{document=**} {
+      allow read, write: if isMember(hid);
+    }
+  }
+}
