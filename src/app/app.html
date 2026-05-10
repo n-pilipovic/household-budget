@@ -1,28 +1,54 @@
 <main class="min-h-screen bg-bg text-on-bg">
   <div class="mx-auto max-w-2xl px-6 py-16">
-    <p class="text-xs uppercase tracking-[0.18em] text-on-bg-faint mb-3">Scaffold check</p>
+    <p class="text-xs uppercase tracking-[0.18em] text-on-bg-faint mb-3">Phase 2 · Firebase wired</p>
     <h1 class="text-3xl font-semibold tracking-tight">Household budget</h1>
-    <p class="text-on-bg-muted mt-3 leading-relaxed">
-      Angular 21 · Tailwind v4 · pnpm. Tokens loaded. Designs in
-      <code class="px-1.5 py-0.5 rounded bg-surface-2 text-on-bg text-xs font-mono">../financial-forecast/mockups/</code>.
-    </p>
 
-    <div class="mt-8 rounded-lg bg-surface border border-border shadow-xs p-6">
-      <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">Sanity check — token swatches</p>
-      <div class="mt-4 grid grid-cols-4 gap-2">
-        <div class="h-12 rounded-md bg-brand-500"></div>
-        <div class="h-12 rounded-md bg-success-500"></div>
-        <div class="h-12 rounded-md bg-warn-500"></div>
-        <div class="h-12 rounded-md bg-danger-500"></div>
-        <div class="h-12 rounded-md bg-user-novica"></div>
-        <div class="h-12 rounded-md bg-user-nada"></div>
-        <div class="h-12 rounded-md bg-on-bg"></div>
-        <div class="h-12 rounded-md bg-surface-3 border border-border"></div>
-      </div>
-      <p class="text-xs text-on-bg-muted mt-4">
-        If you see 8 distinct colored swatches above, the @theme block is wired correctly.
+    @if (user() === undefined) {
+      <p class="text-on-bg-muted mt-4">Connecting to Firebase…</p>
+    } @else if (user() === null) {
+      <p class="text-on-bg-muted mt-3 leading-relaxed">
+        Not signed in. This is the scaffold, not the real sign-in screen — design lives in
+        <code class="px-1.5 py-0.5 rounded bg-surface-2 text-on-bg text-xs font-mono">mockups/sign-in.html</code>.
       </p>
-    </div>
+      <button
+        (click)="signInWithGoogle()"
+        class="mt-6 inline-flex items-center gap-2 px-4 h-11 rounded-md bg-on-bg text-bg font-medium text-sm hover:opacity-90 active:scale-[0.99] transition">
+        <i-lucide [name]="LogIn" class="size-4"></i-lucide>
+        Sign in with Google
+      </button>
+    } @else {
+      <div class="mt-8 rounded-lg bg-surface border border-border shadow-xs p-6">
+        <div class="flex items-center gap-2 text-success-700 mb-4">
+          <i-lucide [name]="Check" class="size-4"></i-lucide>
+          <p class="text-xs uppercase tracking-[0.16em] font-semibold">Auth wired</p>
+        </div>
+        <div class="flex items-center gap-3">
+          @if (user()?.photoURL) {
+            <img [src]="user()?.photoURL" alt="" class="size-10 rounded-full ring-1 ring-border">
+          } @else {
+            <span class="size-10 rounded-full bg-user-novica text-white grid place-items-center text-base font-semibold">
+              {{ user()?.displayName?.[0] || user()?.email?.[0] || '?' }}
+            </span>
+          }
+          <div>
+            <p class="font-semibold tracking-tight">{{ user()?.displayName || 'No name' }}</p>
+            <p class="text-sm text-on-bg-muted num">{{ user()?.email }}</p>
+          </div>
+        </div>
+        <p class="text-xs text-on-bg-muted mt-4">UID: <code class="font-mono num">{{ user()?.uid }}</code></p>
+        <button
+          (click)="signOutNow()"
+          class="mt-5 inline-flex items-center gap-2 px-3 h-9 rounded-md border border-border bg-surface-2 hover:bg-surface-3 font-medium text-sm transition">
+          <i-lucide [name]="LogOut" class="size-4"></i-lucide>
+          Sign out
+        </button>
+      </div>
+
+      <p class="text-xs text-on-bg-muted mt-6 leading-relaxed">
+        ✓ Firebase initialized · ✓ Auth provider connected · ✓ Token refresh working.<br>
+        Next: build the real sign-in route (matching <code class="font-mono">mockups/sign-in.html</code>) and the household onboarding flow.
+      </p>
+    }
   </div>
 
   <router-outlet></router-outlet>
