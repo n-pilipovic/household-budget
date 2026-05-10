@@ -1,0 +1,123 @@
+<div class="min-h-screen bg-bg text-on-bg flex flex-col">
+  <div class="flex-1 flex flex-col px-7 max-w-md w-full mx-auto">
+    <div class="pt-16">
+      <span class="block size-12 rounded-lg overflow-hidden ring-1 ring-border shadow-sm grid grid-cols-2 grid-rows-2">
+        <span class="bg-user-novica"></span>
+        <span class="bg-user-nada"></span>
+        <span class="bg-user-nada"></span>
+        <span class="bg-user-novica"></span>
+      </span>
+      <h1 class="text-[28px] font-semibold tracking-tight mt-6 leading-[1.15]">{{ title() }}</h1>
+      <p class="text-[15px] text-on-bg-muted mt-2 leading-snug">{{ subtitle() }}</p>
+    </div>
+
+    @if (errorMsg()) {
+      <div class="mt-6 rounded-md border border-danger-500/30 bg-danger-50 px-4 py-3 text-sm text-danger-700">
+        {{ errorMsg() }}
+      </div>
+    }
+
+    @switch (mode()) {
+      @case ('chooser') {
+        <div class="mt-10 space-y-3">
+          <button
+            type="button"
+            (click)="signInWithGoogle()"
+            [disabled]="busy()"
+            class="w-full h-12 rounded-md bg-on-bg text-bg font-medium flex items-center justify-center gap-2.5 text-[15px] hover:opacity-90 disabled:opacity-50 transition active:scale-[0.99]">
+            <svg class="size-5" viewBox="0 0 24 24"><path fill="#FFC107" d="M21.8 10.2H12v3.96h5.6c-.5 2.7-2.7 4.04-5.6 4.04-3.42 0-6.2-2.78-6.2-6.2S8.58 5.8 12 5.8c1.5 0 2.9.54 3.96 1.42l2.84-2.84A9.95 9.95 0 0 0 12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c5.78 0 9.6-4.06 9.6-9.78 0-.7-.08-1.34-.2-2.02Z"/><path fill="#FF3D00" d="M3.15 7.34 6.4 9.74A6.2 6.2 0 0 1 12 5.8c1.5 0 2.9.54 3.96 1.42l2.84-2.84A9.95 9.95 0 0 0 12 2 9.99 9.99 0 0 0 3.15 7.34Z"/><path fill="#4CAF50" d="M12 22a9.95 9.95 0 0 0 6.7-2.6l-3.1-2.62A6.05 6.05 0 0 1 12 18.2c-2.88 0-5.32-1.84-6.22-4.4l-3.22 2.48A9.99 9.99 0 0 0 12 22Z"/><path fill="#1976D2" d="M21.8 10.2H12v3.96h5.6c-.24 1.32-.98 2.42-2.04 3.16l3.1 2.62c-.18.16 3.34-2.4 3.34-7.72 0-.7-.08-1.34-.2-2.02Z"/></svg>
+            Continue with Google
+          </button>
+          <div class="relative py-1">
+            <div class="absolute inset-0 flex items-center"><div class="w-full h-px bg-border"></div></div>
+            <div class="relative flex justify-center"><span class="px-3 text-xs text-on-bg-faint bg-bg">or</span></div>
+          </div>
+          <button
+            type="button"
+            (click)="setMode('sign-in')"
+            class="w-full h-12 rounded-md bg-surface border border-border hover:bg-surface-2 font-medium flex items-center justify-center gap-2.5 text-[15px] transition">
+            <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+            Continue with email
+          </button>
+        </div>
+      }
+
+      @case ('sign-in') {
+        <form (submit)="submitEmail($event)" class="mt-8 space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-on-bg-muted mb-1.5" for="email">Email</label>
+            <input
+              id="email" type="email" autocomplete="email" required autofocus
+              [value]="email()" (input)="email.set($any($event.target).value)"
+              class="w-full h-11 px-3 rounded-md bg-surface border border-border focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[15px] outline-none transition">
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-xs font-medium text-on-bg-muted" for="password">Password</label>
+              <button type="button" (click)="forgotPassword()" class="text-xs text-brand-600 hover:text-brand-700 font-medium">Forgot?</button>
+            </div>
+            <input
+              id="password" type="password" autocomplete="current-password" required minlength="6"
+              [value]="password()" (input)="password.set($any($event.target).value)"
+              class="w-full h-11 px-3 rounded-md bg-surface border border-border focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[15px] outline-none transition">
+          </div>
+          <button
+            type="submit" [disabled]="busy()"
+            class="w-full h-12 rounded-md bg-on-bg text-bg font-medium text-[15px] hover:opacity-90 disabled:opacity-50 transition active:scale-[0.99]">
+            {{ busy() ? 'Signing in…' : 'Sign in' }}
+          </button>
+          <div class="text-center pt-2">
+            <span class="text-sm text-on-bg-muted">New here?</span>
+            <button type="button" (click)="setMode('create')" class="text-sm text-brand-600 hover:text-brand-700 font-medium ml-1">Create account</button>
+          </div>
+          <div class="relative py-1">
+            <div class="absolute inset-0 flex items-center"><div class="w-full h-px bg-border"></div></div>
+            <div class="relative flex justify-center"><span class="px-3 text-xs text-on-bg-faint bg-bg">or</span></div>
+          </div>
+          <button
+            type="button" (click)="signInWithGoogle()" [disabled]="busy()"
+            class="w-full h-11 rounded-md bg-surface border border-border hover:bg-surface-2 font-medium flex items-center justify-center gap-2.5 text-sm transition">
+            Continue with Google
+          </button>
+        </form>
+      }
+
+      @case ('create') {
+        <form (submit)="submitEmail($event)" class="mt-8 space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-on-bg-muted mb-1.5" for="email">Email</label>
+            <input
+              id="email" type="email" autocomplete="email" required autofocus
+              [value]="email()" (input)="email.set($any($event.target).value)"
+              placeholder="you@example.com"
+              class="w-full h-11 px-3 rounded-md bg-surface border border-border focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[15px] outline-none transition">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-on-bg-muted mb-1.5" for="password">Password</label>
+            <input
+              id="password" type="password" autocomplete="new-password" required minlength="6"
+              [value]="password()" (input)="password.set($any($event.target).value)"
+              placeholder="At least 6 characters"
+              class="w-full h-11 px-3 rounded-md bg-surface border border-border focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[15px] outline-none transition">
+          </div>
+          <button
+            type="submit" [disabled]="busy()"
+            class="w-full h-12 rounded-md bg-on-bg text-bg font-medium text-[15px] hover:opacity-90 disabled:opacity-50 transition active:scale-[0.99]">
+            {{ busy() ? 'Creating…' : 'Create account' }}
+          </button>
+          <div class="text-center pt-1">
+            <span class="text-sm text-on-bg-muted">Already have an account?</span>
+            <button type="button" (click)="setMode('sign-in')" class="text-sm text-brand-600 hover:text-brand-700 font-medium ml-1">Sign in</button>
+          </div>
+        </form>
+      }
+    }
+
+    <div class="mt-auto pb-10 pt-12">
+      <p class="text-xs text-on-bg-faint text-center leading-relaxed">
+        By continuing you agree to our terms.<br>
+        One household, every device — synced live.
+      </p>
+    </div>
+  </div>
+</div>

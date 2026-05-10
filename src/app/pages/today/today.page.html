@@ -1,0 +1,33 @@
+<main class="min-h-screen bg-bg text-on-bg">
+  <div class="mx-auto max-w-2xl px-6 py-16">
+    <p class="text-xs uppercase tracking-[0.18em] text-on-bg-faint mb-3">Phase 3 · Auth + routing live</p>
+    <h1 class="text-3xl font-semibold tracking-tight">Today</h1>
+
+    <div class="mt-8 rounded-lg bg-surface border border-border shadow-xs p-6">
+      <div class="flex items-center gap-3">
+        @if (user()?.photoURL) {
+          <img [src]="user()?.photoURL" alt="" class="size-10 rounded-full ring-1 ring-border">
+        } @else {
+          <span class="size-10 rounded-full bg-user-novica text-white grid place-items-center text-base font-semibold">
+            {{ user()?.displayName?.[0] || user()?.email?.[0] || '?' }}
+          </span>
+        }
+        <div>
+          <p class="font-semibold tracking-tight">{{ user()?.displayName || 'No name' }}</p>
+          <p class="text-sm text-on-bg-muted num">{{ user()?.email }}</p>
+        </div>
+      </div>
+      <p class="text-xs text-on-bg-muted mt-4">UID: <code class="font-mono num">{{ user()?.uid }}</code></p>
+      <button
+        (click)="signOut()"
+        class="mt-5 inline-flex items-center gap-2 px-3 h-9 rounded-md border border-border bg-surface-2 hover:bg-surface-3 font-medium text-sm transition">
+        Sign out
+      </button>
+    </div>
+
+    <p class="text-xs text-on-bg-muted mt-6 leading-relaxed">
+      Placeholder — the real Today screen (matching <code class="font-mono">mockups/today.html</code>) ships
+      after the onboarding flow + Firestore feed are wired.
+    </p>
+  </div>
+</main>
