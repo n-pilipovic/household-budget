@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monthly · household budget</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-bg: oklch(98.5% 0.005 90);
+      --color-surface: oklch(100% 0 0);
+      --color-surface-2: oklch(96.5% 0.005 90);
+      --color-surface-3: oklch(93% 0.005 90);
+      --color-border: oklch(89% 0.006 90);
+      --color-border-strong: oklch(80% 0.008 90);
+
+      --color-on-bg: oklch(20% 0.01 270);
+      --color-on-bg-muted: oklch(45% 0.01 270);
+      --color-on-bg-subtle: oklch(60% 0.01 270);
+      --color-on-bg-faint: oklch(72% 0.01 270);
+
+      --color-brand-50: oklch(96% 0.03 250);
+      --color-brand-100: oklch(91% 0.06 250);
+      --color-brand-300: oklch(76% 0.13 250);
+      --color-brand-500: oklch(58% 0.18 250);
+      --color-brand-600: oklch(50% 0.18 250);
+      --color-brand-700: oklch(42% 0.16 250);
+
+      --color-success-50: oklch(95% 0.04 150);
+      --color-success-500: oklch(60% 0.16 150);
+      --color-success-700: oklch(45% 0.14 150);
+      --color-warn-50: oklch(96% 0.05 75);
+      --color-warn-500: oklch(74% 0.16 75);
+      --color-warn-700: oklch(58% 0.15 60);
+      --color-danger-50: oklch(95% 0.04 25);
+      --color-danger-500: oklch(60% 0.20 25);
+      --color-danger-700: oklch(48% 0.18 25);
+
+      --color-user-novica: oklch(56% 0.18 258);
+      --color-user-novica-soft: oklch(95% 0.04 258);
+      --color-user-novica-on: oklch(100% 0 0);
+      --color-user-nada: oklch(64% 0.16 12);
+      --color-user-nada-soft: oklch(96% 0.03 12);
+      --color-user-nada-on: oklch(100% 0 0);
+
+      --radius-xs: 0.375rem;
+      --radius-sm: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
+      --radius-pill: 9999px;
+
+      --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+      --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+      --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+      --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.10), 0 4px 8px -4px rgb(0 0 0 / 0.06);
+      --shadow-xl: 0 24px 48px -12px rgb(0 0 0 / 0.18);
+
+      --font-sans: "Inter", "InterVariable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-display: "Inter", "InterVariable", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    }
+
+    @custom-variant dark (&:where(.dark, .dark *));
+
+    :where(.dark) {
+      --color-bg: oklch(16% 0.01 270);
+      --color-surface: oklch(20% 0.012 270);
+      --color-surface-2: oklch(24% 0.012 270);
+      --color-surface-3: oklch(28% 0.012 270);
+      --color-border: oklch(30% 0.012 270);
+      --color-border-strong: oklch(40% 0.014 270);
+
+      --color-on-bg: oklch(96% 0.005 270);
+      --color-on-bg-muted: oklch(75% 0.008 270);
+      --color-on-bg-subtle: oklch(60% 0.01 270);
+      --color-on-bg-faint: oklch(48% 0.01 270);
+
+      --color-brand-50: oklch(28% 0.06 250);
+      --color-brand-100: oklch(34% 0.08 250);
+      --color-brand-300: oklch(58% 0.14 250);
+      --color-brand-500: oklch(70% 0.16 250);
+      --color-brand-600: oklch(76% 0.16 250);
+      --color-brand-700: oklch(82% 0.13 250);
+
+      --color-success-50: oklch(28% 0.06 150);
+      --color-success-500: oklch(72% 0.15 150);
+      --color-success-700: oklch(82% 0.14 150);
+      --color-warn-50: oklch(30% 0.06 75);
+      --color-warn-500: oklch(80% 0.14 75);
+      --color-warn-700: oklch(86% 0.12 75);
+      --color-danger-50: oklch(28% 0.07 25);
+      --color-danger-500: oklch(70% 0.18 25);
+      --color-danger-700: oklch(78% 0.16 25);
+
+      --color-user-novica: oklch(70% 0.16 258);
+      --color-user-novica-soft: oklch(28% 0.07 258);
+      --color-user-nada: oklch(74% 0.14 12);
+      --color-user-nada-soft: oklch(28% 0.05 12);
+    }
+
+    @layer base {
+      html { color-scheme: light dark; }
+      .dark { color-scheme: dark; }
+      body {
+        font-family: var(--font-sans);
+        background-color: var(--color-bg);
+        color: var(--color-on-bg);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    }
+  </style>
+</head>
+<body class="min-h-screen text-on-bg antialiased bg-zinc-100 dark:bg-zinc-950">
+  <header class="sticky top-0 z-30 border-b border-border bg-surface/80 backdrop-blur">
+    <div class="mx-auto max-w-6xl px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="./index.html" class="text-sm text-on-bg-muted hover:text-on-bg flex items-center gap-1.5">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          All screens
+        </a>
+        <span class="text-on-bg-faint">/</span>
+        <h1 class="text-sm font-semibold tracking-tight">Monthly</h1>
+      </div>
+      <button id="theme-toggle" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-xs">
+        <svg class="size-3.5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="size-3.5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        <span class="dark:hidden">Light</span><span class="hidden dark:inline">Dark</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-6 py-12 space-y-16">
+
+    <!-- ========================================================== -->
+    <!-- MOBILE FRAME 390 × 844                                       -->
+    <!-- ========================================================== -->
+    <section>
+      <div class="mb-4 flex items-baseline gap-3">
+        <h2 class="text-xs uppercase tracking-[0.18em] text-on-bg-faint">Mobile · 390 × 844</h2>
+        <span class="text-xs text-on-bg-faint">Categories collapsed by default · one expanded · one mid-edit</span>
+      </div>
+
+      <div class="inline-block rounded-[2.25rem] bg-on-bg/5 p-2 shadow-lg">
+        <section class="page w-[390px] h-[844px] rounded-[2rem] overflow-hidden bg-bg flex flex-col" data-screen="monthly-mobile">
+          <!-- Status bar -->
+          <div class="h-11 px-7 pt-3 flex items-center justify-between text-on-bg text-[13px] font-semibold num">
+            <span>9:41</span>
+            <div class="flex items-center gap-1.5 opacity-80">
+              <svg class="size-3.5" viewBox="0 0 16 12" fill="none"><path d="M1 8.5h14M1 6h14M1 3.5h14M1 1h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".5"/></svg>
+              <svg class="size-4" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="20" height="8" rx="2"/><rect x="3" y="4" width="14" height="4" rx=".5" fill="currentColor"/></svg>
+            </div>
+          </div>
+
+          <!-- App bar -->
+          <div class="px-3 pt-2 pb-2 flex items-center justify-between">
+            <button class="size-9 rounded-full hover:bg-surface-2 grid place-items-center" aria-label="Back">
+              <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-surface-2 transition">
+              <button class="size-7 rounded-md hover:bg-surface-3 grid place-items-center -ml-1.5" aria-label="Previous">
+                <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <span class="text-[15px] font-semibold tracking-tight">May 2026</span>
+              <button class="size-7 rounded-md hover:bg-surface-3 grid place-items-center -mr-1.5" aria-label="Next">
+                <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </button>
+            <button class="size-9 rounded-full hover:bg-surface-2 grid place-items-center" aria-label="More">
+              <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+          </div>
+
+          <div class="flex-1 overflow-y-auto pb-32">
+            <!-- Header KPI card -->
+            <div class="mx-5 rounded-lg bg-surface border border-border shadow-xs p-5">
+              <div class="flex items-baseline justify-between mb-1">
+                <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">Spent</p>
+                <span class="text-xs text-on-bg-muted">21 days left</span>
+              </div>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span class="text-3xl font-semibold tracking-tight num">142.310</span>
+                <span class="text-sm text-on-bg-muted font-medium">/ 245.000 RSD</span>
+              </div>
+              <div class="mt-4 h-2 rounded-pill bg-surface-3 overflow-hidden">
+                <div class="h-full rounded-pill bg-success-500/80" style="width: 58%"></div>
+              </div>
+              <div class="mt-3 flex items-center justify-between text-xs">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill bg-success-50 text-success-700 font-medium num">
+                  <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                  102.690 left
+                </span>
+                <span class="text-on-bg-faint">day 10 of 31</span>
+              </div>
+            </div>
+
+            <!-- Categories list -->
+            <h3 class="px-5 pt-7 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium">By category</h3>
+
+            <ul class="px-2 space-y-px">
+              <!-- HRANA / Market — EXPANDED -->
+              <li>
+                <a href="./category.html" class="block">
+                  <button class="w-full flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/50 transition text-left">
+                    <span class="size-9 rounded-md bg-success-50 grid place-items-center shrink-0">
+                      <svg class="size-5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></svg>
+                    </span>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-baseline justify-between gap-2 mb-0.5">
+                        <p class="text-[15px] font-semibold tracking-tight">Market <span class="text-on-bg-faint font-normal text-xs">HRANA</span></p>
+                        <span class="text-[13px] font-semibold num shrink-0 text-success-700">−9.550</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <div class="flex-1 h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                          <div class="h-full rounded-pill bg-success-500/80" style="width: 47%"></div>
+                        </div>
+                        <span class="text-[11px] text-on-bg-muted num shrink-0">8.450 / 18.000</span>
+                      </div>
+                    </div>
+                    <svg class="size-4 text-on-bg-muted rotate-90 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </a>
+                <!-- Expanded transactions -->
+                <ul class="ml-12 mr-3 mt-1 mb-2 space-y-px border-l border-border pl-3">
+                  <li class="flex items-center gap-2 py-2">
+                    <span class="size-6 rounded-full bg-user-novica text-white grid place-items-center text-[10px] font-semibold">N</span>
+                    <p class="text-[13px] flex-1 truncate">Maxi</p>
+                    <span class="text-[11px] text-on-bg-faint">10.05</span>
+                    <span class="text-[13px] font-semibold num w-16 text-right">1.500</span>
+                  </li>
+                  <li class="flex items-center gap-2 py-2">
+                    <span class="size-6 rounded-full bg-user-novica text-white grid place-items-center text-[10px] font-semibold">N</span>
+                    <p class="text-[13px] flex-1 truncate">pekara</p>
+                    <span class="text-[11px] text-on-bg-faint">10.05</span>
+                    <span class="text-[13px] font-semibold num w-16 text-right">280</span>
+                  </li>
+                  <li class="flex items-center gap-2 py-2">
+                    <span class="size-6 rounded-full bg-user-nada text-white grid place-items-center text-[10px] font-semibold">N</span>
+                    <p class="text-[13px] flex-1 truncate">Lidl</p>
+                    <span class="text-[11px] text-on-bg-faint">05.05</span>
+                    <span class="text-[13px] font-semibold num w-16 text-right">2.350</span>
+                  </li>
+                  <li class="flex items-center gap-2 py-2">
+                    <span class="size-6 rounded-full bg-user-novica text-white grid place-items-center text-[10px] font-semibold">N</span>
+                    <p class="text-[13px] flex-1 truncate">Maxi</p>
+                    <span class="text-[11px] text-on-bg-faint">02.05</span>
+                    <span class="text-[13px] font-semibold num w-16 text-right">2.110</span>
+                  </li>
+                  <li class="flex items-center gap-2 py-2">
+                    <span class="size-6 rounded-full bg-user-nada text-white grid place-items-center text-[10px] font-semibold">N</span>
+                    <p class="text-[13px] flex-1 truncate">pekara</p>
+                    <span class="text-[11px] text-on-bg-faint">01.05</span>
+                    <span class="text-[13px] font-semibold num w-16 text-right">340</span>
+                  </li>
+                  <li class="pt-1">
+                    <a href="./category.html" class="text-xs text-brand-600 hover:text-brand-700 font-medium inline-flex items-center gap-1">
+                      View all 12 transactions
+                      <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
+              <!-- HRANA / Restoran — over budget -->
+              <li>
+                <button class="w-full flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/50 transition text-left">
+                  <span class="size-9 rounded-md bg-danger-50 grid place-items-center shrink-0">
+                    <svg class="size-5 text-danger-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h-2V8a3 3 0 0 0-6 0v3H7c0-3 2-6 5-6s5 3 5 6Z"/><path d="M5 11h14l-1 10H6L5 11Z"/></svg>
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline justify-between gap-2 mb-0.5">
+                      <p class="text-[15px] font-semibold tracking-tight">Restoran <span class="text-on-bg-faint font-normal text-xs">HRANA</span></p>
+                      <span class="text-[13px] font-semibold num shrink-0 text-danger-700">+2.890</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                        <div class="h-full rounded-pill bg-danger-500/80" style="width: 100%"></div>
+                      </div>
+                      <span class="text-[11px] text-on-bg-muted num shrink-0">8.890 / 6.000</span>
+                    </div>
+                  </div>
+                  <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </li>
+
+              <!-- AUTO -->
+              <li>
+                <button class="w-full flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/50 transition text-left">
+                  <span class="size-9 rounded-md bg-success-50 grid place-items-center shrink-0">
+                    <svg class="size-5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline justify-between gap-2 mb-0.5">
+                      <p class="text-[15px] font-semibold tracking-tight">Auto</p>
+                      <span class="text-[13px] font-semibold num shrink-0 text-success-700">−5.580</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                        <div class="h-full rounded-pill bg-success-500/80" style="width: 69%"></div>
+                      </div>
+                      <span class="text-[11px] text-on-bg-muted num shrink-0">12.420 / 18.000</span>
+                    </div>
+                  </div>
+                  <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </li>
+
+              <!-- KREDIT — being inline-edited -->
+              <li>
+                <div class="w-full flex items-center gap-3 px-3 py-3 rounded-md bg-brand-50/40 border border-brand-300">
+                  <span class="size-9 rounded-md bg-on-bg/5 grid place-items-center shrink-0">
+                    <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline justify-between gap-2 mb-1">
+                      <p class="text-[15px] font-semibold tracking-tight">Kredit</p>
+                      <div class="flex items-center gap-1 shrink-0">
+                        <span class="text-[13px] num text-on-bg-muted">54.400 /</span>
+                        <input type="text" value="55.500" class="w-16 h-6 px-1.5 rounded text-[13px] font-semibold num bg-surface border-2 border-brand-500 ring-2 ring-brand-100 outline-none text-right">
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                        <div class="h-full rounded-pill bg-success-500/80" style="width: 98%"></div>
+                      </div>
+                      <span class="text-[11px] text-brand-700 num shrink-0 font-medium">editing planned</span>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <!-- RAČUNI — slightly over (yellow) -->
+              <li>
+                <button class="w-full flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/50 transition text-left">
+                  <span class="size-9 rounded-md bg-warn-50 grid place-items-center shrink-0">
+                    <svg class="size-5 text-warn-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline justify-between gap-2 mb-0.5">
+                      <p class="text-[15px] font-semibold tracking-tight">Računi</p>
+                      <span class="text-[13px] font-semibold num shrink-0 text-warn-700">+1.450</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                        <div class="h-full rounded-pill bg-warn-500" style="width: 100%"></div>
+                      </div>
+                      <span class="text-[11px] text-on-bg-muted num shrink-0">21.450 / 20.000</span>
+                    </div>
+                  </div>
+                  <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </li>
+
+              <!-- POKLONI — well under -->
+              <li>
+                <button class="w-full flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/50 transition text-left">
+                  <span class="size-9 rounded-md bg-success-50 grid place-items-center shrink-0">
+                    <svg class="size-5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline justify-between gap-2 mb-0.5">
+                      <p class="text-[15px] font-semibold tracking-tight">Pokloni</p>
+                      <span class="text-[13px] font-semibold num shrink-0 text-success-700">−5.900</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                        <div class="h-full rounded-pill bg-success-500/80" style="width: 26%"></div>
+                      </div>
+                      <span class="text-[11px] text-on-bg-muted num shrink-0">2.100 / 8.000</span>
+                    </div>
+                  </div>
+                  <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </li>
+
+              <!-- OSTALO — group header for sub-categories -->
+              <li>
+                <button class="w-full flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/50 transition text-left">
+                  <span class="size-9 rounded-md bg-success-50 grid place-items-center shrink-0">
+                    <svg class="size-5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline justify-between gap-2 mb-0.5">
+                      <p class="text-[15px] font-semibold tracking-tight">Ostalo <span class="text-on-bg-faint font-normal text-xs">5 sub</span></p>
+                      <span class="text-[13px] font-semibold num shrink-0 text-success-700">−10.260</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                        <div class="h-full rounded-pill bg-success-500/80" style="width: 14%"></div>
+                      </div>
+                      <span class="text-[11px] text-on-bg-muted num shrink-0">1.740 / 12.000</span>
+                    </div>
+                  </div>
+                  <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </li>
+            </ul>
+
+            <p class="px-5 pt-5 pb-2 text-xs text-on-bg-faint">Showing 7 of 11 categories</p>
+          </div>
+
+          <div class="absolute" style="bottom: 28px; left: 50%; transform: translateX(-50%);">
+            <button class="size-14 rounded-full bg-user-novica text-white grid place-items-center shadow-lg active:scale-95 transition" aria-label="Quick add">
+              <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+
+          <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full bg-on-bg/30"></div>
+        </section>
+      </div>
+
+      <p class="mt-4 text-xs text-on-bg-muted max-w-md leading-relaxed">
+        The HRANA / Market row is expanded inline — transactions appear as a sub-list with a vertical guide line. The KREDIT row shows inline budget editing (tap a planned number → it becomes a number input, save on blur). Tap any category row → category drill-down screen.
+      </p>
+    </section>
+
+    <!-- ========================================================== -->
+    <!-- DESKTOP FRAME 1440 × 900                                     -->
+    <!-- ========================================================== -->
+    <section>
+      <div class="mb-4 flex items-baseline gap-3">
+        <h2 class="text-xs uppercase tracking-[0.18em] text-on-bg-faint">Desktop · 1440 × 900</h2>
+      </div>
+
+      <div class="rounded-2xl bg-on-bg/5 p-3 shadow-lg overflow-x-auto">
+        <section class="page w-[1440px] h-[900px] rounded-xl overflow-hidden bg-bg flex flex-col" data-screen="monthly-desktop">
+          <header class="h-14 border-b border-border bg-surface flex items-center px-6 gap-6 shrink-0">
+            <div class="flex items-center gap-2.5">
+              <span class="size-7 rounded-full grid grid-cols-2 grid-rows-2 overflow-hidden ring-1 ring-border">
+                <span class="bg-user-novica"></span>
+                <span class="bg-user-nada"></span>
+                <span class="bg-user-nada"></span>
+                <span class="bg-user-novica"></span>
+              </span>
+              <span class="text-[14px] font-semibold tracking-tight">Pilipović</span>
+            </div>
+            <nav class="flex items-center gap-1">
+              <a href="./today.html" class="px-3 py-1.5 rounded-md text-sm font-medium text-on-bg-muted hover:bg-surface-2">Today</a>
+              <a href="./monthly.html" class="px-3 py-1.5 rounded-md text-sm font-medium bg-surface-2 text-on-bg">Monthly</a>
+            </nav>
+            <div class="flex-1 flex justify-center">
+              <div class="w-full max-w-md">
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                  <input type="text" placeholder="350 coffee · 2.500 market · 54.400 kredit…" class="w-full h-10 pl-11 pr-24 rounded-md bg-surface-2 border border-border focus:bg-surface focus:border-brand-300 text-sm placeholder:text-on-bg-faint outline-none transition">
+                  <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-on-bg-muted font-mono">N</kbd>
+                </div>
+              </div>
+            </div>
+            <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-xs font-semibold ring-2 ring-surface">N</span>
+          </header>
+
+          <div class="flex-1 overflow-y-auto">
+            <div class="mx-auto max-w-[760px] px-6 py-10 space-y-6">
+              <!-- Title row -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <button class="size-9 rounded-md hover:bg-surface-2 grid place-items-center" aria-label="Previous">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                  </button>
+                  <h1 class="text-2xl font-semibold tracking-tight">May 2026</h1>
+                  <button class="size-9 rounded-md hover:bg-surface-2 grid place-items-center" aria-label="Next">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </div>
+                <span class="text-sm text-on-bg-muted">Day 10 of 31 · 21 days left</span>
+              </div>
+
+              <!-- KPI card -->
+              <div class="rounded-lg bg-surface border border-border shadow-xs p-7">
+                <div class="grid grid-cols-3 gap-6">
+                  <div>
+                    <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">Spent</p>
+                    <p class="mt-1.5 text-4xl font-semibold tracking-tight num">142.310</p>
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">Planned</p>
+                    <p class="mt-1.5 text-4xl font-semibold tracking-tight num text-on-bg-muted">245.000</p>
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">Remaining</p>
+                    <p class="mt-1.5 text-4xl font-semibold tracking-tight num text-success-700">102.690</p>
+                  </div>
+                </div>
+                <div class="mt-6 h-2 rounded-pill bg-surface-3 overflow-hidden">
+                  <div class="h-full rounded-pill bg-success-500/80" style="width: 58%"></div>
+                </div>
+                <div class="mt-3 flex items-center justify-between text-xs">
+                  <span class="text-on-bg-muted">58% of budget · 32% of month</span>
+                  <span class="inline-flex items-center gap-1 text-success-700 font-medium">on pace</span>
+                </div>
+              </div>
+
+              <!-- Categories -->
+              <div class="rounded-lg bg-surface border border-border shadow-xs overflow-hidden">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+                  <h2 class="text-base font-semibold tracking-tight">By category</h2>
+                  <span class="text-xs text-on-bg-faint">11 categories · tap to drill in</span>
+                </div>
+
+                <ul class="divide-y divide-border">
+                  <!-- HRANA / Market — expanded -->
+                  <li>
+                    <a href="./category.html" class="block">
+                      <button class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-surface-2/40 transition text-left">
+                        <span class="size-9 rounded-md bg-success-50 grid place-items-center shrink-0">
+                          <svg class="size-5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></svg>
+                        </span>
+                        <div class="flex-1 grid grid-cols-[2fr_1fr_auto] items-center gap-5">
+                          <div>
+                            <p class="text-[15px] font-semibold tracking-tight">Market <span class="text-on-bg-faint font-normal text-xs ml-1">HRANA</span></p>
+                            <p class="text-[11px] text-on-bg-muted num mt-0.5">8.450 / 18.000 RSD</p>
+                          </div>
+                          <div class="h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                            <div class="h-full rounded-pill bg-success-500/80" style="width: 47%"></div>
+                          </div>
+                          <span class="text-sm font-semibold num text-success-700 w-20 text-right">−9.550</span>
+                        </div>
+                        <svg class="size-4 text-on-bg-muted rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                      </button>
+                    </a>
+                    <ul class="ml-14 mr-5 mb-3 border-l border-border pl-4 divide-y divide-border/60">
+                      <li class="flex items-center gap-3 py-2">
+                        <span class="size-7 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                        <p class="text-sm flex-1 truncate">Maxi</p>
+                        <span class="text-xs text-on-bg-muted w-20">Today · 14m</span>
+                        <span class="text-sm font-semibold num w-20 text-right">1.500</span>
+                      </li>
+                      <li class="flex items-center gap-3 py-2">
+                        <span class="size-7 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                        <p class="text-sm flex-1 truncate">pekara</p>
+                        <span class="text-xs text-on-bg-muted w-20">Today · 1h</span>
+                        <span class="text-sm font-semibold num w-20 text-right">280</span>
+                      </li>
+                      <li class="flex items-center gap-3 py-2">
+                        <span class="size-7 rounded-full bg-user-nada text-white grid place-items-center text-[11px] font-semibold">N</span>
+                        <p class="text-sm flex-1 truncate">Lidl</p>
+                        <span class="text-xs text-on-bg-muted w-20">5 May</span>
+                        <span class="text-sm font-semibold num w-20 text-right">2.350</span>
+                      </li>
+                      <li class="flex items-center gap-3 py-2">
+                        <span class="size-7 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                        <p class="text-sm flex-1 truncate">Maxi</p>
+                        <span class="text-xs text-on-bg-muted w-20">2 May</span>
+                        <span class="text-sm font-semibold num w-20 text-right">2.110</span>
+                      </li>
+                      <li class="flex items-center gap-3 py-2">
+                        <span class="size-7 rounded-full bg-user-nada text-white grid place-items-center text-[11px] font-semibold">N</span>
+                        <p class="text-sm flex-1 truncate">pekara</p>
+                        <span class="text-xs text-on-bg-muted w-20">1 May</span>
+                        <span class="text-sm font-semibold num w-20 text-right">340</span>
+                      </li>
+                      <li class="pt-2 pb-1">
+                        <a href="./category.html" class="text-xs text-brand-600 hover:text-brand-700 font-medium inline-flex items-center gap-1">
+                          See all 12 transactions in HRANA / Market →
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+
+                  <!-- HRANA / Restoran — over -->
+                  <li>
+                    <button class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-surface-2/40 transition text-left">
+                      <span class="size-9 rounded-md bg-danger-50 grid place-items-center shrink-0">
+                        <svg class="size-5 text-danger-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h-2V8a3 3 0 0 0-6 0v3H7c0-3 2-6 5-6s5 3 5 6Z"/><path d="M5 11h14l-1 10H6L5 11Z"/></svg>
+                      </span>
+                      <div class="flex-1 grid grid-cols-[2fr_1fr_auto] items-center gap-5">
+                        <div>
+                          <p class="text-[15px] font-semibold tracking-tight">Restoran <span class="text-on-bg-faint font-normal text-xs ml-1">HRANA</span></p>
+                          <p class="text-[11px] text-on-bg-muted num mt-0.5">8.890 / 6.000 RSD</p>
+                        </div>
+                        <div class="h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                          <div class="h-full rounded-pill bg-danger-500/80" style="width: 100%"></div>
+                        </div>
+                        <span class="text-sm font-semibold num text-danger-700 w-20 text-right">+2.890</span>
+                      </div>
+                      <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </li>
+
+                  <!-- AUTO -->
+                  <li>
+                    <button class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-surface-2/40 transition text-left">
+                      <span class="size-9 rounded-md bg-success-50 grid place-items-center shrink-0">
+                        <svg class="size-5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+                      </span>
+                      <div class="flex-1 grid grid-cols-[2fr_1fr_auto] items-center gap-5">
+                        <div>
+                          <p class="text-[15px] font-semibold tracking-tight">Auto</p>
+                          <p class="text-[11px] text-on-bg-muted num mt-0.5">12.420 / 18.000 RSD</p>
+                        </div>
+                        <div class="h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                          <div class="h-full rounded-pill bg-success-500/80" style="width: 69%"></div>
+                        </div>
+                        <span class="text-sm font-semibold num text-success-700 w-20 text-right">−5.580</span>
+                      </div>
+                      <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </li>
+
+                  <!-- KREDIT — inline edit -->
+                  <li class="bg-brand-50/30">
+                    <div class="w-full flex items-center gap-4 px-5 py-3.5">
+                      <span class="size-9 rounded-md bg-on-bg/5 grid place-items-center shrink-0">
+                        <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                      </span>
+                      <div class="flex-1 grid grid-cols-[2fr_1fr_auto] items-center gap-5">
+                        <div>
+                          <p class="text-[15px] font-semibold tracking-tight">Kredit</p>
+                          <div class="flex items-center gap-1 mt-0.5">
+                            <span class="text-[11px] text-on-bg-muted num">54.400 /</span>
+                            <input type="text" value="55.500" class="w-20 h-6 px-1.5 rounded text-[12px] font-semibold num bg-surface border-2 border-brand-500 ring-2 ring-brand-100 outline-none text-right">
+                            <span class="text-[11px] text-on-bg-muted">RSD</span>
+                          </div>
+                        </div>
+                        <div class="h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                          <div class="h-full rounded-pill bg-success-500/80" style="width: 98%"></div>
+                        </div>
+                        <span class="text-xs text-brand-700 num w-20 text-right font-medium">editing…</span>
+                      </div>
+                      <span class="size-4"></span>
+                    </div>
+                  </li>
+
+                  <!-- RAČUNI -->
+                  <li>
+                    <button class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-surface-2/40 transition text-left">
+                      <span class="size-9 rounded-md bg-warn-50 grid place-items-center shrink-0">
+                        <svg class="size-5 text-warn-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                      </span>
+                      <div class="flex-1 grid grid-cols-[2fr_1fr_auto] items-center gap-5">
+                        <div>
+                          <p class="text-[15px] font-semibold tracking-tight">Računi</p>
+                          <p class="text-[11px] text-on-bg-muted num mt-0.5">21.450 / 20.000 RSD</p>
+                        </div>
+                        <div class="h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                          <div class="h-full rounded-pill bg-warn-500" style="width: 100%"></div>
+                        </div>
+                        <span class="text-sm font-semibold num text-warn-700 w-20 text-right">+1.450</span>
+                      </div>
+                      <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </li>
+
+                  <!-- POKLONI -->
+                  <li>
+                    <button class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-surface-2/40 transition text-left">
+                      <span class="size-9 rounded-md bg-success-50 grid place-items-center shrink-0">
+                        <svg class="size-5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+                      </span>
+                      <div class="flex-1 grid grid-cols-[2fr_1fr_auto] items-center gap-5">
+                        <div>
+                          <p class="text-[15px] font-semibold tracking-tight">Pokloni</p>
+                          <p class="text-[11px] text-on-bg-muted num mt-0.5">2.100 / 8.000 RSD</p>
+                        </div>
+                        <div class="h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                          <div class="h-full rounded-pill bg-success-500/80" style="width: 26%"></div>
+                        </div>
+                        <span class="text-sm font-semibold num text-success-700 w-20 text-right">−5.900</span>
+                      </div>
+                      <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </li>
+
+                  <!-- NANA -->
+                  <li>
+                    <button class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-surface-2/40 transition text-left">
+                      <span class="size-9 rounded-md bg-success-50 grid place-items-center shrink-0">
+                        <svg class="size-5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+                      </span>
+                      <div class="flex-1 grid grid-cols-[2fr_1fr_auto] items-center gap-5">
+                        <div>
+                          <p class="text-[15px] font-semibold tracking-tight">Nana</p>
+                          <p class="text-[11px] text-on-bg-muted num mt-0.5">9.860 / 22.000 RSD</p>
+                        </div>
+                        <div class="h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                          <div class="h-full rounded-pill bg-success-500/80" style="width: 45%"></div>
+                        </div>
+                        <span class="text-sm font-semibold num text-success-700 w-20 text-right">−12.140</span>
+                      </div>
+                      <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </li>
+
+                  <!-- OSTALO -->
+                  <li>
+                    <button class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-surface-2/40 transition text-left">
+                      <span class="size-9 rounded-md bg-success-50 grid place-items-center shrink-0">
+                        <svg class="size-5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+                      </span>
+                      <div class="flex-1 grid grid-cols-[2fr_1fr_auto] items-center gap-5">
+                        <div>
+                          <p class="text-[15px] font-semibold tracking-tight">Ostalo <span class="text-on-bg-faint font-normal text-xs ml-1">5 sub</span></p>
+                          <p class="text-[11px] text-on-bg-muted num mt-0.5">1.740 / 12.000 RSD</p>
+                        </div>
+                        <div class="h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                          <div class="h-full rounded-pill bg-success-500/80" style="width: 14%"></div>
+                        </div>
+                        <span class="text-sm font-semibold num text-success-700 w-20 text-right">−10.260</span>
+                      </div>
+                      <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </li>
+
+                  <!-- KARTICE -->
+                  <li>
+                    <button class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-surface-2/40 transition text-left">
+                      <span class="size-9 rounded-md bg-success-50 grid place-items-center shrink-0">
+                        <svg class="size-5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h.01M11 15h2"/></svg>
+                      </span>
+                      <div class="flex-1 grid grid-cols-[2fr_1fr_auto] items-center gap-5">
+                        <div>
+                          <p class="text-[15px] font-semibold tracking-tight">Kartice <span class="text-on-bg-faint font-normal text-xs ml-1">3 sub</span></p>
+                          <p class="text-[11px] text-on-bg-muted num mt-0.5">15.860 / 28.000 RSD</p>
+                        </div>
+                        <div class="h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                          <div class="h-full rounded-pill bg-success-500/80" style="width: 56%"></div>
+                        </div>
+                        <span class="text-sm font-semibold num text-success-700 w-20 text-right">−12.140</span>
+                      </div>
+                      <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </li>
+
+                  <!-- MI -->
+                  <li>
+                    <button class="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-surface-2/40 transition text-left">
+                      <span class="size-9 rounded-md bg-success-50 grid place-items-center shrink-0">
+                        <svg class="size-5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg>
+                      </span>
+                      <div class="flex-1 grid grid-cols-[2fr_1fr_auto] items-center gap-5">
+                        <div>
+                          <p class="text-[15px] font-semibold tracking-tight">Mi <span class="text-on-bg-faint font-normal text-xs ml-1">3 sub</span></p>
+                          <p class="text-[11px] text-on-bg-muted num mt-0.5">15.490 / 60.000 RSD</p>
+                        </div>
+                        <div class="h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+                          <div class="h-full rounded-pill bg-success-500/80" style="width: 26%"></div>
+                        </div>
+                        <span class="text-sm font-semibold num text-success-700 w-20 text-right">−44.510</span>
+                      </div>
+                      <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </li>
+                </ul>
+
+                <div class="px-5 py-3 border-t border-border bg-surface-2/40 text-xs text-on-bg-muted text-center">
+                  Tap any row to drill into that category's full history. Tap a planned amount to edit inline.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- Notes -->
+    <section class="rounded-lg border border-border bg-surface p-6">
+      <h2 class="font-semibold tracking-tight mb-3">Design notes</h2>
+      <ul class="text-sm text-on-bg-muted space-y-2 list-disc pl-5">
+        <li><strong class="text-on-bg">Categories are the primary axis, not weeks</strong>. The Excel grouped by week (I–V); this view groups by category. Weeks become a sub-grouping inside the drill-down if needed.</li>
+        <li><strong class="text-on-bg">Variance number is right-aligned, color-coded</strong>. Single most-scannable signal: red = over, yellow = within 10% of plan, green = under. The progress bar reinforces with the same color.</li>
+        <li><strong class="text-on-bg">Inline budget editing</strong>. Tap a planned number → it becomes a number input with a brand-color border + ring, the row gets a soft brand background to confirm "you're editing this." Save on blur or Enter.</li>
+        <li><strong class="text-on-bg">Expansion is in-place, not a sheet</strong>. Tapping the chevron (or anywhere on the row) reveals transactions inline with a vertical guide line. No navigation; the user keeps their place in the list.</li>
+        <li><strong class="text-on-bg">Tap-through to drill-down</strong>. Tapping anywhere in a category row (other than the planned-amount edit zone) navigates to the Category drill-down screen. The expanded preview is a teaser.</li>
+        <li><strong class="text-on-bg">Group categories collapse via "5 sub" hint</strong>. Top-level groups (OSTALO, KARTICE, MI) show their aggregated total. Drilling in shows each sub-category individually. Reduces list length without hiding data.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || (!stored && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        root.classList.add('dark');
+      }
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+      });
+    })();
+  </script>
+</body>
+</html>

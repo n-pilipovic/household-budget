@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Household budget · mockup gallery</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    /* Tokens inlined from ./tokens.css — browser CDN does not always
+       process `<link type="text/tailwindcss">`, so we inline to guarantee
+       the @theme block and dark-mode overrides are compiled. */
+    @theme {
+      --color-bg: oklch(98.5% 0.005 90);
+      --color-surface: oklch(100% 0 0);
+      --color-surface-2: oklch(96.5% 0.005 90);
+      --color-surface-3: oklch(93% 0.005 90);
+      --color-border: oklch(89% 0.006 90);
+      --color-border-strong: oklch(80% 0.008 90);
+
+      --color-on-bg: oklch(20% 0.01 270);
+      --color-on-bg-muted: oklch(45% 0.01 270);
+      --color-on-bg-subtle: oklch(60% 0.01 270);
+      --color-on-bg-faint: oklch(72% 0.01 270);
+
+      --color-brand-50: oklch(96% 0.03 250);
+      --color-brand-100: oklch(91% 0.06 250);
+      --color-brand-300: oklch(76% 0.13 250);
+      --color-brand-500: oklch(58% 0.18 250);
+      --color-brand-600: oklch(50% 0.18 250);
+      --color-brand-700: oklch(42% 0.16 250);
+
+      --color-success-50: oklch(95% 0.04 150);
+      --color-success-500: oklch(60% 0.16 150);
+      --color-success-700: oklch(45% 0.14 150);
+      --color-warn-50: oklch(96% 0.05 75);
+      --color-warn-500: oklch(74% 0.16 75);
+      --color-warn-700: oklch(58% 0.15 60);
+      --color-danger-50: oklch(95% 0.04 25);
+      --color-danger-500: oklch(60% 0.20 25);
+      --color-danger-700: oklch(48% 0.18 25);
+
+      --color-user-novica: oklch(56% 0.18 258);
+      --color-user-novica-soft: oklch(95% 0.04 258);
+      --color-user-novica-on: oklch(100% 0 0);
+      --color-user-nada: oklch(64% 0.16 12);
+      --color-user-nada-soft: oklch(96% 0.03 12);
+      --color-user-nada-on: oklch(100% 0 0);
+
+      --radius-xs: 0.375rem;
+      --radius-sm: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
+      --radius-pill: 9999px;
+
+      --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+      --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+      --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+      --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.10), 0 4px 8px -4px rgb(0 0 0 / 0.06);
+      --shadow-xl: 0 24px 48px -12px rgb(0 0 0 / 0.18);
+
+      --font-sans: "Inter", "InterVariable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-display: "Inter", "InterVariable", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    }
+
+    @custom-variant dark (&:where(.dark, .dark *));
+
+    /* Dark mode token overrides. Outside @layer so cascade is unambiguous. */
+    :where(.dark) {
+      --color-bg: oklch(16% 0.01 270);
+      --color-surface: oklch(20% 0.012 270);
+      --color-surface-2: oklch(24% 0.012 270);
+      --color-surface-3: oklch(28% 0.012 270);
+      --color-border: oklch(30% 0.012 270);
+      --color-border-strong: oklch(40% 0.014 270);
+
+      --color-on-bg: oklch(96% 0.005 270);
+      --color-on-bg-muted: oklch(75% 0.008 270);
+      --color-on-bg-subtle: oklch(60% 0.01 270);
+      --color-on-bg-faint: oklch(48% 0.01 270);
+
+      --color-brand-50: oklch(28% 0.06 250);
+      --color-brand-100: oklch(34% 0.08 250);
+      --color-brand-300: oklch(58% 0.14 250);
+      --color-brand-500: oklch(70% 0.16 250);
+      --color-brand-600: oklch(76% 0.16 250);
+      --color-brand-700: oklch(82% 0.13 250);
+
+      --color-success-50: oklch(28% 0.06 150);
+      --color-success-500: oklch(72% 0.15 150);
+      --color-success-700: oklch(82% 0.14 150);
+      --color-warn-50: oklch(30% 0.06 75);
+      --color-warn-500: oklch(80% 0.14 75);
+      --color-warn-700: oklch(86% 0.12 75);
+      --color-danger-50: oklch(28% 0.07 25);
+      --color-danger-500: oklch(70% 0.18 25);
+      --color-danger-700: oklch(78% 0.16 25);
+
+      --color-user-novica: oklch(70% 0.16 258);
+      --color-user-novica-soft: oklch(28% 0.07 258);
+      --color-user-nada: oklch(74% 0.14 12);
+      --color-user-nada-soft: oklch(28% 0.05 12);
+    }
+
+    @layer base {
+      html { color-scheme: light dark; }
+      .dark { color-scheme: dark; }
+      body {
+        font-family: var(--font-sans);
+        background-color: var(--color-bg);
+        color: var(--color-on-bg);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-bg text-on-bg antialiased">
+  <header class="border-b border-border bg-surface">
+    <div class="mx-auto max-w-5xl px-6 py-8 flex items-start justify-between gap-6">
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-on-bg-faint mb-2">Mockup gallery</p>
+        <h1 class="text-3xl font-semibold tracking-tight">Household budget</h1>
+        <p class="text-on-bg-muted mt-2 max-w-xl text-base">
+          MVP screens for the shared household budget app. Designed for Tailwind v4 + Angular 20+ PWA, exports cleanly to Figma.
+        </p>
+      </div>
+      <button id="theme-toggle" class="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-sm transition">
+        <svg class="size-4 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="size-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        <span class="dark:hidden">Light</span><span class="hidden dark:inline">Dark</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-5xl px-6 py-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Card: Sign-in -->
+      <a href="./sign-in.html" class="group block rounded-lg border border-border bg-surface hover:border-border-strong transition shadow-xs hover:shadow-md overflow-hidden">
+        <div class="aspect-[4/3] bg-surface-2 relative overflow-hidden">
+          <!-- mini sign-in preview -->
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-32 rounded-md bg-surface border border-border shadow-sm p-3 space-y-2">
+              <div class="h-2.5 bg-on-bg/80 rounded w-2/3 mx-auto"></div>
+              <div class="h-1.5 bg-on-bg-faint/60 rounded w-1/2 mx-auto mb-2"></div>
+              <div class="h-5 bg-on-bg rounded text-[7px] text-bg flex items-center justify-center font-semibold">Continue with Google</div>
+              <div class="h-px bg-border my-1"></div>
+              <div class="h-5 bg-surface-2 border border-border rounded text-[7px] flex items-center justify-center text-on-bg-muted">Continue with email</div>
+            </div>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold tracking-tight">Sign-in</h3>
+          <p class="text-sm text-on-bg-muted">Google + email/password, 3 states</p>
+        </div>
+      </a>
+
+      <!-- Card: Onboarding -->
+      <a href="./onboarding.html" class="group block rounded-lg border border-border bg-surface hover:border-border-strong transition shadow-xs hover:shadow-md overflow-hidden">
+        <div class="aspect-[4/3] bg-surface-2 relative overflow-hidden">
+          <div class="absolute inset-0 p-3 flex gap-2 items-center justify-center">
+            <div class="w-20 rounded-md bg-surface border border-border shadow-sm p-2 space-y-1.5">
+              <div class="size-5 rounded bg-brand-100"></div>
+              <div class="h-1.5 bg-on-bg/80 rounded w-3/4"></div>
+              <div class="h-1 bg-on-bg-faint/60 rounded w-full"></div>
+              <div class="h-1 bg-on-bg-faint/60 rounded w-5/6"></div>
+            </div>
+            <div class="w-20 rounded-md bg-surface border border-border shadow-sm p-2 space-y-1.5">
+              <div class="size-5 rounded bg-success-50"></div>
+              <div class="h-1.5 bg-on-bg/80 rounded w-3/4"></div>
+              <div class="h-1 bg-on-bg-faint/60 rounded w-full"></div>
+              <div class="h-1 bg-on-bg-faint/60 rounded w-5/6"></div>
+            </div>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold tracking-tight">Onboarding</h3>
+          <p class="text-sm text-on-bg-muted">Create or join household</p>
+        </div>
+      </a>
+
+      <!-- Card: Today -->
+      <a href="./today.html" class="group block rounded-lg border border-border bg-surface hover:border-border-strong transition shadow-xs hover:shadow-md overflow-hidden">
+        <div class="aspect-[4/3] bg-surface-2 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-center justify-center gap-2 p-3">
+            <div class="w-16 h-28 rounded bg-surface border border-border shadow-sm p-1.5 space-y-1">
+              <div class="h-3 rounded bg-brand-100"></div>
+              <div class="h-1 bg-on-bg-faint/60 rounded w-2/3"></div>
+              <div class="h-1 bg-on-bg-faint/60 rounded w-1/2"></div>
+              <div class="h-1 bg-on-bg-faint/60 rounded w-4/5"></div>
+            </div>
+            <div class="w-32 h-24 rounded bg-surface border border-border shadow-sm p-1.5 space-y-1">
+              <div class="h-2 rounded bg-brand-100 w-1/3"></div>
+              <div class="h-1 bg-on-bg-faint/60 rounded w-2/3"></div>
+              <div class="h-1 bg-on-bg-faint/60 rounded w-1/2"></div>
+              <div class="h-1 bg-on-bg-faint/60 rounded w-4/5"></div>
+            </div>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold tracking-tight">Today</h3>
+          <p class="text-sm text-on-bg-muted">Home — mobile + desktop</p>
+        </div>
+      </a>
+
+      <!-- Card: Quick Add -->
+      <a href="./quick-add.html" class="group block rounded-lg border border-border bg-surface hover:border-border-strong transition shadow-xs hover:shadow-md overflow-hidden">
+        <div class="aspect-[4/3] bg-surface-2 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-end justify-center p-3">
+            <div class="w-40 rounded-t-xl bg-surface border border-b-0 border-border shadow-md p-3 space-y-2">
+              <div class="h-1 bg-on-bg-faint/60 rounded w-12 mx-auto"></div>
+              <div class="h-7 bg-surface-2 rounded-md flex items-center px-2 text-xs text-on-bg-muted">350 coffee</div>
+              <div class="flex gap-1">
+                <div class="h-5 px-2 rounded bg-brand-100 text-[7px] flex items-center text-brand-700">OSTALO/Kafe</div>
+                <div class="h-5 px-2 rounded border border-border text-[7px] flex items-center text-on-bg-muted">HRANA/Market</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold tracking-tight">Quick Add</h3>
+          <p class="text-sm text-on-bg-muted">4 entry states</p>
+        </div>
+      </a>
+
+      <!-- Card: Category drill-down -->
+      <a href="./category.html" class="group block rounded-lg border border-border bg-surface hover:border-border-strong transition shadow-xs hover:shadow-md overflow-hidden">
+        <div class="aspect-[4/3] bg-surface-2 relative overflow-hidden">
+          <div class="absolute inset-0 flex flex-col items-stretch justify-center gap-2 p-4">
+            <div class="h-2 rounded bg-on-bg/60 w-1/3"></div>
+            <div class="h-3 rounded bg-on-bg w-2/3"></div>
+            <div class="flex items-end gap-1 h-12 pt-1">
+              <div class="flex-1 rounded-t bg-success-500/60" style="height: 40%"></div>
+              <div class="flex-1 rounded-t bg-success-500/60" style="height: 55%"></div>
+              <div class="flex-1 rounded-t bg-warn-500/60" style="height: 80%"></div>
+              <div class="flex-1 rounded-t bg-success-500/60" style="height: 50%"></div>
+              <div class="flex-1 rounded-t bg-success-500/60" style="height: 45%"></div>
+              <div class="flex-1 rounded-t bg-danger-500/60" style="height: 100%"></div>
+              <div class="flex-1 rounded-t bg-success-500/60" style="height: 35%"></div>
+              <div class="flex-1 rounded-t bg-success-500/60" style="height: 50%"></div>
+              <div class="flex-1 rounded-t bg-warn-500/60" style="height: 75%"></div>
+              <div class="flex-1 rounded-t bg-success-500/60" style="height: 60%"></div>
+              <div class="flex-1 rounded-t bg-success-500/60" style="height: 40%"></div>
+              <div class="flex-1 rounded-t bg-brand-500/80" style="height: 55%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold tracking-tight">Category drill-down</h3>
+          <p class="text-sm text-on-bg-muted">All-time spend by category</p>
+        </div>
+      </a>
+
+      <!-- Card: Monthly -->
+      <a href="./monthly.html" class="group block rounded-lg border border-border bg-surface hover:border-border-strong transition shadow-xs hover:shadow-md overflow-hidden">
+        <div class="aspect-[4/3] bg-surface-2 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-center justify-center p-3 gap-2">
+            <div class="w-40 rounded bg-surface border border-border shadow-sm p-2 space-y-1.5">
+              <div class="flex justify-between items-center">
+                <div class="h-1.5 bg-on-bg/80 rounded w-1/3"></div>
+                <div class="h-1 bg-on-bg-faint/60 rounded w-12"></div>
+              </div>
+              <div class="h-1 bg-success-500/40 rounded w-3/5"></div>
+              <div class="h-px bg-border"></div>
+              <div class="flex justify-between items-center">
+                <div class="h-1.5 bg-on-bg/80 rounded w-2/5"></div>
+                <div class="h-1 bg-on-bg-faint/60 rounded w-10"></div>
+              </div>
+              <div class="h-1 bg-warn-500/50 rounded w-4/5"></div>
+              <div class="h-px bg-border"></div>
+              <div class="flex justify-between items-center">
+                <div class="h-1.5 bg-on-bg/80 rounded w-1/3"></div>
+                <div class="h-1 bg-on-bg-faint/60 rounded w-8"></div>
+              </div>
+              <div class="h-1 bg-danger-500/50 rounded w-[110%]"></div>
+            </div>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold tracking-tight">Monthly</h3>
+          <p class="text-sm text-on-bg-muted">Categories with planned vs actual</p>
+        </div>
+      </a>
+
+      <!-- Card: Tokens -->
+      <a href="./tokens.html" class="group block rounded-lg border border-border bg-surface hover:border-border-strong transition shadow-xs hover:shadow-md overflow-hidden">
+        <div class="aspect-[4/3] bg-surface-2 relative overflow-hidden">
+          <div class="absolute inset-0 grid grid-cols-4 gap-1 p-3">
+            <div class="rounded bg-brand-500"></div>
+            <div class="rounded bg-success-500"></div>
+            <div class="rounded bg-warn-500"></div>
+            <div class="rounded bg-danger-500"></div>
+            <div class="rounded bg-user-novica"></div>
+            <div class="rounded bg-user-nada"></div>
+            <div class="rounded bg-on-bg"></div>
+            <div class="rounded bg-surface border border-border"></div>
+            <div class="rounded col-span-4 bg-gradient-to-r from-on-bg to-on-bg-faint"></div>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold tracking-tight">Tokens</h3>
+          <p class="text-sm text-on-bg-muted">Color, type, radius, motion</p>
+        </div>
+      </a>
+    </div>
+
+    <section class="mt-16 rounded-lg border border-border bg-surface p-6">
+      <h2 class="font-semibold tracking-tight mb-3">How to view</h2>
+      <ol class="text-sm text-on-bg-muted space-y-2 list-decimal pl-5">
+        <li>Open this folder via a local server: <code class="px-1.5 py-0.5 rounded bg-surface-2 text-on-bg text-xs font-mono">cd mockups && python3 -m http.server 8000</code> then visit <code class="px-1.5 py-0.5 rounded bg-surface-2 text-on-bg text-xs font-mono">http://localhost:8000</code>.</li>
+        <li>Or open <code class="px-1.5 py-0.5 rounded bg-surface-2 text-on-bg text-xs font-mono">index.html</code> directly — most browsers will load it. If shared tokens fail to apply over <code class="px-1.5 py-0.5 rounded bg-surface-2 text-on-bg text-xs font-mono">file://</code>, fall back to the local server.</li>
+        <li>Toggle dark mode with the button in the top-right.</li>
+        <li>Each screen is self-contained HTML — open directly to inspect, copy snippets, or paste into Figma via the html.to.design plugin.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="mx-auto max-w-5xl px-6 py-10 text-xs text-on-bg-faint">
+    Built with Tailwind v4 · Inter · Lucide · designed for Angular 20+ PWA + Firebase.
+  </footer>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || (!stored && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        root.classList.add('dark');
+      }
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+      });
+    })();
+  </script>
+</body>
+</html>

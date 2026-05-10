@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Design tokens · household budget</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-bg: oklch(98.5% 0.005 90);
+      --color-surface: oklch(100% 0 0);
+      --color-surface-2: oklch(96.5% 0.005 90);
+      --color-surface-3: oklch(93% 0.005 90);
+      --color-border: oklch(89% 0.006 90);
+      --color-border-strong: oklch(80% 0.008 90);
+
+      --color-on-bg: oklch(20% 0.01 270);
+      --color-on-bg-muted: oklch(45% 0.01 270);
+      --color-on-bg-subtle: oklch(60% 0.01 270);
+      --color-on-bg-faint: oklch(72% 0.01 270);
+
+      --color-brand-50: oklch(96% 0.03 250);
+      --color-brand-100: oklch(91% 0.06 250);
+      --color-brand-300: oklch(76% 0.13 250);
+      --color-brand-500: oklch(58% 0.18 250);
+      --color-brand-600: oklch(50% 0.18 250);
+      --color-brand-700: oklch(42% 0.16 250);
+
+      --color-success-50: oklch(95% 0.04 150);
+      --color-success-500: oklch(60% 0.16 150);
+      --color-success-700: oklch(45% 0.14 150);
+      --color-warn-50: oklch(96% 0.05 75);
+      --color-warn-500: oklch(74% 0.16 75);
+      --color-warn-700: oklch(58% 0.15 60);
+      --color-danger-50: oklch(95% 0.04 25);
+      --color-danger-500: oklch(60% 0.20 25);
+      --color-danger-700: oklch(48% 0.18 25);
+
+      --color-user-novica: oklch(56% 0.18 258);
+      --color-user-novica-soft: oklch(95% 0.04 258);
+      --color-user-novica-on: oklch(100% 0 0);
+      --color-user-nada: oklch(64% 0.16 12);
+      --color-user-nada-soft: oklch(96% 0.03 12);
+      --color-user-nada-on: oklch(100% 0 0);
+
+      --radius-xs: 0.375rem;
+      --radius-sm: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
+      --radius-pill: 9999px;
+
+      --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+      --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+      --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+      --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.10), 0 4px 8px -4px rgb(0 0 0 / 0.06);
+      --shadow-xl: 0 24px 48px -12px rgb(0 0 0 / 0.18);
+
+      --font-sans: "Inter", "InterVariable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-display: "Inter", "InterVariable", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    }
+
+    @custom-variant dark (&:where(.dark, .dark *));
+
+    :where(.dark) {
+      --color-bg: oklch(16% 0.01 270);
+      --color-surface: oklch(20% 0.012 270);
+      --color-surface-2: oklch(24% 0.012 270);
+      --color-surface-3: oklch(28% 0.012 270);
+      --color-border: oklch(30% 0.012 270);
+      --color-border-strong: oklch(40% 0.014 270);
+
+      --color-on-bg: oklch(96% 0.005 270);
+      --color-on-bg-muted: oklch(75% 0.008 270);
+      --color-on-bg-subtle: oklch(60% 0.01 270);
+      --color-on-bg-faint: oklch(48% 0.01 270);
+
+      --color-brand-50: oklch(28% 0.06 250);
+      --color-brand-100: oklch(34% 0.08 250);
+      --color-brand-300: oklch(58% 0.14 250);
+      --color-brand-500: oklch(70% 0.16 250);
+      --color-brand-600: oklch(76% 0.16 250);
+      --color-brand-700: oklch(82% 0.13 250);
+
+      --color-success-50: oklch(28% 0.06 150);
+      --color-success-500: oklch(72% 0.15 150);
+      --color-success-700: oklch(82% 0.14 150);
+      --color-warn-50: oklch(30% 0.06 75);
+      --color-warn-500: oklch(80% 0.14 75);
+      --color-warn-700: oklch(86% 0.12 75);
+      --color-danger-50: oklch(28% 0.07 25);
+      --color-danger-500: oklch(70% 0.18 25);
+      --color-danger-700: oklch(78% 0.16 25);
+
+      --color-user-novica: oklch(70% 0.16 258);
+      --color-user-novica-soft: oklch(28% 0.07 258);
+      --color-user-nada: oklch(74% 0.14 12);
+      --color-user-nada-soft: oklch(28% 0.05 12);
+    }
+
+    @layer base {
+      html { color-scheme: light dark; }
+      .dark { color-scheme: dark; }
+      body {
+        font-family: var(--font-sans);
+        background-color: var(--color-bg);
+        color: var(--color-on-bg);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    }
+
+    /* swatch helpers */
+    .swatch { box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06); }
+    :where(.dark) .swatch { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06); }
+  </style>
+</head>
+<body class="min-h-screen text-on-bg antialiased bg-bg">
+  <header class="sticky top-0 z-30 border-b border-border bg-surface/80 backdrop-blur">
+    <div class="mx-auto max-w-6xl px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="./index.html" class="text-sm text-on-bg-muted hover:text-on-bg flex items-center gap-1.5">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          All screens
+        </a>
+        <span class="text-on-bg-faint">/</span>
+        <h1 class="text-sm font-semibold tracking-tight">Design tokens</h1>
+      </div>
+      <button id="theme-toggle" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-xs">
+        <svg class="size-3.5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="size-3.5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        <span class="dark:hidden">Light</span><span class="hidden dark:inline">Dark</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-6 py-12 space-y-16">
+
+    <!-- Page intro -->
+    <section>
+      <p class="text-xs uppercase tracking-[0.18em] text-on-bg-faint mb-2">Foundation</p>
+      <h1 class="text-3xl font-semibold tracking-tight">Design tokens</h1>
+      <p class="text-on-bg-muted mt-3 max-w-2xl text-base leading-relaxed">
+        Single source of truth for color, type, radius, shadow, and motion. Every token is defined inside the Tailwind v4 <code class="px-1.5 py-0.5 rounded bg-surface-2 text-on-bg text-xs font-mono">@theme</code> block as a CSS custom property and surfaces as a generated utility (e.g. <code class="px-1.5 py-0.5 rounded bg-surface-2 text-on-bg text-xs font-mono">bg-brand-500</code>, <code class="px-1.5 py-0.5 rounded bg-surface-2 text-on-bg text-xs font-mono">text-on-bg-muted</code>). Toggle dark mode in the top right to verify each token has a paired dark value.
+      </p>
+    </section>
+
+    <!-- ============================ COLOR — SURFACES ============================ -->
+    <section>
+      <div class="mb-5 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold tracking-tight">Surfaces</h2>
+        <span class="text-xs text-on-bg-faint">From canvas to deepest nested layer</span>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-20 bg-bg"></div>
+          <div class="p-3">
+            <p class="text-xs font-mono">--color-bg</p>
+            <p class="text-[11px] text-on-bg-muted mt-0.5">page canvas</p>
+          </div>
+        </div>
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-20 bg-surface"></div>
+          <div class="p-3">
+            <p class="text-xs font-mono">--color-surface</p>
+            <p class="text-[11px] text-on-bg-muted mt-0.5">cards, sheets</p>
+          </div>
+        </div>
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-20 bg-surface-2"></div>
+          <div class="p-3">
+            <p class="text-xs font-mono">--color-surface-2</p>
+            <p class="text-[11px] text-on-bg-muted mt-0.5">hover, nested</p>
+          </div>
+        </div>
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-20 bg-surface-3"></div>
+          <div class="p-3">
+            <p class="text-xs font-mono">--color-surface-3</p>
+            <p class="text-[11px] text-on-bg-muted mt-0.5">progress track</p>
+          </div>
+        </div>
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-20 bg-border"></div>
+          <div class="p-3">
+            <p class="text-xs font-mono">--color-border</p>
+            <p class="text-[11px] text-on-bg-muted mt-0.5">hairlines</p>
+          </div>
+        </div>
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-20 bg-border-strong"></div>
+          <div class="p-3">
+            <p class="text-xs font-mono">--color-border-strong</p>
+            <p class="text-[11px] text-on-bg-muted mt-0.5">focus, hover edges</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ COLOR — TEXT ============================ -->
+    <section>
+      <div class="mb-5 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold tracking-tight">Text</h2>
+        <span class="text-xs text-on-bg-faint">Hierarchy from primary to faint</span>
+      </div>
+      <div class="rounded-md border border-border bg-surface p-6 space-y-4">
+        <div class="flex items-baseline justify-between gap-6 pb-3 border-b border-border">
+          <p class="text-on-bg text-lg font-medium">Primary text · 142.310 RSD spent</p>
+          <code class="text-xs font-mono text-on-bg-faint">--color-on-bg · text-on-bg</code>
+        </div>
+        <div class="flex items-baseline justify-between gap-6 pb-3 border-b border-border">
+          <p class="text-on-bg-muted text-base">Muted · supporting copy and subtitles</p>
+          <code class="text-xs font-mono text-on-bg-faint">--color-on-bg-muted · text-on-bg-muted</code>
+        </div>
+        <div class="flex items-baseline justify-between gap-6 pb-3 border-b border-border">
+          <p class="text-on-bg-subtle text-sm">Subtle · timestamps, secondary metadata</p>
+          <code class="text-xs font-mono text-on-bg-faint">--color-on-bg-subtle · text-on-bg-subtle</code>
+        </div>
+        <div class="flex items-baseline justify-between gap-6">
+          <p class="text-on-bg-faint text-xs uppercase tracking-[0.16em]">Faint · labels, captions, dividers</p>
+          <code class="text-xs font-mono text-on-bg-faint">--color-on-bg-faint · text-on-bg-faint</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ COLOR — BRAND ============================ -->
+    <section>
+      <div class="mb-5 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold tracking-tight">Brand</h2>
+        <span class="text-xs text-on-bg-faint">Used sparingly — primary actions, focus, current-month accent</span>
+      </div>
+      <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-16 bg-brand-50"></div>
+          <div class="p-3"><p class="text-xs font-mono">brand-50</p></div>
+        </div>
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-16 bg-brand-100"></div>
+          <div class="p-3"><p class="text-xs font-mono">brand-100</p></div>
+        </div>
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-16 bg-brand-300"></div>
+          <div class="p-3"><p class="text-xs font-mono">brand-300</p></div>
+        </div>
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-16 bg-brand-500"></div>
+          <div class="p-3"><p class="text-xs font-mono">brand-500</p><p class="text-[10px] text-on-bg-faint">primary</p></div>
+        </div>
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-16 bg-brand-600"></div>
+          <div class="p-3"><p class="text-xs font-mono">brand-600</p></div>
+        </div>
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="swatch h-16 bg-brand-700"></div>
+          <div class="p-3"><p class="text-xs font-mono">brand-700</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ COLOR — SEMANTIC ============================ -->
+    <section>
+      <div class="mb-5 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold tracking-tight">Semantic state</h2>
+        <span class="text-xs text-on-bg-faint">Variance + outcome signaling</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- success -->
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="grid grid-cols-3">
+            <div class="swatch h-14 bg-success-50"></div>
+            <div class="swatch h-14 bg-success-500"></div>
+            <div class="swatch h-14 bg-success-700"></div>
+          </div>
+          <div class="p-4">
+            <p class="text-sm font-semibold">Success · under budget</p>
+            <p class="text-xs text-on-bg-muted mt-1">50 / 500 / 700 — bg / fill / text</p>
+            <div class="mt-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-pill bg-success-50 text-success-700 text-xs font-medium">
+              <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              −9.550 RSD
+            </div>
+          </div>
+        </div>
+        <!-- warn -->
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="grid grid-cols-3">
+            <div class="swatch h-14 bg-warn-50"></div>
+            <div class="swatch h-14 bg-warn-500"></div>
+            <div class="swatch h-14 bg-warn-700"></div>
+          </div>
+          <div class="p-4">
+            <p class="text-sm font-semibold">Warn · within 10% of plan</p>
+            <p class="text-xs text-on-bg-muted mt-1">50 / 500 / 700 — bg / fill / text</p>
+            <div class="mt-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-pill bg-warn-50 text-warn-700 text-xs font-medium">
+              <span class="num">+1.450 RSD</span>
+            </div>
+          </div>
+        </div>
+        <!-- danger -->
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="grid grid-cols-3">
+            <div class="swatch h-14 bg-danger-50"></div>
+            <div class="swatch h-14 bg-danger-500"></div>
+            <div class="swatch h-14 bg-danger-700"></div>
+          </div>
+          <div class="p-4">
+            <p class="text-sm font-semibold">Danger · over budget</p>
+            <p class="text-xs text-on-bg-muted mt-1">50 / 500 / 700 — bg / fill / text</p>
+            <div class="mt-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-pill bg-danger-50 text-danger-700 text-xs font-medium">
+              <span class="num">+2.890 RSD</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ COLOR — USER ATTRIBUTION ============================ -->
+    <section>
+      <div class="mb-5 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold tracking-tight">User attribution</h2>
+        <span class="text-xs text-on-bg-faint">Two distinct hues for two members; both pass AA on bg + surface</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- novica -->
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="grid grid-cols-3">
+            <div class="swatch h-16 bg-user-novica"></div>
+            <div class="swatch h-16 bg-user-novica-soft"></div>
+            <div class="swatch h-16 bg-user-novica-on"></div>
+          </div>
+          <div class="p-4 flex items-center gap-3">
+            <span class="size-10 rounded-full bg-user-novica text-white grid place-items-center text-base font-semibold">N</span>
+            <div>
+              <p class="text-sm font-semibold">Novica · cobalt blue</p>
+              <p class="text-xs text-on-bg-muted">user-novica / -soft / -on</p>
+            </div>
+          </div>
+        </div>
+        <!-- nada -->
+        <div class="rounded-md border border-border bg-surface overflow-hidden">
+          <div class="grid grid-cols-3">
+            <div class="swatch h-16 bg-user-nada"></div>
+            <div class="swatch h-16 bg-user-nada-soft"></div>
+            <div class="swatch h-16 bg-user-nada-on"></div>
+          </div>
+          <div class="p-4 flex items-center gap-3">
+            <span class="size-10 rounded-full bg-user-nada text-white grid place-items-center text-base font-semibold">N</span>
+            <div>
+              <p class="text-sm font-semibold">Nada · warm rose</p>
+              <p class="text-xs text-on-bg-muted">user-nada / -soft / -on</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="mt-4 text-xs text-on-bg-muted leading-relaxed max-w-2xl">
+        Future household members get auto-assigned hues from a fixed palette (greens, teals, ambers) with the same <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">-soft</code> and <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">-on</code> derivatives. The palette is defined to keep at least 25° hue separation between members so chips are always visually distinct.
+      </p>
+    </section>
+
+    <!-- ============================ TYPOGRAPHY ============================ -->
+    <section>
+      <div class="mb-5 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold tracking-tight">Typography</h2>
+        <span class="text-xs text-on-bg-faint">Inter · system fallback. Tabular nums for amounts.</span>
+      </div>
+      <div class="rounded-md border border-border bg-surface overflow-hidden divide-y divide-border">
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] items-baseline gap-6">
+          <p class="text-4xl font-semibold tracking-tight num">142.310</p>
+          <code class="text-xs font-mono text-on-bg-faint">text-4xl · 40px / 44px · hero number</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] items-baseline gap-6">
+          <p class="text-3xl font-semibold tracking-tight">Welcome back</p>
+          <code class="text-xs font-mono text-on-bg-faint">text-3xl · 30px / 34.4px · display</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] items-baseline gap-6">
+          <p class="text-2xl font-semibold tracking-tight">May 2026</p>
+          <code class="text-xs font-mono text-on-bg-faint">text-2xl · 24px / 29.6px</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] items-baseline gap-6">
+          <p class="text-xl font-semibold tracking-tight">Section heading</p>
+          <code class="text-xs font-mono text-on-bg-faint">text-xl · 20px / 25.6px</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] items-baseline gap-6">
+          <p class="text-lg font-medium">Card title or list emphasis</p>
+          <code class="text-xs font-mono text-on-bg-faint">text-lg · 17px / 24px</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] items-baseline gap-6">
+          <p class="text-base">Body — default reading size for paragraphs.</p>
+          <code class="text-xs font-mono text-on-bg-faint">text-base · 15px / 22.4px · body</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] items-baseline gap-6">
+          <p class="text-sm">Small body — UI rows, secondary content.</p>
+          <code class="text-xs font-mono text-on-bg-faint">text-sm · 13px / 18px</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] items-baseline gap-6">
+          <p class="text-xs">Caption, helper, and metadata text.</p>
+          <code class="text-xs font-mono text-on-bg-faint">text-xs · 12px / 16px</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] items-baseline gap-6">
+          <p class="text-2xs uppercase tracking-[0.18em] text-on-bg-faint font-medium">Eyebrow label</p>
+          <code class="text-xs font-mono text-on-bg-faint">text-2xs · 11px / 16px · uppercase eyebrows</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ RADIUS ============================ -->
+    <section>
+      <div class="mb-5 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold tracking-tight">Radius</h2>
+        <span class="text-xs text-on-bg-faint">From chips to sheets</span>
+      </div>
+      <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+        <div class="text-center">
+          <div class="size-20 mx-auto rounded-xs bg-brand-500"></div>
+          <p class="text-xs font-mono mt-2">xs · 6px</p>
+          <p class="text-[10px] text-on-bg-faint">chips, badges</p>
+        </div>
+        <div class="text-center">
+          <div class="size-20 mx-auto rounded-sm bg-brand-500"></div>
+          <p class="text-xs font-mono mt-2">sm · 8px</p>
+          <p class="text-[10px] text-on-bg-faint">small buttons</p>
+        </div>
+        <div class="text-center">
+          <div class="size-20 mx-auto rounded-md bg-brand-500"></div>
+          <p class="text-xs font-mono mt-2">md · 12px</p>
+          <p class="text-[10px] text-on-bg-faint">buttons, inputs</p>
+        </div>
+        <div class="text-center">
+          <div class="size-20 mx-auto rounded-lg bg-brand-500"></div>
+          <p class="text-xs font-mono mt-2">lg · 16px</p>
+          <p class="text-[10px] text-on-bg-faint">cards</p>
+        </div>
+        <div class="text-center">
+          <div class="size-20 mx-auto rounded-xl bg-brand-500"></div>
+          <p class="text-xs font-mono mt-2">xl · 24px</p>
+          <p class="text-[10px] text-on-bg-faint">sheets, modals</p>
+        </div>
+        <div class="text-center">
+          <div class="size-20 mx-auto rounded-pill bg-brand-500"></div>
+          <p class="text-xs font-mono mt-2">pill · 9999</p>
+          <p class="text-[10px] text-on-bg-faint">pills, avatars</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ SHADOW ============================ -->
+    <section>
+      <div class="mb-5 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold tracking-tight">Shadow</h2>
+        <span class="text-xs text-on-bg-faint">Soft, layered, never harsh</span>
+      </div>
+      <div class="rounded-md bg-bg p-8">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+          <div class="text-center">
+            <div class="h-24 rounded-md bg-surface shadow-xs flex items-center justify-center text-xs text-on-bg-muted">xs</div>
+            <p class="text-xs font-mono mt-3">shadow-xs</p>
+            <p class="text-[10px] text-on-bg-faint">borders, hairline lift</p>
+          </div>
+          <div class="text-center">
+            <div class="h-24 rounded-md bg-surface shadow-sm flex items-center justify-center text-xs text-on-bg-muted">sm</div>
+            <p class="text-xs font-mono mt-3">shadow-sm</p>
+            <p class="text-[10px] text-on-bg-faint">cards at rest</p>
+          </div>
+          <div class="text-center">
+            <div class="h-24 rounded-md bg-surface shadow-md flex items-center justify-center text-xs text-on-bg-muted">md</div>
+            <p class="text-xs font-mono mt-3">shadow-md</p>
+            <p class="text-[10px] text-on-bg-faint">popovers</p>
+          </div>
+          <div class="text-center">
+            <div class="h-24 rounded-md bg-surface shadow-lg flex items-center justify-center text-xs text-on-bg-muted">lg</div>
+            <p class="text-xs font-mono mt-3">shadow-lg</p>
+            <p class="text-[10px] text-on-bg-faint">FAB, sheets</p>
+          </div>
+          <div class="text-center">
+            <div class="h-24 rounded-md bg-surface shadow-xl flex items-center justify-center text-xs text-on-bg-muted">xl</div>
+            <p class="text-xs font-mono mt-3">shadow-xl</p>
+            <p class="text-[10px] text-on-bg-faint">toasts, modals</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ MOTION ============================ -->
+    <section>
+      <div class="mb-5 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold tracking-tight">Motion</h2>
+        <span class="text-xs text-on-bg-faint">Subtle, purposeful, never decorative</span>
+      </div>
+      <div class="rounded-md border border-border bg-surface overflow-hidden divide-y divide-border">
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] gap-6 items-center">
+          <div>
+            <p class="text-sm font-semibold">Fast · 120ms</p>
+            <p class="text-xs text-on-bg-muted mt-0.5">Hover states, press feedback. Should feel instant.</p>
+          </div>
+          <code class="text-xs font-mono text-on-bg-faint">--duration-fast</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] gap-6 items-center">
+          <div>
+            <p class="text-sm font-semibold">Base · 200ms</p>
+            <p class="text-xs text-on-bg-muted mt-0.5">Default for most UI transitions: expand/collapse, color change.</p>
+          </div>
+          <code class="text-xs font-mono text-on-bg-faint">--duration-base</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] gap-6 items-center">
+          <div>
+            <p class="text-sm font-semibold">Slow · 360ms</p>
+            <p class="text-xs text-on-bg-muted mt-0.5">Sheet enter/exit, "just synced" highlight fade. Long enough to be noticed but never blocking.</p>
+          </div>
+          <code class="text-xs font-mono text-on-bg-faint">--duration-slow</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] gap-6 items-center">
+          <div>
+            <p class="text-sm font-semibold">Ease out soft</p>
+            <p class="text-xs text-on-bg-muted mt-0.5"><code class="font-mono text-[11px]">cubic-bezier(0.22, 1, 0.36, 1)</code> — for "things settling in," reveals, fades.</p>
+          </div>
+          <code class="text-xs font-mono text-on-bg-faint">--ease-out-soft</code>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-[1fr_auto] gap-6 items-center">
+          <div>
+            <p class="text-sm font-semibold">Ease in-out soft</p>
+            <p class="text-xs text-on-bg-muted mt-0.5"><code class="font-mono text-[11px]">cubic-bezier(0.65, 0, 0.35, 1)</code> — for transitions between two stable states (sheet open/close).</p>
+          </div>
+          <code class="text-xs font-mono text-on-bg-faint">--ease-in-out-soft</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ USAGE NOTES ============================ -->
+    <section class="rounded-md border border-border bg-surface p-6">
+      <h2 class="font-semibold tracking-tight mb-3">How to consume these tokens</h2>
+      <ul class="text-sm text-on-bg-muted space-y-3 list-disc pl-5 max-w-3xl leading-relaxed">
+        <li><strong class="text-on-bg">Tailwind utility</strong>: every <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">--color-*</code> token automatically generates <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">bg-*</code>, <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">text-*</code>, <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">border-*</code>, <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">ring-*</code> utilities. Same for radius, shadow, font, text-size.</li>
+        <li><strong class="text-on-bg">Raw CSS</strong>: reference as <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">var(--color-bg)</code> when you need them outside utility contexts (keyframes, gradients).</li>
+        <li><strong class="text-on-bg">Figma import</strong>: paste the <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">@theme</code> block into the Tokens Studio plugin → import as variables. Light + dark sets become two modes on the same variable collection.</li>
+        <li><strong class="text-on-bg">Angular</strong>: copy the <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">@theme</code> + <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">:where(.dark)</code> blocks into <code class="px-1 py-0.5 rounded bg-surface-2 font-mono text-[11px]">src/styles.css</code>; every component template uses the same utility classes shown in these mockups.</li>
+        <li><strong class="text-on-bg">Source of truth</strong>: <a href="./tokens.css" class="text-brand-600 hover:text-brand-700 font-medium underline-offset-2 hover:underline">tokens.css</a> in this folder. The HTML files inline the same block for browser-CDN compatibility.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="mx-auto max-w-6xl px-6 py-10 text-xs text-on-bg-faint">
+    Tokens are stable contracts. Naming is semantic, not literal — <code class="font-mono">--color-success-700</code> never becomes <code class="font-mono">--color-green-700</code> even if the green changes.
+  </footer>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || (!stored && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        root.classList.add('dark');
+      }
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+      });
+    })();
+  </script>
+</body>
+</html>

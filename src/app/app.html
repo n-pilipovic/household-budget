@@ -1,0 +1,29 @@
+<main class="min-h-screen bg-bg text-on-bg">
+  <div class="mx-auto max-w-2xl px-6 py-16">
+    <p class="text-xs uppercase tracking-[0.18em] text-on-bg-faint mb-3">Scaffold check</p>
+    <h1 class="text-3xl font-semibold tracking-tight">Household budget</h1>
+    <p class="text-on-bg-muted mt-3 leading-relaxed">
+      Angular 21 · Tailwind v4 · pnpm. Tokens loaded. Designs in
+      <code class="px-1.5 py-0.5 rounded bg-surface-2 text-on-bg text-xs font-mono">../financial-forecast/mockups/</code>.
+    </p>
+
+    <div class="mt-8 rounded-lg bg-surface border border-border shadow-xs p-6">
+      <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">Sanity check — token swatches</p>
+      <div class="mt-4 grid grid-cols-4 gap-2">
+        <div class="h-12 rounded-md bg-brand-500"></div>
+        <div class="h-12 rounded-md bg-success-500"></div>
+        <div class="h-12 rounded-md bg-warn-500"></div>
+        <div class="h-12 rounded-md bg-danger-500"></div>
+        <div class="h-12 rounded-md bg-user-novica"></div>
+        <div class="h-12 rounded-md bg-user-nada"></div>
+        <div class="h-12 rounded-md bg-on-bg"></div>
+        <div class="h-12 rounded-md bg-surface-3 border border-border"></div>
+      </div>
+      <p class="text-xs text-on-bg-muted mt-4">
+        If you see 8 distinct colored swatches above, the @theme block is wired correctly.
+      </p>
+    </div>
+  </div>
+
+  <router-outlet></router-outlet>
+</main>

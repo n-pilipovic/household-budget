@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Category drill-down · household budget</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-bg: oklch(98.5% 0.005 90);
+      --color-surface: oklch(100% 0 0);
+      --color-surface-2: oklch(96.5% 0.005 90);
+      --color-surface-3: oklch(93% 0.005 90);
+      --color-border: oklch(89% 0.006 90);
+      --color-border-strong: oklch(80% 0.008 90);
+
+      --color-on-bg: oklch(20% 0.01 270);
+      --color-on-bg-muted: oklch(45% 0.01 270);
+      --color-on-bg-subtle: oklch(60% 0.01 270);
+      --color-on-bg-faint: oklch(72% 0.01 270);
+
+      --color-brand-50: oklch(96% 0.03 250);
+      --color-brand-100: oklch(91% 0.06 250);
+      --color-brand-300: oklch(76% 0.13 250);
+      --color-brand-500: oklch(58% 0.18 250);
+      --color-brand-600: oklch(50% 0.18 250);
+      --color-brand-700: oklch(42% 0.16 250);
+
+      --color-success-50: oklch(95% 0.04 150);
+      --color-success-500: oklch(60% 0.16 150);
+      --color-success-700: oklch(45% 0.14 150);
+      --color-warn-50: oklch(96% 0.05 75);
+      --color-warn-500: oklch(74% 0.16 75);
+      --color-warn-700: oklch(58% 0.15 60);
+      --color-danger-50: oklch(95% 0.04 25);
+      --color-danger-500: oklch(60% 0.20 25);
+      --color-danger-700: oklch(48% 0.18 25);
+
+      --color-user-novica: oklch(56% 0.18 258);
+      --color-user-novica-soft: oklch(95% 0.04 258);
+      --color-user-novica-on: oklch(100% 0 0);
+      --color-user-nada: oklch(64% 0.16 12);
+      --color-user-nada-soft: oklch(96% 0.03 12);
+      --color-user-nada-on: oklch(100% 0 0);
+
+      --radius-xs: 0.375rem;
+      --radius-sm: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
+      --radius-pill: 9999px;
+
+      --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+      --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+      --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+      --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.10), 0 4px 8px -4px rgb(0 0 0 / 0.06);
+      --shadow-xl: 0 24px 48px -12px rgb(0 0 0 / 0.18);
+
+      --font-sans: "Inter", "InterVariable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-display: "Inter", "InterVariable", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    }
+
+    @custom-variant dark (&:where(.dark, .dark *));
+
+    :where(.dark) {
+      --color-bg: oklch(16% 0.01 270);
+      --color-surface: oklch(20% 0.012 270);
+      --color-surface-2: oklch(24% 0.012 270);
+      --color-surface-3: oklch(28% 0.012 270);
+      --color-border: oklch(30% 0.012 270);
+      --color-border-strong: oklch(40% 0.014 270);
+
+      --color-on-bg: oklch(96% 0.005 270);
+      --color-on-bg-muted: oklch(75% 0.008 270);
+      --color-on-bg-subtle: oklch(60% 0.01 270);
+      --color-on-bg-faint: oklch(48% 0.01 270);
+
+      --color-brand-50: oklch(28% 0.06 250);
+      --color-brand-100: oklch(34% 0.08 250);
+      --color-brand-300: oklch(58% 0.14 250);
+      --color-brand-500: oklch(70% 0.16 250);
+      --color-brand-600: oklch(76% 0.16 250);
+      --color-brand-700: oklch(82% 0.13 250);
+
+      --color-success-50: oklch(28% 0.06 150);
+      --color-success-500: oklch(72% 0.15 150);
+      --color-success-700: oklch(82% 0.14 150);
+      --color-warn-50: oklch(30% 0.06 75);
+      --color-warn-500: oklch(80% 0.14 75);
+      --color-warn-700: oklch(86% 0.12 75);
+      --color-danger-50: oklch(28% 0.07 25);
+      --color-danger-500: oklch(70% 0.18 25);
+      --color-danger-700: oklch(78% 0.16 25);
+
+      --color-user-novica: oklch(70% 0.16 258);
+      --color-user-novica-soft: oklch(28% 0.07 258);
+      --color-user-nada: oklch(74% 0.14 12);
+      --color-user-nada-soft: oklch(28% 0.05 12);
+    }
+
+    @layer base {
+      html { color-scheme: light dark; }
+      .dark { color-scheme: dark; }
+      body {
+        font-family: var(--font-sans);
+        background-color: var(--color-bg);
+        color: var(--color-on-bg);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    }
+  </style>
+</head>
+<body class="min-h-screen text-on-bg antialiased bg-zinc-100 dark:bg-zinc-950">
+  <header class="sticky top-0 z-30 border-b border-border bg-surface/80 backdrop-blur">
+    <div class="mx-auto max-w-6xl px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="./index.html" class="text-sm text-on-bg-muted hover:text-on-bg flex items-center gap-1.5">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          All screens
+        </a>
+        <span class="text-on-bg-faint">/</span>
+        <h1 class="text-sm font-semibold tracking-tight">Category drill-down</h1>
+      </div>
+      <button id="theme-toggle" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-xs">
+        <svg class="size-3.5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="size-3.5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        <span class="dark:hidden">Light</span><span class="hidden dark:inline">Dark</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-6 py-12 space-y-16">
+
+    <div class="mb-2">
+      <h2 class="text-xl font-semibold tracking-tight">HRANA / Market</h2>
+      <p class="text-sm text-on-bg-muted mt-1 max-w-2xl">A single category, all-time. Reached by tapping a category row in the Monthly view. The 12-month chart anchors the time series; tap a month to filter the list below.</p>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- MOBILE FRAME 390 × 844                                       -->
+    <!-- ========================================================== -->
+    <section>
+      <div class="mb-4 flex items-baseline gap-3">
+        <h2 class="text-xs uppercase tracking-[0.18em] text-on-bg-faint">Mobile · 390 × 844</h2>
+      </div>
+
+      <div class="inline-block rounded-[2.25rem] bg-on-bg/5 p-2 shadow-lg">
+        <section class="page w-[390px] h-[844px] rounded-[2rem] overflow-hidden bg-bg flex flex-col" data-screen="category-mobile">
+          <!-- Status bar -->
+          <div class="h-11 px-7 pt-3 flex items-center justify-between text-on-bg text-[13px] font-semibold num">
+            <span>9:41</span>
+            <div class="flex items-center gap-1.5 opacity-80">
+              <svg class="size-3.5" viewBox="0 0 16 12" fill="none"><path d="M1 8.5h14M1 6h14M1 3.5h14M1 1h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".5"/></svg>
+              <svg class="size-4" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="20" height="8" rx="2"/><rect x="3" y="4" width="14" height="4" rx=".5" fill="currentColor"/><path d="M22.5 5v2"/></svg>
+            </div>
+          </div>
+
+          <!-- App bar -->
+          <div class="px-3 pt-2 pb-2 flex items-center justify-between">
+            <button class="size-9 rounded-full hover:bg-surface-2 grid place-items-center transition" aria-label="Back">
+              <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="text-center">
+              <p class="text-[15px] font-semibold tracking-tight leading-tight">Market</p>
+              <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">HRANA</p>
+            </div>
+            <button class="size-9 rounded-full hover:bg-surface-2 grid place-items-center transition" aria-label="More">
+              <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+          </div>
+
+          <div class="flex-1 overflow-y-auto pb-32">
+            <!-- KPI Hero -->
+            <div class="px-5 pt-3">
+              <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">Last 12 months</p>
+              <div class="flex items-baseline gap-2 mt-1.5">
+                <span class="text-3xl font-semibold tracking-tight num">187.430</span>
+                <span class="text-sm text-on-bg-muted font-medium">RSD spent</span>
+              </div>
+              <div class="grid grid-cols-3 gap-3 mt-5">
+                <div class="rounded-md bg-surface-2 px-3 py-2.5">
+                  <p class="text-[10px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Avg / month</p>
+                  <p class="text-base font-semibold num mt-0.5">15.620</p>
+                </div>
+                <div class="rounded-md bg-surface-2 px-3 py-2.5">
+                  <p class="text-[10px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Avg / week</p>
+                  <p class="text-base font-semibold num mt-0.5">3.595</p>
+                </div>
+                <div class="rounded-md bg-surface-2 px-3 py-2.5">
+                  <p class="text-[10px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">This month</p>
+                  <p class="text-base font-semibold num mt-0.5 text-brand-600">8.450</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="px-5 pt-7">
+              <div class="flex items-baseline justify-between mb-3">
+                <h3 class="text-sm font-semibold tracking-tight">Planned vs actual</h3>
+                <span class="text-[11px] text-on-bg-faint">tap a month to filter</span>
+              </div>
+              <div class="rounded-lg bg-surface border border-border p-3">
+                <div class="h-[120px] flex items-end gap-1.5">
+                  <!-- Each bar: planned outline + actual fill -->
+                  <!-- Jun -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 72%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-bg-faint font-medium">J</span>
+                  </div>
+                  <!-- Jul -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 60%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-bg-faint font-medium">J</span>
+                  </div>
+                  <!-- Aug -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-warn-500/70" style="height: 88%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-bg-faint font-medium">A</span>
+                  </div>
+                  <!-- Sep -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 65%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-bg-faint font-medium">S</span>
+                  </div>
+                  <!-- Oct -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-danger-500/80" style="height: 100%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-bg-faint font-medium">O</span>
+                  </div>
+                  <!-- Nov -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 78%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-bg-faint font-medium">N</span>
+                  </div>
+                  <!-- Dec -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-warn-500/70" style="height: 92%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-bg-faint font-medium">D</span>
+                  </div>
+                  <!-- Jan -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 70%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-bg-faint font-medium">J</span>
+                  </div>
+                  <!-- Feb -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 75%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-bg-faint font-medium">F</span>
+                  </div>
+                  <!-- Mar -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 68%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-bg-faint font-medium">M</span>
+                  </div>
+                  <!-- Apr -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 62%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-bg-faint font-medium">A</span>
+                  </div>
+                  <!-- May (current, brand color) -->
+                  <div class="flex-1 flex flex-col items-center gap-1.5">
+                    <div class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative ring-2 ring-brand-300/60 ring-offset-1 ring-offset-surface">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-brand-500" style="height: 47%"></div>
+                    </div>
+                    <span class="text-[10px] text-brand-700 font-semibold">M</span>
+                  </div>
+                </div>
+                <div class="mt-3 flex items-center justify-between text-[11px] text-on-bg-muted">
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center gap-1"><span class="size-2 rounded-xs bg-success-500/70"></span>under</span>
+                    <span class="inline-flex items-center gap-1"><span class="size-2 rounded-xs bg-warn-500/70"></span>watch</span>
+                    <span class="inline-flex items-center gap-1"><span class="size-2 rounded-xs bg-danger-500/80"></span>over</span>
+                  </div>
+                  <span class="text-on-bg-faint">May 2025–May 2026</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filter chips -->
+            <div class="px-5 pt-6 pb-2">
+              <div class="flex items-center gap-2 overflow-x-auto -mx-5 px-5 pb-1 scrollbar-none">
+                <button class="shrink-0 px-3 py-1.5 rounded-pill bg-on-bg text-bg text-xs font-medium">All time</button>
+                <button class="shrink-0 px-3 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs font-medium text-on-bg-muted">May 2026</button>
+                <button class="shrink-0 px-3 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs font-medium text-on-bg-muted">Last 30 days</button>
+                <button class="shrink-0 px-3 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs font-medium text-on-bg-muted">2026</button>
+                <button class="shrink-0 px-3 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs font-medium text-on-bg-muted">2025</button>
+              </div>
+            </div>
+
+            <!-- Transactions -->
+            <h3 class="px-5 pt-2 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium flex items-baseline justify-between">
+              <span>Transactions</span>
+              <span class="text-on-bg-faint normal-case tracking-normal text-[11px] num">42 total</span>
+            </h3>
+
+            <ul class="px-2 space-y-px">
+              <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
+                <span class="size-9 rounded-full bg-user-novica text-white grid place-items-center text-sm font-semibold">N</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <p class="text-[15px] font-medium truncate">Maxi</p>
+                    <span class="text-[15px] font-semibold num shrink-0">1.500 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-on-bg-muted">
+                    <span>Today · 14 min</span>
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
+                <span class="size-9 rounded-full bg-user-novica text-white grid place-items-center text-sm font-semibold">N</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <p class="text-[15px] font-medium truncate">pekara</p>
+                    <span class="text-[15px] font-semibold num shrink-0">280 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-on-bg-muted">
+                    <span>Today · 1 h</span>
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
+                <span class="size-9 rounded-full bg-user-nada text-white grid place-items-center text-sm font-semibold">N</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <p class="text-[15px] font-medium truncate">Lidl</p>
+                    <span class="text-[15px] font-semibold num shrink-0">2.350 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-on-bg-muted">
+                    <span>5 May</span>
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
+                <span class="size-9 rounded-full bg-user-novica text-white grid place-items-center text-sm font-semibold">N</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <p class="text-[15px] font-medium truncate">Maxi</p>
+                    <span class="text-[15px] font-semibold num shrink-0">2.110 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-on-bg-muted">
+                    <span>2 May</span>
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
+                <span class="size-9 rounded-full bg-user-nada text-white grid place-items-center text-sm font-semibold">N</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <p class="text-[15px] font-medium truncate">pekara</p>
+                    <span class="text-[15px] font-semibold num shrink-0">340 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-on-bg-muted">
+                    <span>1 May</span>
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
+                <span class="size-9 rounded-full bg-user-novica text-white grid place-items-center text-sm font-semibold">N</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <p class="text-[15px] font-medium truncate">Maxi</p>
+                    <span class="text-[15px] font-semibold num shrink-0">1.870 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-on-bg-muted">
+                    <span>28 Apr</span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="absolute" style="bottom: 28px; left: 50%; transform: translateX(-50%);">
+            <button class="size-14 rounded-full bg-user-novica text-white grid place-items-center shadow-lg active:scale-95 transition" aria-label="Add transaction in this category">
+              <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+
+          <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full bg-on-bg/30"></div>
+        </section>
+      </div>
+
+      <p class="mt-4 text-xs text-on-bg-muted max-w-md leading-relaxed">
+        Each bar's fill height is <code class="font-mono">actual / max(planned, actual)</code>. Color encodes variance: green under, yellow within 10%, red over budget. Current month gets a brand-color outline ring as a visual anchor.
+      </p>
+    </section>
+
+    <!-- ========================================================== -->
+    <!-- DESKTOP FRAME 1440 × 900                                     -->
+    <!-- ========================================================== -->
+    <section>
+      <div class="mb-4 flex items-baseline gap-3">
+        <h2 class="text-xs uppercase tracking-[0.18em] text-on-bg-faint">Desktop · 1440 × 900</h2>
+      </div>
+
+      <div class="rounded-2xl bg-on-bg/5 p-3 shadow-lg overflow-x-auto">
+        <section class="page w-[1440px] h-[900px] rounded-xl overflow-hidden bg-bg flex flex-col" data-screen="category-desktop">
+          <header class="h-14 border-b border-border bg-surface flex items-center px-6 gap-6 shrink-0">
+            <div class="flex items-center gap-2.5">
+              <span class="size-7 rounded-full grid grid-cols-2 grid-rows-2 overflow-hidden ring-1 ring-border">
+                <span class="bg-user-novica"></span>
+                <span class="bg-user-nada"></span>
+                <span class="bg-user-nada"></span>
+                <span class="bg-user-novica"></span>
+              </span>
+              <span class="text-[14px] font-semibold tracking-tight">Pilipović</span>
+            </div>
+            <nav class="flex items-center gap-1">
+              <a href="./today.html" class="px-3 py-1.5 rounded-md text-sm font-medium text-on-bg-muted hover:bg-surface-2">Today</a>
+              <a href="./monthly.html" class="px-3 py-1.5 rounded-md text-sm font-medium bg-surface-2 text-on-bg">Monthly</a>
+            </nav>
+            <div class="flex-1 flex justify-center">
+              <div class="w-full max-w-md">
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                  <input type="text" placeholder="350 coffee · 2.500 market · 54.400 kredit…" class="w-full h-10 pl-11 pr-24 rounded-md bg-surface-2 border border-border focus:bg-surface focus:border-brand-300 text-sm placeholder:text-on-bg-faint outline-none transition">
+                  <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-on-bg-muted font-mono">N</kbd>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-xs font-semibold ring-2 ring-surface">N</span>
+            </div>
+          </header>
+
+          <div class="flex-1 overflow-y-auto">
+            <div class="mx-auto max-w-[960px] px-6 py-8">
+              <!-- Crumb / Back -->
+              <a href="./monthly.html" class="inline-flex items-center gap-1.5 text-sm text-on-bg-muted hover:text-on-bg mb-5">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Monthly · May 2026
+              </a>
+
+              <!-- Title -->
+              <div class="flex items-end justify-between mb-6">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.18em] text-on-bg-faint font-medium">HRANA</p>
+                  <h1 class="text-3xl font-semibold tracking-tight mt-1">Market</h1>
+                </div>
+                <button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-md border border-border bg-surface hover:bg-surface-2 text-sm">
+                  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  More
+                </button>
+              </div>
+
+              <!-- KPI grid -->
+              <div class="grid grid-cols-4 gap-4 mb-6">
+                <div class="rounded-lg bg-surface border border-border shadow-xs p-5">
+                  <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">Last 12 months</p>
+                  <p class="mt-1.5 text-3xl font-semibold tracking-tight num">187.430</p>
+                  <p class="text-xs text-on-bg-muted mt-1">RSD spent</p>
+                </div>
+                <div class="rounded-lg bg-surface border border-border shadow-xs p-5">
+                  <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">Avg / month</p>
+                  <p class="mt-1.5 text-3xl font-semibold tracking-tight num">15.620</p>
+                  <p class="text-xs text-on-bg-muted mt-1">RSD</p>
+                </div>
+                <div class="rounded-lg bg-surface border border-border shadow-xs p-5">
+                  <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">Avg / week</p>
+                  <p class="mt-1.5 text-3xl font-semibold tracking-tight num">3.595</p>
+                  <p class="text-xs text-on-bg-muted mt-1">RSD</p>
+                </div>
+                <div class="rounded-lg bg-surface border border-border shadow-xs p-5">
+                  <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">This month</p>
+                  <p class="mt-1.5 text-3xl font-semibold tracking-tight num text-brand-600">8.450</p>
+                  <p class="text-xs text-on-bg-muted mt-1">/ 18.000 planned</p>
+                </div>
+              </div>
+
+              <!-- Chart -->
+              <div class="rounded-lg bg-surface border border-border shadow-xs p-6 mb-6">
+                <div class="flex items-baseline justify-between mb-5">
+                  <h2 class="text-base font-semibold tracking-tight">Planned vs actual · 12 months</h2>
+                  <div class="flex items-center gap-3 text-xs text-on-bg-muted">
+                    <span class="inline-flex items-center gap-1.5"><span class="size-2.5 rounded-xs bg-success-500/70"></span>under</span>
+                    <span class="inline-flex items-center gap-1.5"><span class="size-2.5 rounded-xs bg-warn-500/70"></span>watch</span>
+                    <span class="inline-flex items-center gap-1.5"><span class="size-2.5 rounded-xs bg-danger-500/80"></span>over</span>
+                    <span class="inline-flex items-center gap-1.5"><span class="size-2.5 rounded-xs bg-brand-500"></span>this month</span>
+                  </div>
+                </div>
+                <div class="h-[180px] flex items-end gap-2.5">
+                  <!-- Each bar -->
+                  <div class="flex-1 flex flex-col items-center gap-2 group">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 72%"></div>
+                    </div>
+                    <span class="text-xs text-on-bg-muted">Jun</span>
+                    <span class="text-[10px] text-on-bg-faint num">12.940</span>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 60%"></div>
+                    </div>
+                    <span class="text-xs text-on-bg-muted">Jul</span>
+                    <span class="text-[10px] text-on-bg-faint num">10.820</span>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-warn-500/70" style="height: 88%"></div>
+                    </div>
+                    <span class="text-xs text-on-bg-muted">Aug</span>
+                    <span class="text-[10px] text-on-bg-faint num">15.890</span>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 65%"></div>
+                    </div>
+                    <span class="text-xs text-on-bg-muted">Sep</span>
+                    <span class="text-[10px] text-on-bg-faint num">11.700</span>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-danger-500/80" style="height: 100%"></div>
+                    </div>
+                    <span class="text-xs text-on-bg-muted">Oct</span>
+                    <span class="text-[10px] text-on-bg-faint num">22.140</span>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 78%"></div>
+                    </div>
+                    <span class="text-xs text-on-bg-muted">Nov</span>
+                    <span class="text-[10px] text-on-bg-faint num">14.050</span>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-warn-500/70" style="height: 92%"></div>
+                    </div>
+                    <span class="text-xs text-on-bg-muted">Dec</span>
+                    <span class="text-[10px] text-on-bg-faint num">16.580</span>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 70%"></div>
+                    </div>
+                    <span class="text-xs text-on-bg-muted">Jan</span>
+                    <span class="text-[10px] text-on-bg-faint num">12.600</span>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 75%"></div>
+                    </div>
+                    <span class="text-xs text-on-bg-muted">Feb</span>
+                    <span class="text-[10px] text-on-bg-faint num">13.500</span>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 68%"></div>
+                    </div>
+                    <span class="text-xs text-on-bg-muted">Mar</span>
+                    <span class="text-[10px] text-on-bg-faint num">12.260</span>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-success-500/70" style="height: 62%"></div>
+                    </div>
+                    <span class="text-xs text-on-bg-muted">Apr</span>
+                    <span class="text-[10px] text-on-bg-faint num">11.150</span>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full max-w-[40px] h-[140px] rounded-t bg-surface-3 relative ring-2 ring-brand-300/60 ring-offset-2 ring-offset-surface">
+                      <div class="absolute inset-x-0 bottom-0 rounded-t bg-brand-500" style="height: 47%"></div>
+                    </div>
+                    <span class="text-xs text-brand-700 font-semibold">May</span>
+                    <span class="text-[10px] text-brand-700 font-semibold num">8.450</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Filter + transactions -->
+              <div class="rounded-lg bg-surface border border-border shadow-xs overflow-hidden">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+                  <div class="flex items-center gap-2">
+                    <h2 class="text-base font-semibold tracking-tight">Transactions</h2>
+                    <span class="text-xs text-on-bg-faint num">42 total</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button class="px-3 py-1.5 rounded-pill bg-on-bg text-bg text-xs font-medium">All time</button>
+                    <button class="px-3 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs font-medium text-on-bg-muted">May 2026</button>
+                    <button class="px-3 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs font-medium text-on-bg-muted">Last 30 days</button>
+                    <button class="px-3 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs font-medium text-on-bg-muted">2026</button>
+                    <button class="px-3 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs font-medium text-on-bg-muted">2025</button>
+                  </div>
+                </div>
+                <ul class="divide-y divide-border">
+                  <li class="flex items-center gap-3 px-5 py-3 hover:bg-surface-2/50 transition">
+                    <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-[13px] font-semibold">N</span>
+                    <p class="text-sm font-medium flex-1">Maxi</p>
+                    <span class="text-xs text-on-bg-muted w-32">Today · 14 min</span>
+                    <span class="text-sm font-semibold num w-28 text-right">1.500 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </li>
+                  <li class="flex items-center gap-3 px-5 py-3 hover:bg-surface-2/50 transition">
+                    <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-[13px] font-semibold">N</span>
+                    <p class="text-sm font-medium flex-1">pekara</p>
+                    <span class="text-xs text-on-bg-muted w-32">Today · 1 h</span>
+                    <span class="text-sm font-semibold num w-28 text-right">280 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </li>
+                  <li class="flex items-center gap-3 px-5 py-3 hover:bg-surface-2/50 transition">
+                    <span class="size-8 rounded-full bg-user-nada text-white grid place-items-center text-[13px] font-semibold">N</span>
+                    <p class="text-sm font-medium flex-1">Lidl</p>
+                    <span class="text-xs text-on-bg-muted w-32">5 May 2026</span>
+                    <span class="text-sm font-semibold num w-28 text-right">2.350 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </li>
+                  <li class="flex items-center gap-3 px-5 py-3 hover:bg-surface-2/50 transition">
+                    <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-[13px] font-semibold">N</span>
+                    <p class="text-sm font-medium flex-1">Maxi</p>
+                    <span class="text-xs text-on-bg-muted w-32">2 May 2026</span>
+                    <span class="text-sm font-semibold num w-28 text-right">2.110 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </li>
+                  <li class="flex items-center gap-3 px-5 py-3 hover:bg-surface-2/50 transition">
+                    <span class="size-8 rounded-full bg-user-nada text-white grid place-items-center text-[13px] font-semibold">N</span>
+                    <p class="text-sm font-medium flex-1">pekara</p>
+                    <span class="text-xs text-on-bg-muted w-32">1 May 2026</span>
+                    <span class="text-sm font-semibold num w-28 text-right">340 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </li>
+                  <li class="flex items-center gap-3 px-5 py-3 hover:bg-surface-2/50 transition">
+                    <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-[13px] font-semibold">N</span>
+                    <p class="text-sm font-medium flex-1">Maxi</p>
+                    <span class="text-xs text-on-bg-muted w-32">28 Apr 2026</span>
+                    <span class="text-sm font-semibold num w-28 text-right">1.870 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </li>
+                  <li class="flex items-center gap-3 px-5 py-3 hover:bg-surface-2/50 transition">
+                    <span class="size-8 rounded-full bg-user-nada text-white grid place-items-center text-[13px] font-semibold">N</span>
+                    <p class="text-sm font-medium flex-1">Lidl</p>
+                    <span class="text-xs text-on-bg-muted w-32">25 Apr 2026</span>
+                    <span class="text-sm font-semibold num w-28 text-right">3.260 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </li>
+                  <li class="flex items-center gap-3 px-5 py-3 hover:bg-surface-2/50 transition">
+                    <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-[13px] font-semibold">N</span>
+                    <p class="text-sm font-medium flex-1">Maxi</p>
+                    <span class="text-xs text-on-bg-muted w-32">22 Apr 2026</span>
+                    <span class="text-sm font-semibold num w-28 text-right">1.450 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                  </li>
+                </ul>
+                <div class="px-5 py-3 text-center border-t border-border">
+                  <button class="text-sm text-brand-600 hover:text-brand-700 font-medium">Load 34 more</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- Notes -->
+    <section class="rounded-lg border border-border bg-surface p-6">
+      <h2 class="font-semibold tracking-tight mb-3">Design notes</h2>
+      <ul class="text-sm text-on-bg-muted space-y-2 list-disc pl-5">
+        <li><strong class="text-on-bg">Reached from Monthly</strong>. Tap a category row in the Monthly view → this screen. The breadcrumb (desktop) / back arrow (mobile) returns to the source month.</li>
+        <li><strong class="text-on-bg">Single chart, no toggle</strong>. 12-month bar chart with variance-coded fills tells the whole story. Resist adding line charts, dual axes, or category-vs-category comparison — that's the v2 Reports view.</li>
+        <li><strong class="text-on-bg">Filter chips, not a date picker</strong>. 90% of the time you want "all time" or "this month" or "last 30 days". A date picker is overkill for a personal app.</li>
+        <li><strong class="text-on-bg">Quick Add stays in place</strong>. With this category as the pre-suggested one — it's the most likely category you'd be entering after looking at the trend.</li>
+        <li><strong class="text-on-bg">"More" menu is dormant in MVP</strong>. The three-dot button is visible but its actions (rename, archive, change icon) ship in v1.1 with category management.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || (!stored && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        root.classList.add('dark');
+      }
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+      });
+    })();
+  </script>
+</body>
+</html>

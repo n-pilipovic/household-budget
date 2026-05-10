@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quick Add · household budget</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-bg: oklch(98.5% 0.005 90);
+      --color-surface: oklch(100% 0 0);
+      --color-surface-2: oklch(96.5% 0.005 90);
+      --color-surface-3: oklch(93% 0.005 90);
+      --color-border: oklch(89% 0.006 90);
+      --color-border-strong: oklch(80% 0.008 90);
+
+      --color-on-bg: oklch(20% 0.01 270);
+      --color-on-bg-muted: oklch(45% 0.01 270);
+      --color-on-bg-subtle: oklch(60% 0.01 270);
+      --color-on-bg-faint: oklch(72% 0.01 270);
+
+      --color-brand-50: oklch(96% 0.03 250);
+      --color-brand-100: oklch(91% 0.06 250);
+      --color-brand-300: oklch(76% 0.13 250);
+      --color-brand-500: oklch(58% 0.18 250);
+      --color-brand-600: oklch(50% 0.18 250);
+      --color-brand-700: oklch(42% 0.16 250);
+
+      --color-success-50: oklch(95% 0.04 150);
+      --color-success-500: oklch(60% 0.16 150);
+      --color-success-700: oklch(45% 0.14 150);
+      --color-warn-50: oklch(96% 0.05 75);
+      --color-warn-500: oklch(74% 0.16 75);
+      --color-warn-700: oklch(58% 0.15 60);
+      --color-danger-50: oklch(95% 0.04 25);
+      --color-danger-500: oklch(60% 0.20 25);
+      --color-danger-700: oklch(48% 0.18 25);
+
+      --color-user-novica: oklch(56% 0.18 258);
+      --color-user-novica-soft: oklch(95% 0.04 258);
+      --color-user-novica-on: oklch(100% 0 0);
+      --color-user-nada: oklch(64% 0.16 12);
+      --color-user-nada-soft: oklch(96% 0.03 12);
+      --color-user-nada-on: oklch(100% 0 0);
+
+      --radius-xs: 0.375rem;
+      --radius-sm: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
+      --radius-pill: 9999px;
+
+      --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+      --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+      --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+      --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.10), 0 4px 8px -4px rgb(0 0 0 / 0.06);
+      --shadow-xl: 0 24px 48px -12px rgb(0 0 0 / 0.18);
+
+      --font-sans: "Inter", "InterVariable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-display: "Inter", "InterVariable", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    }
+
+    @custom-variant dark (&:where(.dark, .dark *));
+
+    :where(.dark) {
+      --color-bg: oklch(16% 0.01 270);
+      --color-surface: oklch(20% 0.012 270);
+      --color-surface-2: oklch(24% 0.012 270);
+      --color-surface-3: oklch(28% 0.012 270);
+      --color-border: oklch(30% 0.012 270);
+      --color-border-strong: oklch(40% 0.014 270);
+
+      --color-on-bg: oklch(96% 0.005 270);
+      --color-on-bg-muted: oklch(75% 0.008 270);
+      --color-on-bg-subtle: oklch(60% 0.01 270);
+      --color-on-bg-faint: oklch(48% 0.01 270);
+
+      --color-brand-50: oklch(28% 0.06 250);
+      --color-brand-100: oklch(34% 0.08 250);
+      --color-brand-300: oklch(58% 0.14 250);
+      --color-brand-500: oklch(70% 0.16 250);
+      --color-brand-600: oklch(76% 0.16 250);
+      --color-brand-700: oklch(82% 0.13 250);
+
+      --color-success-50: oklch(28% 0.06 150);
+      --color-success-500: oklch(72% 0.15 150);
+      --color-success-700: oklch(82% 0.14 150);
+      --color-warn-50: oklch(30% 0.06 75);
+      --color-warn-500: oklch(80% 0.14 75);
+      --color-warn-700: oklch(86% 0.12 75);
+      --color-danger-50: oklch(28% 0.07 25);
+      --color-danger-500: oklch(70% 0.18 25);
+      --color-danger-700: oklch(78% 0.16 25);
+
+      --color-user-novica: oklch(70% 0.16 258);
+      --color-user-novica-soft: oklch(28% 0.07 258);
+      --color-user-nada: oklch(74% 0.14 12);
+      --color-user-nada-soft: oklch(28% 0.05 12);
+    }
+
+    @layer base {
+      html { color-scheme: light dark; }
+      .dark { color-scheme: dark; }
+      body {
+        font-family: var(--font-sans);
+        background-color: var(--color-bg);
+        color: var(--color-on-bg);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    }
+
+    /* Phone-frame helpers */
+    .scrim { background: linear-gradient(180deg, oklch(0% 0 0 / 0) 0%, oklch(0% 0 0 / 0.45) 60%); }
+    .row-just-synced {
+      background: var(--color-user-nada-soft);
+      box-shadow: inset 2px 0 0 var(--color-user-nada);
+    }
+  </style>
+</head>
+<body class="min-h-screen text-on-bg antialiased bg-zinc-100 dark:bg-zinc-950">
+  <header class="sticky top-0 z-30 border-b border-border bg-surface/80 backdrop-blur">
+    <div class="mx-auto max-w-6xl px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="./index.html" class="text-sm text-on-bg-muted hover:text-on-bg flex items-center gap-1.5">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          All screens
+        </a>
+        <span class="text-on-bg-faint">/</span>
+        <h1 class="text-sm font-semibold tracking-tight">Quick Add</h1>
+      </div>
+      <button id="theme-toggle" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-xs">
+        <svg class="size-3.5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="size-3.5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        <span class="dark:hidden">Light</span><span class="hidden dark:inline">Dark</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-6 py-12">
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold tracking-tight">Quick Add — 4 states</h2>
+      <p class="text-sm text-on-bg-muted mt-1 max-w-2xl">A bottom sheet that opens from the FAB. Single text input parses amount + note in real time, suggests a category, confirms with a toast. Optimised for ≤3 taps on a repeat category.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+      <!-- ============================ STATE 1: empty ============================ -->
+      <div>
+        <div class="mb-3 flex items-baseline gap-3">
+          <h3 class="text-xs uppercase tracking-[0.18em] text-on-bg-faint">State 1 · Empty</h3>
+          <span class="text-xs text-on-bg-faint">Sheet just opened</span>
+        </div>
+        <div class="inline-block rounded-[2.25rem] bg-on-bg/5 p-2 shadow-lg">
+          <section class="page relative w-[390px] h-[844px] rounded-[2rem] overflow-hidden bg-bg" data-screen="quick-add-empty">
+            <!-- Background: Today screen, dimmed -->
+            <div class="absolute inset-0 opacity-40 pointer-events-none">
+              <div class="h-11 px-7 pt-3 flex items-center justify-between text-on-bg text-[13px] font-semibold num"><span>9:41</span></div>
+              <div class="px-5 pb-3 flex items-center justify-between">
+                <span class="text-[15px] font-semibold tracking-tight">Pilipović</span>
+              </div>
+              <div class="mx-5 rounded-lg bg-surface border border-border p-5">
+                <p class="text-xs text-on-bg-faint">May 2026</p>
+                <div class="text-3xl font-semibold num mt-2">142.310</div>
+              </div>
+            </div>
+            <!-- Scrim overlay -->
+            <div class="absolute inset-0 scrim pointer-events-none"></div>
+
+            <!-- Sheet -->
+            <div class="absolute inset-x-0 bottom-0 rounded-t-[1.75rem] bg-surface shadow-xl border-t border-border" style="height: 560px;">
+              <!-- Drag handle -->
+              <div class="pt-2 pb-1 flex justify-center">
+                <span class="w-9 h-1 rounded-pill bg-on-bg/15"></span>
+              </div>
+              <!-- Header -->
+              <div class="px-5 pt-2 pb-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="size-6 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                  <p class="text-sm text-on-bg-muted">Logging as <span class="text-on-bg font-medium">Novica</span></p>
+                </div>
+                <button class="size-8 rounded-full hover:bg-surface-2 grid place-items-center" aria-label="Close">
+                  <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+
+              <!-- Input -->
+              <div class="px-5">
+                <div class="relative">
+                  <input type="text" placeholder="350 coffee · 2.500 market…" class="w-full h-14 px-4 pr-14 rounded-md bg-surface-2 border-2 border-brand-500 ring-4 ring-brand-100 text-lg font-medium placeholder:text-on-bg-faint outline-none">
+                  <span class="absolute right-4 top-1/2 -translate-y-1/2 w-px h-6 bg-brand-500 animate-pulse"></span>
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                  <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-surface-2 text-sm font-medium">
+                    <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    Today
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-surface-2 text-sm text-on-bg-muted">
+                    <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                    Receipt
+                    <span class="text-[10px] uppercase tracking-wide text-on-bg-faint ml-0.5">soon</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Recent chips -->
+              <div class="mt-6 px-5">
+                <p class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mb-2">Tap to repeat</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <button class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs">
+                    <span class="text-on-bg-muted">350 RSD ·</span><span class="font-medium">Coffee</span>
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs">
+                    <span class="text-on-bg-muted">1.500 RSD ·</span><span class="font-medium">Maxi</span>
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs">
+                    <span class="text-on-bg-muted">280 RSD ·</span><span class="font-medium">pekara</span>
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs">
+                    <span class="text-on-bg-muted">4.200 RSD ·</span><span class="font-medium">gorivo</span>
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-pill bg-surface-2 hover:bg-surface-3 text-xs">
+                    <span class="text-on-bg-muted">54.400 RSD ·</span><span class="font-medium">rata</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Submit -->
+              <div class="absolute inset-x-0 bottom-0 px-5 pt-4 pb-7 bg-gradient-to-t from-surface to-surface/0">
+                <button disabled class="w-full h-12 rounded-md bg-on-bg/10 text-on-bg-faint font-medium text-[15px] cursor-not-allowed">Add</button>
+              </div>
+            </div>
+            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full bg-on-bg/30"></div>
+          </section>
+        </div>
+      </div>
+
+      <!-- ============================ STATE 2: parsing ============================ -->
+      <div>
+        <div class="mb-3 flex items-baseline gap-3">
+          <h3 class="text-xs uppercase tracking-[0.18em] text-on-bg-faint">State 2 · Parsing</h3>
+          <span class="text-xs text-on-bg-faint">User typed "350 coffee"</span>
+        </div>
+        <div class="inline-block rounded-[2.25rem] bg-on-bg/5 p-2 shadow-lg">
+          <section class="page relative w-[390px] h-[844px] rounded-[2rem] overflow-hidden bg-bg" data-screen="quick-add-parsing">
+            <div class="absolute inset-0 opacity-40 pointer-events-none">
+              <div class="h-11 px-7 pt-3 flex items-center justify-between text-on-bg text-[13px] font-semibold num"><span>9:41</span></div>
+              <div class="px-5 pb-3 flex items-center justify-between">
+                <span class="text-[15px] font-semibold tracking-tight">Pilipović</span>
+              </div>
+              <div class="mx-5 rounded-lg bg-surface border border-border p-5">
+                <p class="text-xs text-on-bg-faint">May 2026</p>
+                <div class="text-3xl font-semibold num mt-2">142.310</div>
+              </div>
+            </div>
+            <div class="absolute inset-0 scrim pointer-events-none"></div>
+
+            <div class="absolute inset-x-0 bottom-0 rounded-t-[1.75rem] bg-surface shadow-xl border-t border-border" style="height: 560px;">
+              <div class="pt-2 pb-1 flex justify-center">
+                <span class="w-9 h-1 rounded-pill bg-on-bg/15"></span>
+              </div>
+              <div class="px-5 pt-2 pb-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="size-6 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                  <p class="text-sm text-on-bg-muted">Logging as <span class="text-on-bg font-medium">Novica</span></p>
+                </div>
+                <button class="size-8 rounded-full hover:bg-surface-2 grid place-items-center">
+                  <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+
+              <div class="px-5">
+                <div class="relative">
+                  <input type="text" value="350 coffee" class="w-full h-14 px-4 pr-14 rounded-md bg-surface-2 border-2 border-brand-500 ring-4 ring-brand-100 text-lg font-medium outline-none">
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                  <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-surface-2 text-sm font-medium">
+                    <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    Today
+                  </button>
+                </div>
+              </div>
+
+              <!-- Parsed readout -->
+              <div class="mt-5 mx-5 rounded-md bg-surface-2 p-4 border border-border">
+                <p class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mb-2 flex items-center gap-1.5">
+                  <svg class="size-3 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                  Parsed
+                </p>
+                <div class="flex items-baseline gap-3">
+                  <span class="text-3xl font-semibold tracking-tight num">350</span>
+                  <span class="text-sm text-on-bg-muted font-medium">RSD</span>
+                  <span class="text-on-bg-faint">·</span>
+                  <span class="text-base font-medium">coffee</span>
+                </div>
+                <p class="text-xs text-on-bg-muted mt-2">Suggesting category…</p>
+              </div>
+
+              <div class="absolute inset-x-0 bottom-0 px-5 pt-4 pb-7 bg-gradient-to-t from-surface to-surface/0">
+                <button class="w-full h-12 rounded-md bg-on-bg text-bg font-medium text-[15px] hover:opacity-90">Add</button>
+              </div>
+            </div>
+            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full bg-on-bg/30"></div>
+          </section>
+        </div>
+      </div>
+
+      <!-- ============================ STATE 3: suggesting category ============================ -->
+      <div>
+        <div class="mb-3 flex items-baseline gap-3">
+          <h3 class="text-xs uppercase tracking-[0.18em] text-on-bg-faint">State 3 · Suggesting category</h3>
+          <span class="text-xs text-on-bg-faint">Top guess auto-selected</span>
+        </div>
+        <div class="inline-block rounded-[2.25rem] bg-on-bg/5 p-2 shadow-lg">
+          <section class="page relative w-[390px] h-[844px] rounded-[2rem] overflow-hidden bg-bg" data-screen="quick-add-suggesting">
+            <div class="absolute inset-0 opacity-40 pointer-events-none">
+              <div class="h-11 px-7 pt-3 flex items-center justify-between text-on-bg text-[13px] font-semibold num"><span>9:41</span></div>
+              <div class="px-5 pb-3 flex items-center justify-between">
+                <span class="text-[15px] font-semibold tracking-tight">Pilipović</span>
+              </div>
+              <div class="mx-5 rounded-lg bg-surface border border-border p-5">
+                <p class="text-xs text-on-bg-faint">May 2026</p>
+                <div class="text-3xl font-semibold num mt-2">142.310</div>
+              </div>
+            </div>
+            <div class="absolute inset-0 scrim pointer-events-none"></div>
+
+            <div class="absolute inset-x-0 bottom-0 rounded-t-[1.75rem] bg-surface shadow-xl border-t border-border" style="height: 640px;">
+              <div class="pt-2 pb-1 flex justify-center">
+                <span class="w-9 h-1 rounded-pill bg-on-bg/15"></span>
+              </div>
+              <div class="px-5 pt-2 pb-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="size-6 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                  <p class="text-sm text-on-bg-muted">Logging as <span class="text-on-bg font-medium">Novica</span></p>
+                </div>
+                <button class="size-8 rounded-full hover:bg-surface-2 grid place-items-center">
+                  <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+
+              <div class="px-5">
+                <div class="relative">
+                  <input type="text" value="350 coffee" class="w-full h-14 px-4 rounded-md bg-surface-2 border border-border text-lg font-medium outline-none">
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                  <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-surface-2 text-sm font-medium">
+                    <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    Today
+                  </button>
+                </div>
+              </div>
+
+              <!-- Parsed readout -->
+              <div class="mt-5 mx-5 rounded-md bg-surface-2 p-4 border border-border">
+                <p class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mb-2 flex items-center gap-1.5">
+                  <svg class="size-3 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                  Parsed
+                </p>
+                <div class="flex items-baseline gap-3">
+                  <span class="text-3xl font-semibold tracking-tight num">350</span>
+                  <span class="text-sm text-on-bg-muted font-medium">RSD</span>
+                  <span class="text-on-bg-faint">·</span>
+                  <span class="text-base font-medium">coffee</span>
+                </div>
+              </div>
+
+              <!-- Category chips -->
+              <div class="mt-5 px-5">
+                <p class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mb-2">Category — tap to confirm</p>
+                <div class="flex flex-col gap-2">
+                  <!-- Top suggestion (selected) -->
+                  <button class="w-full flex items-center justify-between px-3 py-3 rounded-md border-2 border-brand-500 bg-brand-50/60 ring-4 ring-brand-100 transition">
+                    <div class="flex items-center gap-2.5">
+                      <span class="size-7 rounded-md bg-brand-500/15 grid place-items-center">
+                        <svg class="size-4 text-brand-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg>
+                      </span>
+                      <div class="text-left">
+                        <p class="text-sm font-semibold">Kafe i voda</p>
+                        <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">OSTALO</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-[10px] uppercase tracking-wide text-brand-700 font-semibold">Best match</span>
+                      <svg class="size-4 text-brand-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                    </div>
+                  </button>
+                  <button class="w-full flex items-center justify-between px-3 py-3 rounded-md border border-border hover:bg-surface-2 transition">
+                    <div class="flex items-center gap-2.5">
+                      <span class="size-7 rounded-md bg-on-bg/5 grid place-items-center">
+                        <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></svg>
+                      </span>
+                      <div class="text-left">
+                        <p class="text-sm font-semibold">Restoran</p>
+                        <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">HRANA</p>
+                      </div>
+                    </div>
+                  </button>
+                  <button class="w-full flex items-center justify-between px-3 py-3 rounded-md border border-border hover:bg-surface-2 transition">
+                    <div class="flex items-center gap-2.5">
+                      <span class="size-7 rounded-md bg-on-bg/5 grid place-items-center">
+                        <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+                      </span>
+                      <div class="text-left">
+                        <p class="text-sm font-semibold">Ostalo</p>
+                        <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">OSTALO</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+                <button class="w-full text-sm text-on-bg-muted hover:text-on-bg mt-2 px-3 py-2">More categories…</button>
+              </div>
+
+              <div class="absolute inset-x-0 bottom-0 px-5 pt-4 pb-7 bg-gradient-to-t from-surface to-surface/0">
+                <button class="w-full h-12 rounded-md bg-on-bg text-bg font-medium text-[15px] hover:opacity-90 inline-flex items-center justify-center gap-2">
+                  Add 350 RSD to Kafe i voda
+                </button>
+              </div>
+            </div>
+            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full bg-on-bg/30"></div>
+          </section>
+        </div>
+      </div>
+
+      <!-- ============================ STATE 4: success toast ============================ -->
+      <div>
+        <div class="mb-3 flex items-baseline gap-3">
+          <h3 class="text-xs uppercase tracking-[0.18em] text-on-bg-faint">State 4 · Success</h3>
+          <span class="text-xs text-on-bg-faint">Sheet dismissed, toast + new row</span>
+        </div>
+        <div class="inline-block rounded-[2.25rem] bg-on-bg/5 p-2 shadow-lg">
+          <section class="page relative w-[390px] h-[844px] rounded-[2rem] overflow-hidden bg-bg flex flex-col" data-screen="quick-add-success">
+            <div class="h-11 px-7 pt-3 flex items-center justify-between text-on-bg text-[13px] font-semibold num">
+              <span>9:41</span>
+              <div class="flex items-center gap-1.5 opacity-80">
+                <svg class="size-3.5" viewBox="0 0 16 12" fill="none"><path d="M1 8.5h14M1 6h14M1 3.5h14M1 1h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".5"/></svg>
+                <svg class="size-4" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="20" height="8" rx="2"/><rect x="3" y="4" width="14" height="4" rx=".5" fill="currentColor"/></svg>
+              </div>
+            </div>
+            <div class="px-5 pt-2 pb-3 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="size-7 rounded-full grid grid-cols-2 grid-rows-2 overflow-hidden ring-1 ring-border">
+                  <span class="bg-user-novica"></span>
+                  <span class="bg-user-nada"></span>
+                  <span class="bg-user-nada"></span>
+                  <span class="bg-user-novica"></span>
+                </span>
+                <span class="text-[15px] font-semibold tracking-tight">Pilipović</span>
+              </div>
+            </div>
+
+            <div class="flex-1 overflow-hidden">
+              <div class="mx-5 rounded-lg bg-surface border border-border p-5">
+                <div class="flex items-center justify-between mb-1">
+                  <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">May 2026</p>
+                  <span class="text-xs text-on-bg-muted">21 days left</span>
+                </div>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-semibold tracking-tight num">142.660</span>
+                  <span class="text-sm text-on-bg-muted font-medium">RSD spent</span>
+                </div>
+                <div class="mt-4 h-2 rounded-pill bg-surface-3 overflow-hidden">
+                  <div class="h-full rounded-pill bg-success-500/80" style="width: 58%"></div>
+                </div>
+              </div>
+
+              <h3 class="px-5 pt-7 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium">Today</h3>
+              <ul class="px-2 space-y-px">
+                <!-- Just added — Novica's coffee, with novica color highlight -->
+                <li class="flex items-center gap-3 px-3 py-3 rounded-md transition" style="background: var(--color-user-novica-soft); box-shadow: inset 2px 0 0 var(--color-user-novica);">
+                  <span class="size-9 rounded-full bg-user-novica text-white grid place-items-center text-sm font-semibold">N</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline justify-between gap-2">
+                      <p class="text-[15px] font-medium truncate">coffee</p>
+                      <span class="text-[15px] font-semibold num shrink-0">350 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-on-bg-muted">
+                      <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 font-medium">Kafe i voda</span>
+                      <span class="text-user-novica font-medium">just now</span>
+                    </div>
+                  </div>
+                </li>
+                <li class="flex items-center gap-3 px-3 py-3 rounded-md">
+                  <span class="size-9 rounded-full bg-user-nada text-white grid place-items-center text-sm font-semibold">N</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline justify-between gap-2">
+                      <p class="text-[15px] font-medium truncate">kafa kod Sare</p>
+                      <span class="text-[15px] font-semibold num shrink-0">350 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-on-bg-muted">
+                      <span>2 min</span>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Toast -->
+            <div class="absolute left-4 right-4 bottom-24 z-10">
+              <div class="rounded-md bg-on-bg text-bg shadow-xl px-4 py-3 flex items-center gap-3">
+                <span class="size-7 rounded-full bg-success-500/30 grid place-items-center shrink-0">
+                  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                </span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold">Added 350 RSD · Kafe i voda</p>
+                  <p class="text-xs opacity-80 num">2.140 / 4.000 this week · 1.860 left</p>
+                </div>
+                <button class="text-xs uppercase tracking-wide font-semibold opacity-90 hover:opacity-100 px-2 py-1">Undo</button>
+              </div>
+            </div>
+
+            <!-- FAB -->
+            <div class="absolute" style="bottom: 28px; left: 50%; transform: translateX(-50%);">
+              <button class="size-14 rounded-full bg-user-novica text-white grid place-items-center shadow-lg">
+                <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full bg-on-bg/30"></div>
+          </section>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Notes -->
+    <section class="mt-12 rounded-lg border border-border bg-surface p-6">
+      <h2 class="font-semibold tracking-tight mb-3">Design notes</h2>
+      <ul class="text-sm text-on-bg-muted space-y-2 list-disc pl-5">
+        <li><strong class="text-on-bg">Single input, parser does the work</strong>. Amount + free-text note typed together. The parser extracts the leading number as RSD and the rest as the note. No separate amount/note fields.</li>
+        <li><strong class="text-on-bg">Real-time parsed readout</strong>. As soon as the input has a number, the readout card appears below. Confirms the parse before the user commits.</li>
+        <li><strong class="text-on-bg">Top category auto-selected</strong>. Submit button reads "Add 350 RSD to Kafe i voda" — committing without re-tapping. Other suggestions are one-tap reassign.</li>
+        <li><strong class="text-on-bg">Recent chips on empty state</strong>. The most-frequent / most-recent transactions become one-tap clones. This is what makes "log a daily coffee" 1 tap, not 3.</li>
+        <li><strong class="text-on-bg">Success toast surfaces budget context</strong>. "2.140 / 4.000 this week · 1.860 left" — the user instantly knows where this entry leaves them. Undo for 10 seconds.</li>
+        <li><strong class="text-on-bg">Optimistic insert</strong>. The new row appears in the feed immediately with the user's color highlight (novica blue here, distinct from the rose used for partner-just-synced).</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || (!stored && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        root.classList.add('dark');
+      }
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+      });
+    })();
+  </script>
+</body>
+</html>

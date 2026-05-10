@@ -1,0 +1,165 @@
+/* ============================================================
+   Design tokens — Tailwind v4 @theme block.
+   Single source of truth. Imported by every mockup HTML file
+   inside <style type="text/tailwindcss"> blocks.
+   These tokens map cleanly to Figma variables and Angular
+   component inputs.
+   ============================================================ */
+
+@theme {
+  /* ---------- Color: surface system (light) ---------- */
+  --color-bg: oklch(98.5% 0.005 90);              /* warm off-white */
+  --color-surface: oklch(100% 0 0);               /* card */
+  --color-surface-2: oklch(96.5% 0.005 90);       /* nested / hover */
+  --color-surface-3: oklch(93% 0.005 90);         /* deeper nested */
+  --color-border: oklch(89% 0.006 90);            /* hairline */
+  --color-border-strong: oklch(80% 0.008 90);
+
+  /* ---------- Text ---------- */
+  --color-on-bg: oklch(20% 0.01 270);             /* primary text */
+  --color-on-bg-muted: oklch(45% 0.01 270);       /* secondary */
+  --color-on-bg-subtle: oklch(60% 0.01 270);      /* tertiary, timestamps */
+  --color-on-bg-faint: oklch(72% 0.01 270);       /* quaternary, dividers labels */
+
+  /* ---------- Brand (used sparingly — interactive primary) ---------- */
+  --color-brand-50: oklch(96% 0.03 250);
+  --color-brand-100: oklch(91% 0.06 250);
+  --color-brand-300: oklch(76% 0.13 250);
+  --color-brand-500: oklch(58% 0.18 250);          /* primary action */
+  --color-brand-600: oklch(50% 0.18 250);
+  --color-brand-700: oklch(42% 0.16 250);
+
+  /* ---------- Semantic state ---------- */
+  --color-success-50: oklch(95% 0.04 150);
+  --color-success-500: oklch(60% 0.16 150);
+  --color-success-700: oklch(45% 0.14 150);
+  --color-warn-50: oklch(96% 0.05 75);
+  --color-warn-500: oklch(74% 0.16 75);
+  --color-warn-700: oklch(58% 0.15 60);
+  --color-danger-50: oklch(95% 0.04 25);
+  --color-danger-500: oklch(60% 0.20 25);
+  --color-danger-700: oklch(48% 0.18 25);
+
+  /* ---------- User attribution colors ----------
+     Two distinct hues, both pass AA on both surface and on-bg. */
+  --color-user-novica: oklch(56% 0.18 258);        /* deep cobalt */
+  --color-user-novica-soft: oklch(95% 0.04 258);
+  --color-user-novica-on: oklch(100% 0 0);
+  --color-user-nada: oklch(64% 0.16 12);           /* warm rose */
+  --color-user-nada-soft: oklch(96% 0.03 12);
+  --color-user-nada-on: oklch(100% 0 0);
+
+  /* ---------- Radius ---------- */
+  --radius-xs: 0.375rem;     /* 6px chips */
+  --radius-sm: 0.5rem;       /* 8px buttons sm */
+  --radius-md: 0.75rem;      /* 12px buttons / inputs */
+  --radius-lg: 1rem;         /* 16px cards */
+  --radius-xl: 1.5rem;       /* 24px sheets */
+  --radius-pill: 9999px;
+
+  /* ---------- Shadow ---------- */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.10), 0 4px 8px -4px rgb(0 0 0 / 0.06);
+  --shadow-xl: 0 24px 48px -12px rgb(0 0 0 / 0.18);
+
+  /* ---------- Typography ---------- */
+  --font-sans: "Inter", "InterVariable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Inter", "InterVariable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --text-2xs: 0.6875rem;     /* 11px */
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.75rem;        /* 12px */
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.8125rem;      /* 13px */
+  --text-sm--line-height: 1.125rem;
+  --text-base: 0.9375rem;    /* 15px — body */
+  --text-base--line-height: 1.4rem;
+  --text-lg: 1.0625rem;      /* 17px */
+  --text-lg--line-height: 1.5rem;
+  --text-xl: 1.25rem;        /* 20px */
+  --text-xl--line-height: 1.6rem;
+  --text-2xl: 1.5rem;        /* 24px */
+  --text-2xl--line-height: 1.85rem;
+  --text-3xl: 1.875rem;      /* 30px — display */
+  --text-3xl--line-height: 2.15rem;
+  --text-4xl: 2.5rem;        /* 40px — hero number */
+  --text-4xl--line-height: 2.75rem;
+
+  /* ---------- Motion ---------- */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 360ms;
+
+  /* ---------- Variance pill colors (semantic for budget UI) ---------- */
+  --color-variance-good: var(--color-success-700);
+  --color-variance-good-bg: var(--color-success-50);
+  --color-variance-watch: var(--color-warn-700);
+  --color-variance-watch-bg: var(--color-warn-50);
+  --color-variance-bad: var(--color-danger-700);
+  --color-variance-bad-bg: var(--color-danger-50);
+}
+
+/* ---------- Dark mode: declare class-based variant ---------- */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Dark mode token overrides ----------
+   Outside any @layer so cascade is unambiguous. CSS custom
+   properties cascade from the .dark element down to descendants,
+   so toggling .dark on <html> swaps the entire palette. */
+:where(.dark) {
+  --color-bg: oklch(16% 0.01 270);
+  --color-surface: oklch(20% 0.012 270);
+  --color-surface-2: oklch(24% 0.012 270);
+  --color-surface-3: oklch(28% 0.012 270);
+  --color-border: oklch(30% 0.012 270);
+  --color-border-strong: oklch(40% 0.014 270);
+
+  --color-on-bg: oklch(96% 0.005 270);
+  --color-on-bg-muted: oklch(75% 0.008 270);
+  --color-on-bg-subtle: oklch(60% 0.01 270);
+  --color-on-bg-faint: oklch(48% 0.01 270);
+
+  --color-brand-50: oklch(28% 0.06 250);
+  --color-brand-100: oklch(34% 0.08 250);
+  --color-brand-300: oklch(58% 0.14 250);
+  --color-brand-500: oklch(70% 0.16 250);
+  --color-brand-600: oklch(76% 0.16 250);
+  --color-brand-700: oklch(82% 0.13 250);
+
+  --color-success-50: oklch(28% 0.06 150);
+  --color-success-500: oklch(72% 0.15 150);
+  --color-success-700: oklch(82% 0.14 150);
+  --color-warn-50: oklch(30% 0.06 75);
+  --color-warn-500: oklch(80% 0.14 75);
+  --color-warn-700: oklch(86% 0.12 75);
+  --color-danger-50: oklch(28% 0.07 25);
+  --color-danger-500: oklch(70% 0.18 25);
+  --color-danger-700: oklch(78% 0.16 25);
+
+  --color-user-novica: oklch(70% 0.16 258);
+  --color-user-novica-soft: oklch(28% 0.07 258);
+  --color-user-nada: oklch(74% 0.14 12);
+  --color-user-nada-soft: oklch(28% 0.05 12);
+}
+
+@layer base {
+  html { color-scheme: light dark; }
+  .dark { color-scheme: dark; }
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-on-bg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* tabular numerics for amounts */
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+}
