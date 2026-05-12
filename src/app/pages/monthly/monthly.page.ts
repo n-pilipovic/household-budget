@@ -13,7 +13,7 @@ import {
 } from '@angular/fire/firestore';
 import { Observable, combineLatest, of, switchMap } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
-import { CategoryService, Category } from '../../data/category.service';
+import { CategoryService, Category, CategoryGroup } from '../../data/category.service';
 import { HouseholdService } from '../../data/household.service';
 import { BudgetService, monthKey } from '../../data/budget.service';
 import { Transaction } from '../../data/transaction.service';
@@ -23,14 +23,21 @@ interface MonthSelection {
   month: number; // 0-indexed
 }
 
-export interface CategoryRow {
+export interface SubRow {
   category: Category;
-  planned: number;       // 0 if no budget set
-  actual: number;        // sum of transactions in this category for the month
-  variance: number;      // planned - actual; meaningful only when planned > 0
-  variancePct: number;   // actual / planned (capped at 1.1 for the progress bar fill)
-  state: 'no-budget' | 'good' | 'watch' | 'bad';
+  actual: number;
   transactions: Transaction[];
+}
+
+export interface GroupRow {
+  group: CategoryGroup;
+  planned: number;       // 0 if no budget set for this group this month
+  actual: number;        // sum of transactions across all sub-categories
+  variance: number;      // planned - actual; meaningful only when planned > 0
+  variancePct: number;   // actual / planned (capped at 1.1 for the bar fill)
+  state: 'no-budget' | 'good' | 'watch' | 'bad';
+  subRows: SubRow[];
+  transactionCount: number;
 }
 
 @Component({
@@ -114,7 +121,7 @@ export class MonthlyPage {
   });
 
   /** Pace based on starting-amount cash flow, not category planned sum. */
-  protected readonly startingState = computed<CategoryRow['state']>(() => {
+  protected readonly startingState = computed<GroupRow['state']>(() => {
     const start = this.startingAmount();
     if (start <= 0) return 'no-budget';
     const spent = this.totalActual();
@@ -127,9 +134,10 @@ export class MonthlyPage {
     return 'good';
   });
 
-  /** Per-category aggregation. One row per active category, in sort order. */
-  protected readonly rows = computed<CategoryRow[]>(() => {
-    const cats = this.categories.activeCategories();
+  /** Per-group aggregation. One row per top-level group, in sort order.
+   *  Sub-categories are nested under each row for breakdown. */
+  protected readonly rows = computed<GroupRow[]>(() => {
+    const groups = this.categories.groups();
     const txs = this.monthTransactions();
     const budgetMap = this.monthBudgets();
 
@@ -142,25 +150,31 @@ export class MonthlyPage {
       txsByCat.set(t.categoryId, list);
     }
 
-    return cats.map(cat => {
-      const planned = budgetMap.get(cat.id) ?? 0;
-      const actual = actualByCat.get(cat.id) ?? 0;
+    return groups.map(g => {
+      const subRows: SubRow[] = g.categories.map(c => ({
+        category: c,
+        actual: actualByCat.get(c.id) ?? 0,
+        transactions: txsByCat.get(c.id) ?? [],
+      }));
+      const actual = subRows.reduce((s, sr) => s + sr.actual, 0);
+      const planned = budgetMap.get(g.slug) ?? 0;
       const variance = planned - actual;
       const variancePct = planned > 0 ? Math.min(actual / planned, 1.1) : 0;
-      let state: CategoryRow['state'];
+      let state: GroupRow['state'];
       if (planned === 0) state = actual > 0 ? 'bad' : 'no-budget';
       else if (variance >= 0 && actual / planned <= 0.9) state = 'good';
       else if (variance >= 0) state = 'watch';
       else state = 'bad';
 
       return {
-        category: cat,
+        group: g,
         planned,
         actual,
         variance,
         variancePct,
         state,
-        transactions: txsByCat.get(cat.id) ?? [],
+        subRows,
+        transactionCount: subRows.reduce((s, sr) => s + sr.transactions.length, 0),
       };
     });
   });
@@ -177,7 +191,7 @@ export class MonthlyPage {
     if (p === 0) return 0;
     return Math.min(this.totalActual() / p, 1.1);
   });
-  protected readonly totalState = computed<CategoryRow['state']>(() => {
+  protected readonly totalState = computed<GroupRow['state']>(() => {
     const planned = this.totalPlanned();
     const actual = this.totalActual();
     if (planned === 0) return actual > 0 ? 'bad' : 'no-budget';
@@ -224,18 +238,18 @@ export class MonthlyPage {
     this.cancelBudgetEdit();
   }
 
-  toggleExpand(catId: string) {
-    this.expandedId.update(cur => (cur === catId ? null : catId));
-    if (this.editingBudgetId() !== null && this.editingBudgetId() !== catId) {
+  toggleExpand(groupSlug: string) {
+    this.expandedId.update(cur => (cur === groupSlug ? null : groupSlug));
+    if (this.editingBudgetId() !== null && this.editingBudgetId() !== groupSlug) {
       this.cancelBudgetEdit();
     }
   }
 
-  startBudgetEdit(row: CategoryRow) {
-    this.editingBudgetId.set(row.category.id);
+  startBudgetEdit(row: GroupRow) {
+    this.editingBudgetId.set(row.group.slug);
     this.budgetDraft.set(row.planned > 0 ? String(row.planned) : '');
     this.budgetError.set(null);
-    this.expandedId.set(row.category.id);
+    this.expandedId.set(row.group.slug);
   }
 
   cancelBudgetEdit() {
@@ -244,7 +258,7 @@ export class MonthlyPage {
     this.budgetError.set(null);
   }
 
-  async saveBudget(catId: string) {
+  async saveBudget(groupSlug: string) {
     if (this.budgetBusy()) return;
     const raw = this.budgetDraft().trim();
     const cleaned = raw.replace(/[.,]/g, '');
@@ -256,7 +270,7 @@ export class MonthlyPage {
     this.budgetBusy.set(true);
     this.budgetError.set(null);
     try {
-      await this.budgets.setBudget(this.monthKey(), catId, amount);
+      await this.budgets.setBudget(this.monthKey(), groupSlug, amount);
       this.cancelBudgetEdit();
     } catch (err) {
       console.error('setBudget failed', err);
@@ -319,12 +333,12 @@ export class MonthlyPage {
 
   // ---------- Category budget editor ----------
 
-  async clearBudget(catId: string) {
+  async clearBudget(groupSlug: string) {
     if (this.budgetBusy()) return;
-    if (!window.confirm('Clear the planned amount for this category?')) return;
+    if (!window.confirm('Clear the planned amount for this group?')) return;
     this.budgetBusy.set(true);
     try {
-      await this.budgets.setBudget(this.monthKey(), catId, 0);
+      await this.budgets.setBudget(this.monthKey(), groupSlug, 0);
       this.cancelBudgetEdit();
     } catch (err) {
       console.error('setBudget (clear) failed', err);

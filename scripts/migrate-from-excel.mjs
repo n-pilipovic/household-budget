@@ -189,24 +189,31 @@ let existingImportedBudgetRefs = [];
 let allExistingBudgetRefs = [];
 let manualBudgetCount = 0;
 
+// Budgets live under `budgets/{yyyymm}/groups/{slug}` now. Older imports
+// may have written to the legacy `categories` sub-collection — sweep
+// both so re-imports leave no straggler docs behind.
+const BUDGET_SUBCOLS = ['groups', 'categories'];
+
 if (CLEAN) {
-  // Collect category docs with imported=true across every yyyymm.
   for (const monthDoc of budgetMonthRefs) {
-    const snap = await monthDoc.collection('categories').where('imported', '==', true).get();
-    for (const d of snap.docs) existingImportedBudgetRefs.push(d.ref);
+    for (const sub of BUDGET_SUBCOLS) {
+      const snap = await monthDoc.collection(sub).where('imported', '==', true).get();
+      for (const d of snap.docs) existingImportedBudgetRefs.push(d.ref);
+    }
   }
 }
 
 if (WIPE_ALL) {
-  // Collect every category doc + every yyyymm parent ref.
   for (const monthDoc of budgetMonthRefs) {
-    const snap = await monthDoc.collection('categories').get();
-    let importedHere = 0;
-    for (const d of snap.docs) {
-      allExistingBudgetRefs.push(d.ref);
-      if (d.data().imported === true) importedHere++;
+    for (const sub of BUDGET_SUBCOLS) {
+      const snap = await monthDoc.collection(sub).get();
+      let importedHere = 0;
+      for (const d of snap.docs) {
+        allExistingBudgetRefs.push(d.ref);
+        if (d.data().imported === true) importedHere++;
+      }
+      manualBudgetCount += snap.size - importedHere;
     }
-    manualBudgetCount += snap.size - importedHere;
     // The yyyymm parent doc itself may carry startingAmount etc. —
     // delete it too for a true reset.
     allExistingBudgetRefs.push(monthDoc);
@@ -331,6 +338,21 @@ function parseAdditive(s) {
   return matches.map(m => parseFloat(m)).filter(n => !isNaN(n) && n !== 0);
 }
 
+/**
+ * Mirror of groupSlug() in src/app/data/budget.service.ts. Keeps Excel
+ * group names (HRANA, RAČUNI, …) aligned with the app's doc IDs.
+ */
+function slugifyGroup(group) {
+  return String(group ?? '')
+    .toLowerCase()
+    .replace(/[čć]/g, 'c')
+    .replace(/š/g, 's')
+    .replace(/ž/g, 'z')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 /** Parse `I (03.01 - 12.01.)` style labels → start date. */
 function parseWeekStart(label, fallbackYear) {
   if (!label) return null;
@@ -430,7 +452,10 @@ for (const sheetName of yearSheets) {
     }
     stats.monthBlocks++;
 
-    // --- Budgets: row immediately after the marker is "Planirano". ---
+    // --- Budgets: row immediately after the marker is "Planirano".
+    // The Excel has planned amounts per SUB-category column, but our
+    // app stores budgets per GROUP. Sum all sub-category planned
+    // amounts under the same group into one budget doc.
     const planiranoRow = r + 1;
     const yyyymm = `${month.year}-${String(month.month + 1).padStart(2, '0')}`;
     for (const [cl, meta] of Object.entries(colMap)) {
@@ -438,18 +463,17 @@ for (const sheetName of yearSheets) {
       const components = expandCell(cell);
       if (components.length === 0) continue;
       const total = components.reduce((s, n) => s + n, 0);
-      if (total <= 0) continue; // budgets must be positive
-      const key = `${yyyymm}|${meta.categoryId}`;
+      if (total <= 0) continue;
+      const groupSlug = slugifyGroup(meta.group);
+      const key = `${yyyymm}|${groupSlug}`;
       const prev = budgetMap.get(key);
       if (prev) {
-        // Two columns mapped to the same category (e.g. 2025 Q+S both
-        // → ostalo-stan). Sum the planned amounts.
         prev.amount += total;
         prev.sources.push(`${sheetName}:${cl}${planiranoRow + 1}`);
       } else {
         budgetMap.set(key, {
           yyyymm,
-          categoryId: meta.categoryId,
+          groupSlug,
           amount: total,
           sources: [`${sheetName}:${cl}${planiranoRow + 1}`],
         });
@@ -608,7 +632,7 @@ await batchWrite('transactions', transactions, t => ({
 await batchWrite('budgets', budgets, b => ({
   ref: db.collection('households').doc(householdId)
     .collection('budgets').doc(b.yyyymm)
-    .collection('categories').doc(b.categoryId),
+    .collection('groups').doc(b.groupSlug),
   data: {
     amount: Math.round(b.amount),
     imported: true,

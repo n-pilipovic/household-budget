@@ -158,15 +158,15 @@
       }
     </div>
 
-    <h3 class="px-5 pt-7 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium">By category</h3>
+    <h3 class="px-5 pt-7 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium">By group</h3>
 
     <ul class="px-2">
-      @for (row of rows(); track row.category.id) {
+      @for (row of rows(); track row.group.slug) {
         <li class="px-1 py-px">
           <!-- Summary row -->
           <button
             type="button"
-            (click)="toggleExpand(row.category.id)"
+            (click)="toggleExpand(row.group.slug)"
             class="w-full flex items-center gap-3 px-2 py-2.5 rounded-md hover:bg-surface-2/60 transition text-left">
             <span
               class="size-9 rounded-md grid place-items-center shrink-0"
@@ -179,14 +179,16 @@
                 [class.text-warn-700]="row.state === 'watch'"
                 [class.text-danger-700]="row.state === 'bad'"
                 [class.text-on-bg-muted]="row.state === 'no-budget'">
-                {{ row.category.name[0] }}
+                {{ row.group.name[0] }}
               </span>
             </span>
             <div class="flex-1 min-w-0">
               <div class="flex items-baseline justify-between gap-2 mb-0.5">
                 <p class="text-[15px] font-semibold tracking-tight truncate">
-                  {{ row.category.name }}
-                  <span class="text-on-bg-faint font-normal text-xs ml-1">{{ row.category.group }}</span>
+                  {{ row.group.name }}
+                  @if (row.subRows.length > 1) {
+                    <span class="text-on-bg-faint font-normal text-xs ml-1">{{ row.subRows.length }} sub</span>
+                  }
                 </p>
                 @if (row.planned > 0) {
                   <span class="text-[13px] font-semibold num shrink-0"
@@ -217,28 +219,28 @@
               }
             </div>
             <svg class="size-4 text-on-bg-muted transition shrink-0"
-              [class.rotate-90]="expandedId() === row.category.id"
+              [class.rotate-90]="expandedId() === row.group.slug"
               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </button>
 
           <!-- Expanded content -->
-          @if (expandedId() === row.category.id) {
+          @if (expandedId() === row.group.slug) {
             <div class="ml-12 mr-2 mt-1 mb-3 border-l border-border pl-3 space-y-3">
-              <!-- Budget editor -->
-              @if (editingBudgetId() === row.category.id) {
+              <!-- Budget editor (group-level) -->
+              @if (editingBudgetId() === row.group.slug) {
                 <form
-                  (submit)="$event.preventDefault(); saveBudget(row.category.id)"
+                  (submit)="$event.preventDefault(); saveBudget(row.group.slug)"
                   (keydown.escape)="cancelBudgetEdit()"
                   class="rounded-md bg-surface-2 border border-border p-3">
                   <label class="block text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mb-2">
-                    Planned for {{ monthLabel() }}
+                    Planned for {{ row.group.name }} · {{ monthLabel() }}
                   </label>
                   <div class="flex items-center gap-2">
                     <input
                       type="text" inputmode="numeric" enterkeyhint="done" autofocus
                       [value]="budgetDraft()"
                       (input)="budgetDraft.set($any($event.target).value)"
-                      placeholder="e.g. 18000"
+                      placeholder="e.g. 100000"
                       class="flex-1 h-10 px-3 rounded-md bg-surface border-2 border-brand-500 ring-2 ring-brand-100 text-base num outline-none">
                     <span class="text-xs text-on-bg-muted">RSD</span>
                   </div>
@@ -259,7 +261,7 @@
                     </button>
                     @if (row.planned > 0) {
                       <button
-                        type="button" (click)="clearBudget(row.category.id)"
+                        type="button" (click)="clearBudget(row.group.slug)"
                         class="h-9 px-3 rounded-md border border-danger-500/30 text-danger-700 text-sm font-medium hover:bg-danger-50 transition ml-auto">
                         Clear
                       </button>
@@ -267,7 +269,6 @@
                   </div>
                 </form>
               } @else {
-                <!-- Action row: edit budget on the left, view-12-months on the right -->
                 <div class="flex items-center justify-between gap-3 py-1">
                   <button
                     type="button" (click)="startBudgetEdit(row)"
@@ -275,34 +276,67 @@
                     <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
                     {{ row.planned > 0 ? 'Edit planned' : 'Set budget' }}
                   </button>
-                  <a
-                    [routerLink]="['/category', row.category.id]"
-                    class="inline-flex items-center gap-1.5 text-sm text-on-bg-muted hover:text-on-bg font-medium">
-                    View 12 months
-                    <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                  </a>
+                  @if (row.subRows.length === 1) {
+                    <a
+                      [routerLink]="['/category', row.subRows[0].category.id]"
+                      class="inline-flex items-center gap-1.5 text-sm text-on-bg-muted hover:text-on-bg font-medium">
+                      View 12 months
+                      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                  }
                 </div>
               }
 
-              <!-- Transactions -->
-              @if (row.transactions.length > 0) {
+              <!-- Sub-categories breakdown (only when >1 sub-cat) -->
+              @if (row.subRows.length > 1) {
+                <div>
+                  <p class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mb-1">Sub-categories</p>
+                  <ul class="space-y-px">
+                    @for (sub of row.subRows; track sub.category.id) {
+                      <li>
+                        <a
+                          [routerLink]="['/category', sub.category.id]"
+                          class="flex items-center gap-2 py-1.5 px-1 -mx-1 rounded hover:bg-surface-2/60 transition">
+                          <span class="text-sm flex-1 truncate">{{ sub.category.name }}</span>
+                          @if (sub.actual > 0) {
+                            <span class="text-sm font-semibold num">{{ formatAmount(sub.actual) }}</span>
+                          } @else {
+                            <span class="text-xs text-on-bg-faint">—</span>
+                          }
+                          <svg class="size-3.5 text-on-bg-faint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </a>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+
+              <!-- Transactions across all sub-categories in this group -->
+              @if (row.transactionCount > 0) {
                 <div>
                   <p class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mb-1">
-                    {{ row.transactions.length }} transaction{{ row.transactions.length === 1 ? '' : 's' }}
+                    {{ row.transactionCount }} transaction{{ row.transactionCount === 1 ? '' : 's' }}
                   </p>
                   <ul class="space-y-px">
-                    @for (t of row.transactions; track t.id) {
-                      <li class="flex items-center gap-2 py-2 text-sm">
-                        <span
-                          class="size-6 rounded-full text-white grid place-items-center text-[10px] font-semibold shrink-0"
-                          [class.bg-member-1]="colorSlotFor(t.userId) === '1'"
-                          [class.bg-member-2]="colorSlotFor(t.userId) === '2'">
-                          {{ initialFor(t) }}
-                        </span>
-                        <p class="flex-1 min-w-0 truncate">{{ t.note || row.category.name }}</p>
-                        <span class="text-[11px] text-on-bg-faint num">{{ formatDay(t.occurredOn) }}</span>
-                        <span class="font-semibold num w-20 text-right">{{ formatAmount(t.amount) }}</span>
-                      </li>
+                    @for (sub of row.subRows; track sub.category.id) {
+                      @for (t of sub.transactions; track t.id) {
+                        <li class="flex items-center gap-2 py-2 text-sm">
+                          <span
+                            class="size-6 rounded-full text-white grid place-items-center text-[10px] font-semibold shrink-0"
+                            [class.bg-member-1]="colorSlotFor(t.userId) === '1'"
+                            [class.bg-member-2]="colorSlotFor(t.userId) === '2'">
+                            {{ initialFor(t) }}
+                          </span>
+                          <p class="flex-1 min-w-0 truncate">
+                            {{ t.note || sub.category.name }}
+                            @if (row.subRows.length > 1) {
+                              <span class="text-on-bg-faint text-xs ml-1">· {{ sub.category.name }}</span>
+                            }
+                          </p>
+                          <span class="text-[11px] text-on-bg-faint num">{{ formatDay(t.occurredOn) }}</span>
+                          <span class="font-semibold num w-20 text-right">{{ formatAmount(t.amount) }}</span>
+                        </li>
+                      }
                     }
                   </ul>
                 </div>
@@ -316,7 +350,7 @@
     </ul>
 
     @if (rows().length === 0) {
-      <p class="px-5 pt-12 text-center text-on-bg-muted">Loading categories…</p>
+      <p class="px-5 pt-12 text-center text-on-bg-muted">Loading…</p>
     }
   </div>
 </main>

@@ -6,14 +6,12 @@ import {
   Timestamp,
   collection,
   collectionData,
-  doc,
-  getDoc,
   limit,
   orderBy,
   query,
   where,
 } from '@angular/fire/firestore';
-import { Observable, combineLatest, from, of, switchMap } from 'rxjs';
+import { Observable, combineLatest, of, switchMap } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
 import { CategoryService } from '../../data/category.service';
 import { HouseholdService } from '../../data/household.service';
@@ -27,11 +25,9 @@ interface MonthBucket {
   year: number;
   month: number;          // 0-indexed
   label: string;          // 'Jan', 'Feb', etc.
-  planned: number;
   actual: number;
   isCurrent: boolean;
-  state: 'no-budget' | 'good' | 'watch' | 'bad';
-  fillPct: number;        // 0..1, relative to the chart scale
+  fillPct: number;        // 0..1, scaled to the max actual across all 12 months
 }
 
 @Component({
@@ -111,32 +107,12 @@ export class CategoryDetailPage {
     initialValue: [] as Transaction[],
   });
 
-  /** Budgets for the 12 months — loads once per (household, category) pair. */
-  private readonly budgetsMap$: Observable<Map<string, number>> =
-    combineLatest([
-      toObservable(this.household),
-      toObservable(this.categoryId),
-    ]).pipe(
-      switchMap(([h, catId]) => {
-        if (!h || !catId) return of(new Map<string, number>());
-        const months = this.monthList();
-        const reads = months.map(m =>
-          getDoc(doc(this.firestore, 'households', h.id, 'budgets', m.key, 'categories', catId))
-            .then(snap => [m.key, snap.exists() ? Number((snap.data() as { amount?: number }).amount ?? 0) : 0] as const)
-            .catch(() => [m.key, 0] as const),
-        );
-        return from(Promise.all(reads).then(entries => new Map(entries)));
-      }),
-    );
-
-  protected readonly budgetsMap = toSignal(this.budgetsMap$, {
-    initialValue: new Map<string, number>(),
-  });
-
-  /** 12 buckets with planned + actual, ready to render as bars. */
+  /** 12 buckets of actual, ready to render as bars.
+   *  Budgets are now group-level (not per-category), so this view
+   *  shows actual spending only. The bar heights scale to the max
+   *  actual across the 12 months so trends pop. */
   protected readonly monthly = computed<MonthBucket[]>(() => {
     const months = this.monthList();
-    const budgets = this.budgetsMap();
     const txs = this.transactions12mo();
     const now = new Date();
 
@@ -149,18 +125,12 @@ export class CategoryDetailPage {
     }
 
     const buckets: MonthBucket[] = months.map(m => {
-      const planned = budgets.get(m.key) ?? 0;
       const actual = actualByKey.get(m.key) ?? 0;
       const isCurrent = m.year === now.getFullYear() && m.month === now.getMonth();
-      let state: MonthBucket['state'];
-      if (planned === 0) state = actual > 0 ? 'bad' : 'no-budget';
-      else if (planned >= actual && actual / planned <= 0.9) state = 'good';
-      else if (planned >= actual) state = 'watch';
-      else state = 'bad';
-      return { ...m, planned, actual, isCurrent, state, fillPct: 0 };
+      return { ...m, actual, isCurrent, fillPct: 0 };
     });
 
-    const maxVal = Math.max(1, ...buckets.map(b => Math.max(b.planned, b.actual)));
+    const maxVal = Math.max(1, ...buckets.map(b => b.actual));
     for (const b of buckets) b.fillPct = b.actual / maxVal;
     return buckets;
   });
@@ -175,10 +145,6 @@ export class CategoryDetailPage {
   protected readonly thisMonthActual = computed(() => {
     const m = this.monthly().find(b => b.isCurrent);
     return m?.actual ?? 0;
-  });
-  protected readonly thisMonthPlanned = computed(() => {
-    const m = this.monthly().find(b => b.isCurrent);
-    return m?.planned ?? 0;
   });
   protected readonly transactionCount = computed(() => this.transactions12mo().length);
 

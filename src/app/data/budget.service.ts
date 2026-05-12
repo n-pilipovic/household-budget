@@ -37,6 +37,22 @@ export function monthKey(year: number, monthZeroIndexed: number): MonthKey {
   return `${year}-${m}`;
 }
 
+/**
+ * Normalise a category-group display name ('HRANA', 'RAČUNI', …) to a
+ * URL/doc-id-safe slug ('hrana', 'racuni', …). Latin-extended chars
+ * are folded so the slug is plain ASCII.
+ */
+export function groupSlug(group: string): string {
+  return group
+    .toLowerCase()
+    .replace(/[čć]/g, 'c')
+    .replace(/š/g, 's')
+    .replace(/ž/g, 'z')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 @Injectable({ providedIn: 'root' })
 export class BudgetService {
   private readonly firestore = inject(Firestore);
@@ -94,7 +110,10 @@ export class BudgetService {
   }
 
   /**
-   * Live budgets for a given month, keyed by categoryId.
+   * Live budgets for a given month, keyed by group slug (e.g. 'hrana',
+   * 'ostalo'). One budget per top-level group, not per sub-category —
+   * so a single "HRANA" budget covers both Market and Restoran.
+   *
    * Pass a Signal so the result updates when the calling component
    * navigates between months.
    */
@@ -107,7 +126,7 @@ export class BudgetService {
         switchMap(([h, m]) => {
           if (!h) return of(new Map<string, number>());
           const col = collection(
-            this.firestore, 'households', h.id, 'budgets', m, 'categories',
+            this.firestore, 'households', h.id, 'budgets', m, 'groups',
           );
           return (collectionData(col, { idField: 'id' }) as Observable<{ id: string; amount: number }[]>)
             .pipe(map(docs => {
@@ -121,16 +140,16 @@ export class BudgetService {
   }
 
   /**
-   * Set the planned amount for a category in a given month. Passing
+   * Set the planned amount for a group in a given month. Passing
    * 0 deletes the doc to keep the collection tidy.
    */
-  async setBudget(month: MonthKey, categoryId: string, amount: number): Promise<void> {
+  async setBudget(month: MonthKey, group: string, amount: number): Promise<void> {
     const h = this.households.currentHousehold();
     if (!h) throw new Error('No household selected');
-    if (!month || !categoryId) throw new Error('Month and category are required');
+    if (!month || !group) throw new Error('Month and group are required');
 
     const ref = doc(
-      this.firestore, 'households', h.id, 'budgets', month, 'categories', categoryId,
+      this.firestore, 'households', h.id, 'budgets', month, 'groups', group,
     );
     if (!Number.isFinite(amount) || amount <= 0) {
       try {

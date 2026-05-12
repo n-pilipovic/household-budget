@@ -43,13 +43,13 @@
       <!-- Chart -->
       <div class="px-5 pt-7">
         <div class="flex items-baseline justify-between mb-3">
-          <h3 class="text-sm font-semibold tracking-tight">Planned vs actual</h3>
+          <h3 class="text-sm font-semibold tracking-tight">Spending by month</h3>
           <span class="text-[11px] text-on-bg-faint">12 months</span>
         </div>
         <div class="rounded-lg bg-surface border border-border p-3">
           <div class="h-[120px] flex items-end gap-1.5">
             @for (b of monthly(); track b.key) {
-              <div class="flex-1 flex flex-col items-center gap-1.5" [attr.title]="b.label + ': ' + formatAmount(b.actual) + ' / ' + formatAmount(b.planned) + ' planned'">
+              <div class="flex-1 flex flex-col items-center gap-1.5" [attr.title]="b.label + ': ' + formatAmount(b.actual) + ' RSD'">
                 <div
                   class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative"
                   [class.ring-2]="b.isCurrent"
@@ -58,13 +58,10 @@
                   [class.ring-offset-surface]="b.isCurrent">
                   <div
                     class="absolute inset-x-0 bottom-0 rounded-t transition-all"
-                    [class.bg-success-500]="b.state === 'good' && !b.isCurrent"
-                    [class.bg-warn-500]="b.state === 'watch' && !b.isCurrent"
-                    [class.bg-danger-500]="b.state === 'bad' && !b.isCurrent"
-                    [class.bg-surface-3]="b.state === 'no-budget' && !b.isCurrent && b.actual === 0"
-                    [class.bg-on-bg]="b.state === 'no-budget' && !b.isCurrent && b.actual > 0"
                     [class.bg-brand-500]="b.isCurrent"
-                    [class.opacity-70]="!b.isCurrent"
+                    [class.bg-on-bg]="!b.isCurrent && b.actual > 0"
+                    [class.bg-surface-3]="!b.isCurrent && b.actual === 0"
+                    [class.opacity-60]="!b.isCurrent && b.actual > 0"
                     [style.height.%]="b.fillPct * 100">
                   </div>
                 </div>
@@ -77,11 +74,7 @@
             }
           </div>
           <div class="mt-3 flex items-center justify-between text-[11px] text-on-bg-muted">
-            <div class="flex items-center gap-3">
-              <span class="inline-flex items-center gap-1"><span class="size-2 rounded-xs bg-success-500/70"></span>under</span>
-              <span class="inline-flex items-center gap-1"><span class="size-2 rounded-xs bg-warn-500/70"></span>watch</span>
-              <span class="inline-flex items-center gap-1"><span class="size-2 rounded-xs bg-danger-500/80"></span>over</span>
-            </div>
+            <span>Budgets are set at the group level — see the Monthly view for plan vs actual.</span>
             <span class="text-on-bg-faint">{{ monthly()[0]?.label }}–{{ monthly()[monthly().length - 1]?.label }}</span>
           </div>
         </div>
