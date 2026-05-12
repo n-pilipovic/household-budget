@@ -33,13 +33,18 @@ service cloud.firestore {
 
     // Households
     match /households/{hid} {
-      allow read: if isMember(hid);
+      // Use resource.data directly (not isMember() / get()) so collection
+      // queries with where('members', 'array-contains', uid) pass the
+      // rules engine's static analysis. get()-based rules only work for
+      // direct doc reads, not queries.
+      allow read: if isAuthed() && request.auth.uid in resource.data.members;
       // Anyone authed can create a household; they become its first
       // member and the only member at creation time.
       allow create: if isAuthed()
         && request.resource.data.members.hasOnly([request.auth.uid])
         && request.resource.data.members.size() == 1;
-      allow update: if isMember(hid) || isSelfJoining(hid);
+      allow update: if isAuthed()
+        && (request.auth.uid in resource.data.members || isSelfJoining(hid));
       allow delete: if false;
     }
 
