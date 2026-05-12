@@ -65,3 +65,8 @@ skills-lock.json
 
 # Auto-generated at build time by scripts/gen-build-info.mjs
 /src/app/build-info.ts
+
+# Firebase Admin service-account keys — full project access, never commit.
+firebase-admin-key.json
+*-firebase-adminsdk-*.json
+*-admin-key.json

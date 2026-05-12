@@ -7,7 +7,8 @@
     "start": "pnpm build:info && ng serve",
     "build": "pnpm build:info && ng build",
     "watch": "pnpm build:info && ng build --watch --configuration development",
-    "test": "pnpm build:info && ng test"
+    "test": "pnpm build:info && ng test",
+    "migrate": "node scripts/migrate-from-excel.mjs"
   },
   "private": true,
   "packageManager": "pnpm@10.33.4",
@@ -30,6 +31,7 @@
     "@angular/cli": "^21.2.4",
     "@angular/compiler-cli": "^21.2.0",
     "@tailwindcss/postcss": "^4.3.0",
+    "firebase-admin": "^13.9.0",
     "firebase-tools": "^15.17.0",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.14",
@@ -37,6 +39,7 @@
     "sharp": "^0.34.5",
     "tailwindcss": "^4.3.0",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "xlsx": "^0.18.5"
   }
 }
