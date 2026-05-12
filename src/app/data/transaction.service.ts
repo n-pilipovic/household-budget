@@ -6,10 +6,13 @@ import {
   addDoc,
   collection,
   collectionData,
+  deleteDoc,
+  doc,
   limit,
   orderBy,
   query,
   serverTimestamp,
+  updateDoc,
   where,
 } from '@angular/fire/firestore';
 import { Observable, combineLatest, map, of, switchMap } from 'rxjs';
@@ -117,5 +120,42 @@ export class TransactionService {
       },
     );
     return ref.id;
+  }
+
+  async updateTransaction(
+    id: string,
+    patch: Partial<NewTransactionInput>,
+  ): Promise<void> {
+    const h = this.households.currentHousehold();
+    if (!h) throw new Error('No household selected');
+    if (!id) throw new Error('Transaction id is required');
+
+    const update: Record<string, unknown> = {};
+    if (patch.amount !== undefined) {
+      if (!Number.isFinite(patch.amount) || patch.amount === 0) {
+        throw new Error('Amount must be a non-zero number');
+      }
+      update['amount'] = Math.round(patch.amount);
+    }
+    if (patch.note !== undefined) update['note'] = patch.note.trim();
+    if (patch.categoryId !== undefined) {
+      if (!patch.categoryId) throw new Error('Category is required');
+      update['categoryId'] = patch.categoryId;
+    }
+    if (patch.occurredOn !== undefined) {
+      update['occurredOn'] = Timestamp.fromDate(patch.occurredOn);
+    }
+    if (Object.keys(update).length === 0) return;
+
+    const ref = doc(this.firestore, 'households', h.id, 'transactions', id);
+    await updateDoc(ref, update);
+  }
+
+  async deleteTransaction(id: string): Promise<void> {
+    const h = this.households.currentHousehold();
+    if (!h) throw new Error('No household selected');
+    if (!id) throw new Error('Transaction id is required');
+    const ref = doc(this.firestore, 'households', h.id, 'transactions', id);
+    await deleteDoc(ref);
   }
 }

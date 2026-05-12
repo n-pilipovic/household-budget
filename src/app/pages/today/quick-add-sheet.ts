@@ -2,8 +2,13 @@ import { Component, computed, effect, inject, input, output, signal, viewChild, 
 import { AuthService } from '../../auth/auth.service';
 import { CategoryService, Category } from '../../data/category.service';
 import { HouseholdService } from '../../data/household.service';
-import { TransactionService } from '../../data/transaction.service';
+import { Transaction, TransactionService } from '../../data/transaction.service';
 import { parseQuickAdd, suggestCategories } from '../../data/parser';
+
+interface CategoryGroup {
+  name: string;
+  categories: Category[];
+}
 
 @Component({
   selector: 'app-quick-add-sheet',
@@ -12,6 +17,8 @@ import { parseQuickAdd, suggestCategories } from '../../data/parser';
 })
 export class QuickAddSheet {
   readonly open = input<boolean>(false);
+  /** When set, the sheet is in edit mode: prefilled + saves via update. */
+  readonly editing = input<Transaction | null>(null);
   readonly close = output<void>();
 
   private readonly auth = inject(AuthService);
@@ -23,29 +30,43 @@ export class QuickAddSheet {
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly selectedCategoryId = signal<string | null>(null);
+  protected readonly showAll = signal(false);
 
-  // Manual override flag — once the user taps a chip, stop auto-selecting
-  // based on note changes. Reset when the sheet closes/opens.
+  // Manual override flag — once the user taps a chip or picks from the
+  // full list, stop auto-selecting based on note changes. Reset when
+  // the sheet is reopened in create mode.
   private readonly userPickedCategory = signal(false);
 
   protected readonly inputRef = viewChild<ElementRef<HTMLInputElement>>('input');
 
+  protected readonly isEditMode = computed(() => this.editing() !== null);
+
   protected readonly parsed = computed(() => parseQuickAdd(this.raw()));
 
-  /** Suggested category IDs based on the note. Top entry = best guess. */
+  /** Suggested category IDs based on the note (top first). */
   protected readonly suggestedIds = computed(() => {
     const { note } = this.parsed();
     return suggestCategories(note);
   });
 
-  /** First 3 visible chips for the suggestions strip. */
+  /** First 3 chips for the quick suggestions row. */
   protected readonly suggestedChips = computed<Category[]>(() => {
     const byId = this.categories.byId();
-    const top = this.suggestedIds().slice(0, 3);
-    return top.map(id => byId[id]).filter((c): c is Category => !!c);
+    return this.suggestedIds().slice(0, 3).map(id => byId[id]).filter((c): c is Category => !!c);
   });
 
-  /** Active selection — falls back to the top suggestion if user hasn't tapped one. */
+  /** All active categories grouped by their top-level group. */
+  protected readonly grouped = computed<CategoryGroup[]>(() => {
+    const groups = new Map<string, Category[]>();
+    for (const c of this.categories.activeCategories()) {
+      const list = groups.get(c.group) ?? [];
+      list.push(c);
+      groups.set(c.group, list);
+    }
+    return [...groups.entries()].map(([name, categories]) => ({ name, categories }));
+  });
+
+  /** Active selection — falls back to the top suggestion if user hasn't picked. */
   protected readonly effectiveCategoryId = computed(() =>
     this.selectedCategoryId() ?? this.suggestedIds()[0] ?? null,
   );
@@ -54,6 +75,13 @@ export class QuickAddSheet {
     const id = this.effectiveCategoryId();
     if (!id) return null;
     return this.categories.byId()[id] ?? null;
+  });
+
+  /** True when the effective category isn't in the top 3 chips (i.e. user picked from "all"). */
+  protected readonly effectiveCategoryIsExtra = computed(() => {
+    const eff = this.effectiveCategoryId();
+    if (!eff) return false;
+    return !this.suggestedChips().some(c => c.id === eff);
   });
 
   protected readonly canSubmit = computed(() => {
@@ -71,27 +99,31 @@ export class QuickAddSheet {
   });
 
   constructor() {
-    // When the sheet opens, reset state and focus the input.
+    // When the sheet opens, populate state from edit target (if any).
     effect(() => {
-      if (this.open()) {
+      if (!this.open()) return;
+      const t = this.editing();
+      this.error.set(null);
+      this.showAll.set(false);
+      if (t) {
+        // Edit mode: prefill from the transaction.
+        this.raw.set(`${t.amount} ${t.note}`.trim());
+        this.selectedCategoryId.set(t.categoryId);
+        this.userPickedCategory.set(true);
+      } else {
         this.raw.set('');
-        this.error.set(null);
         this.selectedCategoryId.set(null);
         this.userPickedCategory.set(false);
-        // Defer focus to next frame so the element is rendered.
-        setTimeout(() => this.inputRef()?.nativeElement.focus(), 30);
       }
+      setTimeout(() => this.inputRef()?.nativeElement.focus(), 30);
     });
 
-    // When the note changes (and the user hasn't manually picked a chip),
-    // keep the auto-selected category in sync.
+    // Clear auto-selected category whenever the note changes,
+    // unless the user has explicitly picked one.
     effect(() => {
-      const note = this.parsed().note;
+      void this.parsed().note;
       if (this.userPickedCategory()) return;
-      // Touch suggestions so the effect re-runs when the note changes.
-      void this.suggestedIds();
       this.selectedCategoryId.set(null);
-      void note;
     });
   }
 
@@ -106,6 +138,11 @@ export class QuickAddSheet {
   pickCategory(id: string) {
     this.userPickedCategory.set(true);
     this.selectedCategoryId.set(id);
+    this.showAll.set(false);
+  }
+
+  toggleShowAll() {
+    this.showAll.update(v => !v);
   }
 
   async submit(e: SubmitEvent) {
@@ -118,11 +155,33 @@ export class QuickAddSheet {
     this.busy.set(true);
     this.error.set(null);
     try {
-      await this.transactions.addTransaction({ amount, note, categoryId });
+      const editing = this.editing();
+      if (editing) {
+        await this.transactions.updateTransaction(editing.id, { amount, note, categoryId });
+      } else {
+        await this.transactions.addTransaction({ amount, note, categoryId });
+      }
       this.closeSheet();
     } catch (err) {
-      console.error('addTransaction failed', err);
+      console.error('saveTransaction failed', err);
       this.error.set(err instanceof Error ? err.message : 'Could not save. Try again.');
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  async deleteTransaction() {
+    const t = this.editing();
+    if (!t) return;
+    if (!window.confirm('Delete this transaction?')) return;
+    this.busy.set(true);
+    this.error.set(null);
+    try {
+      await this.transactions.deleteTransaction(t.id);
+      this.closeSheet();
+    } catch (err) {
+      console.error('deleteTransaction failed', err);
+      this.error.set(err instanceof Error ? err.message : 'Could not delete. Try again.');
     } finally {
       this.busy.set(false);
     }

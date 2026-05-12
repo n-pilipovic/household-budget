@@ -48,29 +48,33 @@
         <h3 class="px-5 pt-7 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium">{{ group.label }}</h3>
         <ul class="px-2 space-y-px">
           @for (t of group.items; track t.id) {
-            <li
-              class="flex items-center gap-3 px-3 py-3 rounded-md transition"
-              [class.row-just-synced]="isJustSynced(t.id)"
-              [class.hover:bg-surface-2]="!isJustSynced(t.id)">
-              <span
-                class="size-9 rounded-full text-white grid place-items-center text-sm font-semibold shrink-0"
-                [class.bg-user-novica]="colorSlotFor(t.userId) === 'novica'"
-                [class.bg-user-nada]="colorSlotFor(t.userId) === 'nada'">
-                {{ displayInitialForUser(t.userId) }}
-              </span>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-baseline justify-between gap-2">
-                  <p class="text-[15px] font-medium truncate">{{ t.note || categoryNameFor(t.categoryId) }}</p>
-                  <span class="text-[15px] font-semibold num shrink-0">
-                    {{ formatAmount(t.amount) }}
-                    <span class="text-on-bg-faint font-normal text-xs">RSD</span>
-                  </span>
+            <li>
+              <button
+                type="button"
+                (click)="openEdit(t)"
+                class="w-full flex items-center gap-3 px-3 py-3 rounded-md transition text-left"
+                [class.row-just-synced]="isJustSynced(t.id)"
+                [class.hover:bg-surface-2]="!isJustSynced(t.id)">
+                <span
+                  class="size-9 rounded-full text-white grid place-items-center text-sm font-semibold shrink-0"
+                  [class.bg-user-novica]="colorSlotFor(t.userId) === 'novica'"
+                  [class.bg-user-nada]="colorSlotFor(t.userId) === 'nada'">
+                  {{ displayInitialForUser(t.userId) }}
+                </span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <p class="text-[15px] font-medium truncate">{{ t.note || categoryNameFor(t.categoryId) }}</p>
+                    <span class="text-[15px] font-semibold num shrink-0">
+                      {{ formatAmount(t.amount) }}
+                      <span class="text-on-bg-faint font-normal text-xs">RSD</span>
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-on-bg-muted">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted font-medium">{{ categoryNameFor(t.categoryId) }}</span>
+                    <span>{{ formatTime(t.createdAt) }}</span>
+                  </div>
                 </div>
-                <div class="flex items-center gap-2 text-xs text-on-bg-muted">
-                  <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted font-medium">{{ categoryNameFor(t.categoryId) }}</span>
-                  <span>{{ formatTime(t.createdAt) }}</span>
-                </div>
-              </div>
+              </button>
             </li>
           }
         </ul>
@@ -89,6 +93,10 @@
     <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
   </button>
 
-  <!-- Quick Add sheet -->
-  <app-quick-add-sheet [open]="quickAddOpen()" (close)="closeQuickAdd()"></app-quick-add-sheet>
+  <!-- Quick Add sheet (also handles edit when [editing] is set) -->
+  <app-quick-add-sheet
+    [open]="quickAddOpen()"
+    [editing]="editingTx()"
+    (close)="closeQuickAdd()">
+  </app-quick-add-sheet>
 </main>

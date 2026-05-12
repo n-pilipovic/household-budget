@@ -32,6 +32,7 @@ export class TodayPage {
   protected readonly categoriesById = this.categories.byId;
 
   protected readonly quickAddOpen = signal(false);
+  protected readonly editingTx = signal<Transaction | null>(null);
   protected readonly justSyncedIds = signal<Set<string>>(new Set());
 
   protected readonly myColorSlot = computed(() => {
@@ -120,11 +121,20 @@ export class TodayPage {
   }
 
   openQuickAdd() {
+    this.editingTx.set(null);
+    this.quickAddOpen.set(true);
+  }
+
+  openEdit(t: Transaction) {
+    this.editingTx.set(t);
     this.quickAddOpen.set(true);
   }
 
   closeQuickAdd() {
     this.quickAddOpen.set(false);
+    // Clear editing state next tick so the sheet's close animation
+    // doesn't show "Editing transaction" while collapsing.
+    setTimeout(() => this.editingTx.set(null), 200);
   }
 
   async signOut() {
