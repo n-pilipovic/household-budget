@@ -10,12 +10,20 @@
       </span>
       <span class="text-[15px] font-semibold tracking-tight">{{ household()?.name }}</span>
     </div>
-    <button
-      (click)="signOut()"
-      class="size-9 rounded-full hover:bg-surface-2 grid place-items-center transition"
-      aria-label="Sign out">
-      <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-    </button>
+    <div class="flex items-center gap-1">
+      <a
+        routerLink="/monthly"
+        class="size-9 rounded-full hover:bg-surface-2 grid place-items-center transition"
+        aria-label="Monthly breakdown">
+        <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>
+      </a>
+      <button
+        (click)="signOut()"
+        class="size-9 rounded-full hover:bg-surface-2 grid place-items-center transition"
+        aria-label="Sign out">
+        <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
   </header>
 
   <div class="flex-1 overflow-y-auto pb-32 max-w-md mx-auto w-full">

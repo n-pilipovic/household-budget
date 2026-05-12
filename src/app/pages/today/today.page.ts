@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 import { CategoryService } from '../../data/category.service';
 import { HouseholdService } from '../../data/household.service';
@@ -15,7 +15,7 @@ const JUST_SYNCED_MS = 2200;
 
 @Component({
   selector: 'app-today',
-  imports: [QuickAddSheet],
+  imports: [QuickAddSheet, RouterLink],
   templateUrl: './today.page.html',
 })
 export class TodayPage {
