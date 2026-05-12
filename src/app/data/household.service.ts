@@ -1,5 +1,6 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { FirebaseError } from '@angular/fire/app';
 import {
   Firestore,
   Timestamp,
@@ -149,6 +150,14 @@ export class HouseholdService {
   /**
    * Join the household referenced by an invite code. Validates the
    * code exists, isn't expired, and hasn't been used by someone else.
+   *
+   * Implementation note: the joiner is NOT yet a member of the
+   * household, so they can't `getDoc(households/{hid})` under our
+   * rules (read requires `auth.uid in resource.data.members`). To
+   * avoid relaxing the read rule, we skip the household read and
+   * pick a color slot deterministically. Slot is hardcoded to 'nada'
+   * since the MVP has at most 2 members per household; revisit when
+   * household.members can exceed 2.
    */
   async joinByCode(rawCode: string): Promise<{ householdId: string }> {
     const u = this.auth.user();
@@ -168,24 +177,19 @@ export class HouseholdService {
     }
 
     const householdRef = doc(this.firestore, 'households', data.householdId);
-    const householdSnap = await getDoc(householdRef);
-    if (!householdSnap.exists()) {
-      throw new InviteError('orphan', 'The household for this invite no longer exists.');
-    }
-    const household = householdSnap.data() as Omit<Household, 'id'>;
-    if (household.members.includes(u.uid)) {
-      return { householdId: data.householdId };
-    }
+    const slot: UserColorSlot = 'nada';
 
-    // Pick a colour slot the existing members aren't using.
-    const taken = new Set(Object.values(household.memberColors ?? {}));
-    const slot = COLOR_SLOTS.find(c => !taken.has(c))
-      ?? COLOR_SLOTS[household.members.length % COLOR_SLOTS.length];
-
-    await updateDoc(householdRef, {
-      members: arrayUnion(u.uid),
-      [`memberColors.${u.uid}`]: slot,
-    });
+    try {
+      await updateDoc(householdRef, {
+        members: arrayUnion(u.uid),
+        [`memberColors.${u.uid}`]: slot,
+      });
+    } catch (err) {
+      if (err instanceof FirebaseError && err.code === 'not-found') {
+        throw new InviteError('orphan', 'The household for this invite no longer exists.');
+      }
+      throw err;
+    }
 
     // Mark invite as used. Best-effort — failure here doesn't block joining.
     try {
