@@ -25,6 +25,7 @@
  *   pnpm migrate -- --email=<your-email> --dry-run
  *   pnpm migrate -- --email=<your-email>
  *   pnpm migrate -- --email=<your-email> --clean       # wipe prior imports first
+ *   pnpm migrate -- --email=<your-email> --wipe-all    # wipe EVERYTHING first (incl. manual)
  *
  * Requires firebase-admin-key.json at the repo root (download from
  * Firebase Console → Project Settings → Service accounts).
@@ -44,7 +45,7 @@ import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
 
 const args = parseArgs(process.argv.slice(2));
 if (!args.email) {
-  console.error('Usage: pnpm migrate -- --email=<your-email> [--dry-run] [--clean] [--force] [--yes]');
+  console.error('Usage: pnpm migrate -- --email=<your-email> [--dry-run] [--clean | --wipe-all] [--force] [--yes]');
   process.exit(2);
 }
 const DRY_RUN = !!args['dry-run'];
@@ -53,6 +54,14 @@ const ASSUME_YES = !!args.yes;
 // --clean: wipe existing imported=true transactions before re-importing.
 // Manually-logged transactions (no imported flag) are preserved.
 const CLEAN = !!args.clean;
+// --wipe-all: wipe EVERY transaction in the household before re-importing.
+// Destructive — includes manually-logged entries. Use for a true fresh start.
+const WIPE_ALL = !!args['wipe-all'];
+
+if (CLEAN && WIPE_ALL) {
+  console.error('Use either --clean OR --wipe-all, not both.');
+  process.exit(2);
+}
 
 function parseArgs(argv) {
   const out = {};
@@ -102,18 +111,23 @@ const householdId = householdDoc.id;
 const householdName = householdDoc.data().name;
 console.log(`✓ Found household: "${householdName}" (id: ${householdId})`);
 
-// Count any existing imported docs — used both for the "already imported"
-// guardrail and for the --clean summary.
+// Count existing transactions — used for guardrails and summary.
 const txCol = db.collection('households').doc(householdId).collection('transactions');
 const existingImportedSnap = await txCol.where('imported', '==', true).get();
 const existingImportedCount = existingImportedSnap.size;
 
-// Refuse to double-import unless --force or --clean.
-if (existingImportedCount > 0 && !FORCE && !CLEAN) {
+// Fetch all docs only when --wipe-all (otherwise we don't need them).
+const allExistingSnap = WIPE_ALL ? await txCol.get() : null;
+const allExistingCount = allExistingSnap?.size ?? 0;
+const manuallyLoggedCount = WIPE_ALL ? allExistingCount - existingImportedCount : 0;
+
+// Refuse to double-import unless an explicit wipe / force flag is set.
+if (existingImportedCount > 0 && !FORCE && !CLEAN && !WIPE_ALL) {
   console.error(
     `This household already contains ${existingImportedCount} imported transactions.\n` +
-    `  --clean   wipe them and re-import (manual transactions are preserved)\n` +
-    `  --force   import anyway (creates duplicates)`,
+    `  --clean      wipe prior imports and re-import (manual transactions preserved)\n` +
+    `  --wipe-all   delete EVERY transaction (incl. manual) and re-import\n` +
+    `  --force      import on top of existing (creates duplicates)`,
   );
   process.exit(2);
 }
@@ -376,7 +390,12 @@ console.log('\n========================= Summary ==========================');
 console.log(`Sheets processed:      ${stats.sheets}`);
 console.log(`Month blocks:          ${stats.monthBlocks}`);
 console.log(`Cells with data:       ${stats.cells}`);
-if (CLEAN) {
+if (WIPE_ALL) {
+  console.log(`To delete (ALL):       ${allExistingCount}`);
+  if (manuallyLoggedCount > 0) {
+    console.log(`  ⚠  includes ${manuallyLoggedCount} manually-logged entries — these will be lost`);
+  }
+} else if (CLEAN) {
   console.log(`To delete (imported):  ${existingImportedCount}`);
 }
 console.log(`Transactions to write: ${transactions.length}`);
@@ -398,9 +417,14 @@ if (DRY_RUN) {
 // --------------------------------- Confirm + write ---------------------
 
 if (!ASSUME_YES) {
-  const action = CLEAN && existingImportedCount > 0
-    ? `Delete ${existingImportedCount} prior imports and write ${transactions.length} new`
-    : `Write ${transactions.length}`;
+  let action;
+  if (WIPE_ALL && allExistingCount > 0) {
+    action = `DELETE ALL ${allExistingCount} transactions (incl. ${manuallyLoggedCount} manual) and write ${transactions.length} new`;
+  } else if (CLEAN && existingImportedCount > 0) {
+    action = `Delete ${existingImportedCount} prior imports and write ${transactions.length} new`;
+  } else {
+    action = `Write ${transactions.length}`;
+  }
   const rl = readline.createInterface({ input, output });
   const answer = await rl.question(
     `\n${action} transactions to household "${householdName}"? [y/N] `,
@@ -415,17 +439,21 @@ if (!ASSUME_YES) {
 const BATCH_SIZE = 450; // leave headroom under the 500 hard cap
 const now = FieldValue.serverTimestamp();
 
-// 1. If --clean, delete prior imports. Manually-logged transactions
-// (no `imported` flag) are untouched.
-if (CLEAN && existingImportedCount > 0) {
+// 1. Wipe phase. --wipe-all deletes every transaction; --clean deletes
+// only imported=true. Both are no-ops when there's nothing to delete.
+const wipeTargets = WIPE_ALL
+  ? allExistingSnap?.docs ?? []
+  : (CLEAN ? existingImportedSnap.docs : []);
+
+if (wipeTargets.length > 0) {
   let deleted = 0;
-  for (let i = 0; i < existingImportedSnap.docs.length; i += BATCH_SIZE) {
-    const slice = existingImportedSnap.docs.slice(i, i + BATCH_SIZE);
+  for (let i = 0; i < wipeTargets.length; i += BATCH_SIZE) {
+    const slice = wipeTargets.slice(i, i + BATCH_SIZE);
     const batch = db.batch();
     for (const doc of slice) batch.delete(doc.ref);
     await batch.commit();
     deleted += slice.length;
-    process.stdout.write(`\rDeleted ${deleted} / ${existingImportedCount}`);
+    process.stdout.write(`\rDeleted ${deleted} / ${wipeTargets.length}`);
   }
   process.stdout.write('\n');
 }
