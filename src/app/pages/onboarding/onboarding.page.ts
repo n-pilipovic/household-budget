@@ -19,6 +19,12 @@ export class OnboardingPage {
 
   protected readonly user = this.auth.user;
 
+  /**
+   * True when reached via /households/add (existing user adding another
+   * household) vs /onboarding (first-time setup). Drives the heading copy.
+   */
+  protected readonly addMode = this.router.url.startsWith('/households');
+
   constructor() {
     // Deep-link: /onboarding?code=FAM-7K2P pre-fills join mode.
     const codeParam = this.route.snapshot.queryParamMap.get('code');

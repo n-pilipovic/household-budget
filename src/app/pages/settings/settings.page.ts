@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
-import { HouseholdService } from '../../data/household.service';
+import { Household, HouseholdService } from '../../data/household.service';
 import { ThemeService, ThemeMode } from '../../data/theme.service';
 import { UpdateService } from '../../data/update.service';
 import { UserService } from '../../data/user.service';
@@ -9,7 +9,7 @@ import { BUILD_COMMIT, BUILD_DATE } from '../../build-info';
 
 @Component({
   selector: 'app-settings',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './settings.page.html',
 })
 export class SettingsPage {
@@ -22,7 +22,20 @@ export class SettingsPage {
 
   protected readonly user = this.auth.user;
   protected readonly household = this.households.currentHousehold;
+  protected readonly allHouseholds = this.households.households;
   protected readonly memberProfiles = this.households.memberProfiles;
+
+  /** Households the user is in OTHER than the currently-active one. */
+  protected readonly otherHouseholds = computed<Household[]>(() => {
+    const all = this.allHouseholds() ?? [];
+    const currentId = this.household()?.id;
+    return all.filter(h => h.id !== currentId);
+  });
+
+  // Per-row state for the "leave" confirm flow + disabled buttons.
+  protected readonly leavingId = signal<string | null>(null);
+  protected readonly leaveError = signal<string | null>(null);
+  protected readonly switchingId = signal<string | null>(null);
 
   protected readonly buildDate = BUILD_DATE;
   protected readonly buildCommit = BUILD_COMMIT;
@@ -174,7 +187,48 @@ export class SettingsPage {
     }
   }
 
+  // ---------- Multi-household ----------
+
+  async switchTo(hid: string) {
+    if (this.switchingId() || hid === this.household()?.id) return;
+    this.switchingId.set(hid);
+    try {
+      this.households.setActiveHousehold(hid);
+      // Brief moment to let the realtime queries refresh under the
+      // currentHousehold signal change. Then nav home so the user
+      // visibly lands in the switched household.
+      await new Promise(r => setTimeout(r, 50));
+      await this.router.navigateByUrl('/today');
+    } finally {
+      this.switchingId.set(null);
+    }
+  }
+
+  async leave(hid: string, isLastMember: boolean) {
+    if (this.leavingId()) return;
+    const msg = isLastMember
+      ? 'You are the only member of this household. Leaving will orphan all its data (transactions, budgets). Continue?'
+      : 'Leave this household? You will lose access to its transactions and budgets.';
+    if (!window.confirm(msg)) return;
+    this.leavingId.set(hid);
+    this.leaveError.set(null);
+    try {
+      const { remaining } = await this.households.leaveHousehold(hid);
+      if (remaining === 0) {
+        await this.router.navigateByUrl('/onboarding');
+      } else {
+        await this.router.navigateByUrl('/today');
+      }
+    } catch (err) {
+      console.error('leaveHousehold failed', err);
+      this.leaveError.set(err instanceof Error ? err.message : 'Could not leave.');
+    } finally {
+      this.leavingId.set(null);
+    }
+  }
+
   // ---------- Sign out / nav ----------
+
   async signOut() {
     await this.auth.signOut();
     await this.router.navigateByUrl('/sign-in');

@@ -1,12 +1,14 @@
-import { Injectable, computed, inject } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FirebaseError } from '@angular/fire/app';
 import {
   Firestore,
   Timestamp,
+  arrayRemove,
   arrayUnion,
   collection,
   collectionData,
+  deleteField,
   doc,
   getDoc,
   getDocs,
@@ -72,16 +74,46 @@ export class HouseholdService {
     );
 
   readonly households = toSignal(this.households$, { initialValue: undefined });
+
+  /**
+   * The user's choice of which household to view (persisted per
+   * device in localStorage). Null until set, in which case currentHousehold
+   * falls back to the first household the user belongs to.
+   */
+  private readonly activeHouseholdIdSignal = signal<string | null>(readActiveId());
+  readonly activeHouseholdId = this.activeHouseholdIdSignal.asReadonly();
+
   readonly currentHousehold = computed<Household | null | undefined>(() => {
     const hs = this.households();
     if (hs === undefined) return undefined;
-    return hs[0] ?? null;
+    if (hs.length === 0) return null;
+    const activeId = this.activeHouseholdIdSignal();
+    return hs.find(h => h.id === activeId) ?? hs[0];
   });
+
   readonly isLoading = computed(() => this.households() === undefined);
   readonly hasHousehold = computed(() => {
     const hs = this.households();
     return hs !== undefined && hs.length > 0;
   });
+
+  constructor() {
+    // Keep the active id valid: if the user leaves a household or it
+    // disappears, reset to the first remaining one (or null).
+    effect(() => {
+      const hs = this.households();
+      if (!hs || hs.length === 0) return;
+      const active = this.activeHouseholdIdSignal();
+      if (active && hs.some(h => h.id === active)) return;
+      // Active id missing → adopt the first one as the new active.
+      this.setActiveHousehold(hs[0].id);
+    });
+  }
+
+  setActiveHousehold(hid: string): void {
+    this.activeHouseholdIdSignal.set(hid);
+    try { localStorage.setItem('activeHouseholdId', hid); } catch { /* noop */ }
+  }
 
   /**
    * Profiles for every member of the current household, keyed by uid.
@@ -161,6 +193,10 @@ export class HouseholdService {
 
     // 3. Generate an invite code
     const code = await this.createInvite(householdRef.id);
+
+    // Auto-switch the active household to the newly-created one so the
+    // user lands on it in Today/Monthly without manually picking.
+    this.setActiveHousehold(householdRef.id);
 
     return { householdId: householdRef.id, inviteCode: code };
   }
@@ -244,7 +280,52 @@ export class HouseholdService {
       console.warn('Could not mark invite as used', err);
     }
 
+    // Auto-switch the active household to the newly-joined one.
+    this.setActiveHousehold(data.householdId);
+
     return { householdId: data.householdId };
+  }
+
+  /**
+   * Leave a household: remove self from `members` and `memberColors`.
+   * Caller must currently be a member.
+   *
+   * Returns the leftover household count so callers can decide what
+   * to do next (e.g. redirect to /onboarding if 0 remain).
+   *
+   * Edge case: if the user is the last member, the household becomes
+   * orphaned — its data (categories, transactions, budgets) stays in
+   * Firestore but no one has read access. Hardening (cleanup or
+   * "you can't leave as the last member") can come later.
+   */
+  async leaveHousehold(hid: string): Promise<{ remaining: number; wasLastMember: boolean }> {
+    const u = this.auth.user();
+    if (!u) throw new Error('Not authenticated');
+    if (!hid) throw new Error('Household id is required');
+
+    const ref = doc(this.firestore, 'households', hid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) throw new Error('Household not found');
+    const data = snap.data() as Omit<Household, 'id'>;
+    if (!data.members.includes(u.uid)) {
+      throw new Error('You are not a member of this household');
+    }
+    const wasLastMember = data.members.length === 1;
+
+    await updateDoc(ref, {
+      members: arrayRemove(u.uid),
+      [`memberColors.${u.uid}`]: deleteField(),
+    });
+
+    // If the user just left the currently-active household, drop the
+    // stored id so the effect picks a new active on the next tick.
+    if (this.activeHouseholdIdSignal() === hid) {
+      this.activeHouseholdIdSignal.set(null);
+      try { localStorage.removeItem('activeHouseholdId'); } catch { /* noop */ }
+    }
+
+    const remainingSnap = await this.listMyHouseholds();
+    return { remaining: remainingSnap.length, wasLastMember };
   }
 
   /** Rename the current household. Caller must be a member. */
@@ -303,4 +384,13 @@ function mapLegacySlot(raw: unknown): UserColorSlot {
   if (raw === 'novica') return '1';
   if (raw === 'nada') return '2';
   return '1'; // safe fallback for unexpected values
+}
+
+/** Active household preference stored per device via localStorage. */
+function readActiveId(): string | null {
+  try {
+    return localStorage.getItem('activeHouseholdId');
+  } catch {
+    return null;
+  }
 }

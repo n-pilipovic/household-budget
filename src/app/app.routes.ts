@@ -19,6 +19,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/onboarding/onboarding.page').then(m => m.OnboardingPage),
   },
   {
+    // Existing-user variant: same component, no no-household guard, so
+    // a user already in 1+ households can add another (create or join).
+    path: 'households/add',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/onboarding/onboarding.page').then(m => m.OnboardingPage),
+  },
+  {
     path: 'today',
     canActivate: [authGuard, householdGuard],
     loadComponent: () => import('./pages/today/today.page').then(m => m.TodayPage),

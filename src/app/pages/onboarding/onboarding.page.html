@@ -11,8 +11,13 @@
             <span class="bg-member-2"></span>
             <span class="bg-member-1"></span>
           </span>
-          <h1 class="text-[28px] font-semibold tracking-tight mt-6 leading-[1.15]">Welcome, {{ firstName() }}</h1>
-          <p class="text-[15px] text-on-bg-muted mt-2 leading-snug">Set up your household to get started.</p>
+          @if (addMode) {
+            <h1 class="text-[28px] font-semibold tracking-tight mt-6 leading-[1.15]">Add another household</h1>
+            <p class="text-[15px] text-on-bg-muted mt-2 leading-snug">Create a new one or join with a code.</p>
+          } @else {
+            <h1 class="text-[28px] font-semibold tracking-tight mt-6 leading-[1.15]">Welcome, {{ firstName() }}</h1>
+            <p class="text-[15px] text-on-bg-muted mt-2 leading-snug">Set up your household to get started.</p>
+          }
         </div>
 
         @if (errorMsg()) {

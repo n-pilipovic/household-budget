@@ -26,6 +26,19 @@ service cloud.firestore {
         && request.resource.data.members.size() == resource.data.members.size() + 1;
     }
 
+    // A member is "leaving" if the only fields they touch are
+    // `members` and `memberColors`, they're removing themselves from
+    // `members`, and the count drops by exactly one. After leaving,
+    // they lose access to the household (read rule requires
+    // membership), so this is a self-locking write.
+    function isSelfLeaving(hid) {
+      return isAuthed()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'memberColors'])
+        && (request.auth.uid in resource.data.members)
+        && !(request.auth.uid in request.resource.data.members)
+        && request.resource.data.members.size() == resource.data.members.size() - 1;
+    }
+
     // Users — readable by any authed user so household members can
     // render each other's display name + initial in the feed. Only
     // the user themselves can write their profile. The user doc holds
@@ -49,7 +62,9 @@ service cloud.firestore {
         && request.resource.data.members.hasOnly([request.auth.uid])
         && request.resource.data.members.size() == 1;
       allow update: if isAuthed()
-        && (request.auth.uid in resource.data.members || isSelfJoining(hid));
+        && (request.auth.uid in resource.data.members
+            || isSelfJoining(hid)
+            || isSelfLeaving(hid));
       allow delete: if false;
     }
 
