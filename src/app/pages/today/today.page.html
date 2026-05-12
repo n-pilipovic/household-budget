@@ -1,42 +1,94 @@
-<main class="min-h-screen bg-bg text-on-bg">
-  <div class="mx-auto max-w-2xl px-6 py-12">
-    <p class="text-xs uppercase tracking-[0.18em] text-on-bg-faint mb-3">Phase 3.2 · Household live</p>
-    <h1 class="text-3xl font-semibold tracking-tight">{{ household()?.name }}</h1>
-    <p class="text-sm text-on-bg-muted mt-2">
-      {{ memberCount() }} member{{ memberCount() === 1 ? '' : 's' }}
-    </p>
+<main class="min-h-screen bg-bg text-on-bg flex flex-col">
+  <!-- App bar -->
+  <header class="px-5 pt-6 pb-3 flex items-center justify-between max-w-md mx-auto w-full">
+    <div class="flex items-center gap-2">
+      <span class="size-7 rounded-full grid grid-cols-2 grid-rows-2 overflow-hidden ring-1 ring-border">
+        <span class="bg-user-novica"></span>
+        <span class="bg-user-nada"></span>
+        <span class="bg-user-nada"></span>
+        <span class="bg-user-novica"></span>
+      </span>
+      <span class="text-[15px] font-semibold tracking-tight">{{ household()?.name }}</span>
+    </div>
+    <button
+      (click)="signOut()"
+      class="size-9 rounded-full hover:bg-surface-2 grid place-items-center transition"
+      aria-label="Sign out">
+      <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+    </button>
+  </header>
 
-    <div class="mt-8 rounded-lg bg-surface border border-border shadow-xs p-6">
-      <div class="flex items-center gap-3">
-        @if (user()?.photoURL) {
-          <img [src]="user()?.photoURL" alt="" class="size-10 rounded-full ring-1 ring-border">
-        } @else {
-          <span
-            class="size-10 rounded-full text-white grid place-items-center text-base font-semibold"
-            [class.bg-user-novica]="myColor() === 'novica'"
-            [class.bg-user-nada]="myColor() === 'nada'">
-            {{ user()?.displayName?.[0] || user()?.email?.[0] || '?' }}
-          </span>
-        }
-        <div>
-          <p class="font-semibold tracking-tight">{{ user()?.displayName || 'No name' }}</p>
-          <p class="text-sm text-on-bg-muted num">{{ user()?.email }}</p>
-        </div>
+  <div class="flex-1 overflow-y-auto pb-32 max-w-md mx-auto w-full">
+    <!-- This month card -->
+    <div class="mx-5 rounded-lg bg-surface border border-border shadow-xs p-5">
+      <div class="flex items-center justify-between mb-1">
+        <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">{{ monthName() }}</p>
+        <span class="text-xs text-on-bg-muted">{{ daysRemaining() }} days left</span>
       </div>
-      <p class="text-xs text-on-bg-muted mt-4">
-        Slot: <span class="font-medium text-on-bg">{{ myColor() }}</span> ·
-        UID: <code class="font-mono num text-[11px]">{{ user()?.uid }}</code>
-      </p>
-      <button
-        (click)="signOut()"
-        class="mt-5 inline-flex items-center gap-2 px-3 h-9 rounded-md border border-border bg-surface-2 hover:bg-surface-3 font-medium text-sm transition">
-        Sign out
-      </button>
+      <div class="flex items-baseline gap-2 mt-2">
+        <span class="text-3xl font-semibold tracking-tight num">{{ formatAmount(thisMonthTotal()) }}</span>
+        <span class="text-sm text-on-bg-muted font-medium">RSD spent</span>
+      </div>
+      @if (thisMonthTotal() === 0) {
+        <p class="text-xs text-on-bg-muted mt-2">Tap + below to add your first transaction.</p>
+      }
     </div>
 
-    <p class="text-xs text-on-bg-muted mt-6 leading-relaxed">
-      Placeholder — the real Today screen (matching <code class="font-mono">mockups/today.html</code>) ships
-      after the Quick Add + Firestore feed are wired in Phase 3.3.
-    </p>
+    <!-- Feed -->
+    @if (recent().length === 0) {
+      <div class="px-5 pt-12 text-center">
+        <p class="text-on-bg-muted">No transactions yet.</p>
+        <button (click)="openQuickAdd()" class="mt-4 inline-flex items-center gap-2 px-4 h-10 rounded-md bg-on-bg text-bg font-medium text-sm">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          Add transaction
+        </button>
+      </div>
+    } @else {
+      @for (group of groups(); track group.label) {
+        <h3 class="px-5 pt-7 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium">{{ group.label }}</h3>
+        <ul class="px-2 space-y-px">
+          @for (t of group.items; track t.id) {
+            <li
+              class="flex items-center gap-3 px-3 py-3 rounded-md transition"
+              [class.row-just-synced]="isJustSynced(t.id)"
+              [class.hover:bg-surface-2]="!isJustSynced(t.id)">
+              <span
+                class="size-9 rounded-full text-white grid place-items-center text-sm font-semibold shrink-0"
+                [class.bg-user-novica]="colorSlotFor(t.userId) === 'novica'"
+                [class.bg-user-nada]="colorSlotFor(t.userId) === 'nada'">
+                {{ displayInitialForUser(t.userId) }}
+              </span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-baseline justify-between gap-2">
+                  <p class="text-[15px] font-medium truncate">{{ t.note || categoryNameFor(t.categoryId) }}</p>
+                  <span class="text-[15px] font-semibold num shrink-0">
+                    {{ formatAmount(t.amount) }}
+                    <span class="text-on-bg-faint font-normal text-xs">RSD</span>
+                  </span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-on-bg-muted">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted font-medium">{{ categoryNameFor(t.categoryId) }}</span>
+                  <span>{{ formatTime(t.createdAt) }}</span>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    }
   </div>
+
+  <!-- FAB -->
+  <button
+    (click)="openQuickAdd()"
+    aria-label="Quick add transaction"
+    class="fixed left-1/2 -translate-x-1/2 z-30 size-14 rounded-full text-white grid place-items-center shadow-lg active:scale-95 transition"
+    [class.bg-user-novica]="myColorSlot() === 'novica'"
+    [class.bg-user-nada]="myColorSlot() === 'nada'"
+    style="bottom: 28px;">
+    <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <!-- Quick Add sheet -->
+  <app-quick-add-sheet [open]="quickAddOpen()" (close)="closeQuickAdd()"></app-quick-add-sheet>
 </main>

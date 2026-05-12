@@ -1,0 +1,107 @@
+@if (open()) {
+  <!-- Scrim -->
+  <div
+    class="fixed inset-0 z-40 bg-on-bg/40 transition-opacity"
+    (click)="closeSheet()"
+  ></div>
+
+  <!-- Sheet -->
+  <div class="fixed inset-x-0 bottom-0 z-50 bg-surface rounded-t-[1.75rem] shadow-xl border-t border-border max-w-md mx-auto">
+    <!-- Drag handle -->
+    <div class="pt-2 pb-1 flex justify-center">
+      <span class="w-9 h-1 rounded-pill bg-on-bg/15"></span>
+    </div>
+
+    <!-- Header -->
+    <div class="px-5 pt-2 pb-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span
+          class="size-6 rounded-full text-white grid place-items-center text-[11px] font-semibold"
+          [class.bg-user-novica]="myColorSlot() === 'novica'"
+          [class.bg-user-nada]="myColorSlot() === 'nada'">
+          {{ currentUser()?.displayName?.[0] || currentUser()?.email?.[0] || '?' }}
+        </span>
+        <p class="text-sm text-on-bg-muted">
+          Logging as <span class="text-on-bg font-medium">{{ currentUser()?.displayName || currentUser()?.email?.split('@')?.[0] }}</span>
+        </p>
+      </div>
+      <button type="button" (click)="closeSheet()" class="size-8 rounded-full hover:bg-surface-2 grid place-items-center" aria-label="Close">
+        <svg class="size-5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <form (submit)="submit($event)" class="px-5">
+      <input
+        #input
+        type="text"
+        inputmode="text"
+        autocomplete="off"
+        placeholder="350 coffee · 2.500 market…"
+        [value]="raw()"
+        (input)="onInput($any($event.target).value)"
+        class="w-full h-14 px-4 rounded-md bg-surface-2 border-2 border-brand-500 ring-4 ring-brand-100 text-lg font-medium placeholder:text-on-bg-faint outline-none"
+      >
+
+      @if (parsed().amount !== null) {
+        <!-- Parsed readout -->
+        <div class="mt-4 rounded-md bg-surface-2 border border-border p-3">
+          <div class="flex items-baseline gap-3">
+            <span class="text-2xl font-semibold tracking-tight num">{{ formatAmount(parsed().amount!) }}</span>
+            <span class="text-sm text-on-bg-muted font-medium">RSD</span>
+            @if (parsed().note) {
+              <span class="text-on-bg-faint">·</span>
+              <span class="text-sm font-medium truncate">{{ parsed().note }}</span>
+            }
+          </div>
+        </div>
+
+        @if (suggestedChips().length > 0) {
+          <p class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mt-4 mb-2">Category — tap to change</p>
+          <div class="flex flex-col gap-2">
+            @for (cat of suggestedChips(); track cat.id) {
+              <button
+                type="button"
+                (click)="pickCategory(cat.id)"
+                class="w-full flex items-center justify-between px-3 py-2.5 rounded-md transition text-left"
+                [class.border-2]="effectiveCategoryId() === cat.id"
+                [class.border]="effectiveCategoryId() !== cat.id"
+                [class.border-brand-500]="effectiveCategoryId() === cat.id"
+                [class.border-border]="effectiveCategoryId() !== cat.id"
+                [class.bg-brand-50]="effectiveCategoryId() === cat.id"
+                [class.hover:bg-surface-2]="effectiveCategoryId() !== cat.id">
+                <div>
+                  <p class="text-sm font-semibold">{{ cat.name }}</p>
+                  <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">{{ cat.group }}</p>
+                </div>
+                @if (effectiveCategoryId() === cat.id) {
+                  <svg class="size-4 text-brand-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                }
+              </button>
+            }
+          </div>
+        }
+      } @else if (raw().length > 0) {
+        <p class="mt-4 text-sm text-on-bg-muted">
+          Start with a number, like <span class="font-mono">350 coffee</span>.
+        </p>
+      }
+
+      @if (error()) {
+        <p class="mt-3 text-sm text-danger-700">{{ error() }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="!canSubmit()"
+        class="mt-5 mb-7 w-full h-12 rounded-md bg-on-bg text-bg font-medium text-[15px] disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition active:scale-[0.99] flex items-center justify-center gap-2">
+        @if (busy()) {
+          Saving…
+        } @else if (parsed().amount !== null && effectiveCategory()) {
+          Add {{ formatAmount(parsed().amount!) }} RSD to {{ effectiveCategory()?.name }}
+        } @else {
+          Add
+        }
+      </button>
+    </form>
+  </div>
+}

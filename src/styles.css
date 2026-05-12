@@ -149,4 +149,16 @@
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum" 1;
   }
+
+  /* "Just synced from partner" row — soft rose tint + left bar.
+     Triggered for ~2s by Today page after a realtime arrival. */
+  .row-just-synced {
+    background: var(--color-user-nada-soft);
+    box-shadow: inset 2px 0 0 var(--color-user-nada);
+    animation: row-just-synced-fade 2.2s var(--ease-out-soft) forwards;
+  }
+  @keyframes row-just-synced-fade {
+    0%   { background: var(--color-user-nada-soft); }
+    100% { background: transparent; }
+  }
 }
