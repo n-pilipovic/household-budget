@@ -17,10 +17,11 @@ import {
   where,
   writeBatch,
 } from '@angular/fire/firestore';
-import { Observable, of, switchMap } from 'rxjs';
+import { Observable, from, of, switchMap } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { SEED_CATEGORIES } from './seed-categories';
 import { generateInviteCode, normaliseInviteCode } from './invite-code';
+import type { UserProfile } from './user.service';
 
 export type UserColorSlot = 'novica' | 'nada';
 
@@ -79,6 +80,46 @@ export class HouseholdService {
     const hs = this.households();
     return hs !== undefined && hs.length > 0;
   });
+
+  /**
+   * Profiles for every member of the current household, keyed by uid.
+   * Refetched whenever the household changes or its member list grows.
+   * Used by the feed to render real initials (and later names) for
+   * partner-attributed rows instead of placeholder 'N's.
+   */
+  private readonly memberProfiles$: Observable<Map<string, UserProfile>> =
+    toObservable(this.currentHousehold).pipe(
+      switchMap(h => {
+        if (!h) return of(new Map<string, UserProfile>());
+        return from(this.loadMemberProfiles(h.members));
+      }),
+    );
+
+  readonly memberProfiles = toSignal(this.memberProfiles$, {
+    initialValue: new Map<string, UserProfile>(),
+  });
+
+  private async loadMemberProfiles(uids: string[]): Promise<Map<string, UserProfile>> {
+    const entries = await Promise.all(
+      uids.map(async uid => {
+        try {
+          const snap = await getDoc(doc(this.firestore, 'users', uid));
+          return [uid, snap.exists() ? (snap.data() as UserProfile) : null] as const;
+        } catch (err) {
+          // Rules deny reading other users' docs by default; this is
+          // expected during bootstrap before /users/{uid} exists for
+          // every member. Treat as missing and move on.
+          console.warn(`Could not read user profile ${uid}`, err);
+          return [uid, null] as const;
+        }
+      }),
+    );
+    const out = new Map<string, UserProfile>();
+    for (const [uid, profile] of entries) {
+      if (profile) out.set(uid, profile);
+    }
+    return out;
+  }
 
   /**
    * Create a new household with the signed-in user as the first

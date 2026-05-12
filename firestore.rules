@@ -26,9 +26,14 @@ service cloud.firestore {
         && request.resource.data.members.size() == resource.data.members.size() + 1;
     }
 
-    // Users — own profile only. Created on first sign-in.
+    // Users — readable by any authed user so household members can
+    // render each other's display name + initial in the feed. Only
+    // the user themselves can write their profile. The user doc holds
+    // only email + displayName + photoURL — nothing transactional or
+    // financial lives here.
     match /users/{uid} {
-      allow read, write: if isAuthed() && request.auth.uid == uid;
+      allow read: if isAuthed();
+      allow write: if isAuthed() && request.auth.uid == uid;
     }
 
     // Households

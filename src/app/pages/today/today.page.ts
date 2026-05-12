@@ -27,6 +27,7 @@ export class TodayPage {
 
   protected readonly user = this.auth.user;
   protected readonly household = this.households.currentHousehold;
+  protected readonly memberProfiles = this.households.memberProfiles;
   protected readonly thisMonthTotal = this.transactions.thisMonthTotal;
   protected readonly recent = this.transactions.recent;
   protected readonly categoriesById = this.categories.byId;
@@ -168,15 +169,33 @@ export class TodayPage {
     return this.justSyncedIds().has(id);
   }
 
-  /** Best-effort display name for the user who logged a row. */
+  /** First letter of the user's display name (or email fallback). */
   displayInitialForUser(uid: string): string {
+    // Self: use the live Firebase Auth user so we don't depend on the
+    // Firestore /users/{uid} doc being loaded.
     const u = this.user();
     if (u && u.uid === uid) {
       return (u.displayName?.[0] ?? u.email?.[0] ?? '?').toUpperCase();
     }
-    // For partner: we don't fetch their profile yet; use first letter of
-    // their slot key as a placeholder ('N' for both novica/nada works).
-    return 'N';
+    // Partner(s): use the cached profile loaded by HouseholdService.
+    const profile = this.memberProfiles().get(uid);
+    if (profile) {
+      return (profile.displayName?.[0] ?? profile.email?.[0] ?? '?').toUpperCase();
+    }
+    return '?';
+  }
+
+  /** Full display name for the user who logged a row, when needed. */
+  displayNameForUser(uid: string): string {
+    const u = this.user();
+    if (u && u.uid === uid) {
+      return u.displayName ?? u.email?.split('@')[0] ?? 'You';
+    }
+    const profile = this.memberProfiles().get(uid);
+    if (profile) {
+      return profile.displayName ?? profile.email?.split('@')[0] ?? 'Member';
+    }
+    return 'Member';
   }
 }
 
