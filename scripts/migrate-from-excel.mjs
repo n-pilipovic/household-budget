@@ -595,14 +595,25 @@ if (!ASSUME_YES) {
   }
 }
 
-const BATCH_SIZE = 450;       // headroom under Firestore's 500-op hard cap
-const THROTTLE_MS = 1000;     // sleep between batches → ≈450 wps, under
-                              // the per-collection sustained-write limit
-const MAX_RETRIES = 5;        // re-try transient RESOURCE_EXHAUSTED /
-const BACKOFF_BASE_MS = 5000; // DEADLINE_EXCEEDED / UNAVAILABLE errors
-const now = FieldValue.serverTimestamp();
+const BATCH_SIZE = 200;        // smaller batches → less burst, easier retries
+const THROTTLE_MS = 2000;      // 200 docs / 2s = 100 wps sustained, well
+                               // under Firestore's per-collection limit
+const MAX_RETRIES = 6;
+const BACKOFF_BASE_MS = 10000; // 10s, 20s, 40s, 80s, 160s, 320s
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+/**
+ * Detects transient quota / throttling errors across the various ways
+ * google-gax surfaces them: a numeric gRPC code OR a wrapper
+ * GoogleError whose message names the underlying status.
+ */
+function isTransientError(err) {
+  if (!err) return false;
+  if (err.code === 8 || err.code === 4 || err.code === 14) return true;
+  const msg = String(err.message || '');
+  return /RESOURCE_EXHAUSTED|DEADLINE_EXCEEDED|UNAVAILABLE|Total timeout/.test(msg);
+}
 
 async function commitBatchWithRetry(buildBatch) {
   let attempt = 0;
@@ -613,13 +624,10 @@ async function commitBatchWithRetry(buildBatch) {
       await batch.commit();
       return;
     } catch (err) {
-      const code = err?.code;
-      const transient = code === 8 /* RESOURCE_EXHAUSTED */
-                     || code === 4 /* DEADLINE_EXCEEDED */
-                     || code === 14 /* UNAVAILABLE */;
-      if (!transient || attempt >= MAX_RETRIES) throw err;
+      if (!isTransientError(err) || attempt >= MAX_RETRIES) throw err;
       const wait = BACKOFF_BASE_MS * 2 ** attempt;
-      process.stdout.write(`\n  hit gRPC code ${code}, retry ${attempt + 1}/${MAX_RETRIES} after ${wait}ms\n`);
+      process.stdout.write(`\n  transient error: ${err.code ?? '?'} ${String(err.message || '').split('\n')[0]}\n` +
+                           `  retry ${attempt + 1}/${MAX_RETRIES} after ${wait}ms\n`);
       await sleep(wait);
       attempt++;
     }
@@ -641,21 +649,30 @@ await batchDelete('transactions', txWipeTargets);
 await batchDelete('budgets',      budgetWipeTargets);
 
 // --- Write phase ---
-await batchWrite('transactions', transactions, t => ({
-  ref: txCol.doc(),
-  data: {
-    userId: t.userId,
-    amount: t.amount,
-    currency: t.currency,
-    categoryId: t.categoryId,
-    note: t.note,
-    occurredOn: Timestamp.fromDate(t.occurredOn),
-    createdAt: now,
-    imported: true,
-    importedAt: now,
-    importSource: t.importSource,
-  },
-}));
+await batchWrite('transactions', transactions, t => {
+  const occurredAt = Timestamp.fromDate(t.occurredOn);
+  return {
+    ref: txCol.doc(),
+    data: {
+      userId: t.userId,
+      amount: t.amount,
+      currency: t.currency,
+      categoryId: t.categoryId,
+      note: t.note,
+      occurredOn: occurredAt,
+      // Use the historical date for createdAt too. The Today feed
+      // orders by createdAt — for imported (pre-app) transactions
+      // it's correct to sort them by when they actually happened,
+      // and using a value spread across 2018-2026 avoids hotspotting
+      // the createdAt index that's the #1 cause of RESOURCE_EXHAUSTED
+      // during bulk writes (https://firebase.google.com/docs/firestore/best-practices#monotonically_increasing_values).
+      createdAt: occurredAt,
+      imported: true,
+      importedAt: FieldValue.serverTimestamp(),
+      importSource: t.importSource,
+    },
+  };
+});
 
 await batchWrite('budgets', budgets, b => ({
   ref: db.collection('households').doc(householdId)
@@ -664,7 +681,7 @@ await batchWrite('budgets', budgets, b => ({
   data: {
     amount: Math.round(b.amount),
     imported: true,
-    importedAt: now,
+    importedAt: FieldValue.serverTimestamp(),
     importSource: b.sources.join(','),
   },
 }));
