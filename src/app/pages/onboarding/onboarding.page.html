@@ -5,7 +5,7 @@
 
       @case ('chooser') {
         <div class="pt-12">
-          <span class="block size-12 rounded-lg overflow-hidden ring-1 ring-border shadow-sm grid grid-cols-2 grid-rows-2">
+          <span class="size-12 rounded-lg overflow-hidden ring-1 ring-border shadow-sm grid grid-cols-2 grid-rows-2">
             <span class="bg-user-novica"></span>
             <span class="bg-user-nada"></span>
             <span class="bg-user-nada"></span>
@@ -82,7 +82,7 @@
           <div>
             <label class="block text-xs font-medium text-on-bg-muted mb-1.5" for="name">Household name</label>
             <input
-              id="name" type="text" autofocus required maxlength="60"
+              id="name" type="text" enterkeyhint="go" autofocus required maxlength="60"
               [value]="householdName()"
               (input)="householdName.set($any($event.target).value)"
               placeholder="Pilipović household"
@@ -168,7 +168,7 @@
         <form (submit)="submitJoin($event)" class="mt-8 space-y-5">
           <input
             type="text" inputmode="text" autocapitalize="characters" autocomplete="off"
-            autofocus required
+            enterkeyhint="go" autofocus required
             [value]="inviteCodeNormalised()"
             (input)="onCodeInput($any($event.target).value)"
             placeholder="XXX-XXXX"

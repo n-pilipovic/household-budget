@@ -150,13 +150,16 @@
             <div class="ml-12 mr-2 mt-1 mb-3 border-l border-border pl-3 space-y-3">
               <!-- Budget editor -->
               @if (editingBudgetId() === row.category.id) {
-                <div class="rounded-md bg-surface-2 border border-border p-3">
+                <form
+                  (submit)="$event.preventDefault(); saveBudget(row.category.id)"
+                  (keydown.escape)="cancelBudgetEdit()"
+                  class="rounded-md bg-surface-2 border border-border p-3">
                   <label class="block text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mb-2">
                     Planned for {{ monthLabel() }}
                   </label>
                   <div class="flex items-center gap-2">
                     <input
-                      type="text" inputmode="numeric" autofocus
+                      type="text" inputmode="numeric" enterkeyhint="done" autofocus
                       [value]="budgetDraft()"
                       (input)="budgetDraft.set($any($event.target).value)"
                       placeholder="e.g. 18000"
@@ -168,7 +171,7 @@
                   }
                   <div class="flex gap-2 mt-3">
                     <button
-                      type="button" (click)="saveBudget(row.category.id)"
+                      type="submit"
                       [disabled]="budgetBusy()"
                       class="h-9 px-4 rounded-md bg-on-bg text-bg text-sm font-medium disabled:opacity-50 hover:opacity-90 transition">
                       {{ budgetBusy() ? 'Saving…' : 'Save' }}
@@ -186,7 +189,7 @@
                       </button>
                     }
                   </div>
-                </div>
+                </form>
               } @else {
                 <button
                   type="button" (click)="startBudgetEdit(row)"

@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-bg text-on-bg flex flex-col">
   <div class="flex-1 flex flex-col px-7 max-w-md w-full mx-auto">
     <div class="pt-16">
-      <span class="block size-12 rounded-lg overflow-hidden ring-1 ring-border shadow-sm grid grid-cols-2 grid-rows-2">
+      <span class="size-12 rounded-lg overflow-hidden ring-1 ring-border shadow-sm grid grid-cols-2 grid-rows-2">
         <span class="bg-user-novica"></span>
         <span class="bg-user-nada"></span>
         <span class="bg-user-nada"></span>
@@ -47,7 +47,7 @@
           <div>
             <label class="block text-xs font-medium text-on-bg-muted mb-1.5" for="email">Email</label>
             <input
-              id="email" type="email" autocomplete="email" required autofocus
+              id="email" type="email" autocomplete="email" enterkeyhint="next" required autofocus
               [value]="email()" (input)="email.set($any($event.target).value)"
               class="w-full h-11 px-3 rounded-md bg-surface border border-border focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[15px] outline-none transition">
           </div>
@@ -57,7 +57,7 @@
               <button type="button" (click)="forgotPassword()" class="text-xs text-brand-600 hover:text-brand-700 font-medium">Forgot?</button>
             </div>
             <input
-              id="password" type="password" autocomplete="current-password" required minlength="6"
+              id="password" type="password" autocomplete="current-password" enterkeyhint="go" required minlength="6"
               [value]="password()" (input)="password.set($any($event.target).value)"
               class="w-full h-11 px-3 rounded-md bg-surface border border-border focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[15px] outline-none transition">
           </div>
@@ -87,7 +87,7 @@
           <div>
             <label class="block text-xs font-medium text-on-bg-muted mb-1.5" for="email">Email</label>
             <input
-              id="email" type="email" autocomplete="email" required autofocus
+              id="email" type="email" autocomplete="email" enterkeyhint="next" required autofocus
               [value]="email()" (input)="email.set($any($event.target).value)"
               placeholder="you@example.com"
               class="w-full h-11 px-3 rounded-md bg-surface border border-border focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[15px] outline-none transition">
@@ -95,7 +95,7 @@
           <div>
             <label class="block text-xs font-medium text-on-bg-muted mb-1.5" for="password">Password</label>
             <input
-              id="password" type="password" autocomplete="new-password" required minlength="6"
+              id="password" type="password" autocomplete="new-password" enterkeyhint="go" required minlength="6"
               [value]="password()" (input)="password.set($any($event.target).value)"
               placeholder="At least 6 characters"
               class="w-full h-11 px-3 rounded-md bg-surface border border-border focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[15px] outline-none transition">
