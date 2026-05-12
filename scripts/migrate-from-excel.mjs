@@ -121,6 +121,43 @@ const allExistingSnap = WIPE_ALL ? await txCol.get() : null;
 const allExistingCount = allExistingSnap?.size ?? 0;
 const manuallyLoggedCount = WIPE_ALL ? allExistingCount - existingImportedCount : 0;
 
+// Discover existing budget docs across all yyyymm sub-collections.
+// We don't have a flat collection — Firestore stores them as
+// households/{hid}/budgets/{yyyymm}/categories/{cid}. listDocuments()
+// gives us refs to every yyyymm doc (including ones that exist purely
+// as parents of a sub-collection).
+const budgetMonthRefs = (CLEAN || WIPE_ALL)
+  ? await db.collection('households').doc(householdId).collection('budgets').listDocuments()
+  : [];
+
+let existingImportedBudgetRefs = [];
+let allExistingBudgetRefs = [];
+let manualBudgetCount = 0;
+
+if (CLEAN) {
+  // Collect category docs with imported=true across every yyyymm.
+  for (const monthDoc of budgetMonthRefs) {
+    const snap = await monthDoc.collection('categories').where('imported', '==', true).get();
+    for (const d of snap.docs) existingImportedBudgetRefs.push(d.ref);
+  }
+}
+
+if (WIPE_ALL) {
+  // Collect every category doc + every yyyymm parent ref.
+  for (const monthDoc of budgetMonthRefs) {
+    const snap = await monthDoc.collection('categories').get();
+    let importedHere = 0;
+    for (const d of snap.docs) {
+      allExistingBudgetRefs.push(d.ref);
+      if (d.data().imported === true) importedHere++;
+    }
+    manualBudgetCount += snap.size - importedHere;
+    // The yyyymm parent doc itself may carry startingAmount etc. —
+    // delete it too for a true reset.
+    allExistingBudgetRefs.push(monthDoc);
+  }
+}
+
 // Refuse to double-import unless an explicit wipe / force flag is set.
 if (existingImportedCount > 0 && !FORCE && !CLEAN && !WIPE_ALL) {
   console.error(
@@ -297,6 +334,7 @@ const yearSheets = wb.SheetNames.filter(name => /upisivanje/i.test(name.trim()))
 console.log(`\nFound ${yearSheets.length} year sheets: ${yearSheets.join(', ')}\n`);
 
 const transactions = [];
+const budgetMap = new Map(); // key: `${yyyymm}|${categoryId}` → { amount, sources }
 const stats = {
   sheets: 0,
   monthBlocks: 0,
@@ -336,6 +374,32 @@ for (const sheetName of yearSheets) {
       continue;
     }
     stats.monthBlocks++;
+
+    // --- Budgets: row immediately after the marker is "Planirano". ---
+    const planiranoRow = r + 1;
+    const yyyymm = `${month.year}-${String(month.month + 1).padStart(2, '0')}`;
+    for (const [cl, meta] of Object.entries(colMap)) {
+      const cell = ws[cl + (planiranoRow + 1)];
+      const components = expandCell(cell);
+      if (components.length === 0) continue;
+      const total = components.reduce((s, n) => s + n, 0);
+      if (total <= 0) continue; // budgets must be positive
+      const key = `${yyyymm}|${meta.categoryId}`;
+      const prev = budgetMap.get(key);
+      if (prev) {
+        // Two columns mapped to the same category (e.g. 2025 Q+S both
+        // → ostalo-stan). Sum the planned amounts.
+        prev.amount += total;
+        prev.sources.push(`${sheetName}:${cl}${planiranoRow + 1}`);
+      } else {
+        budgetMap.set(key, {
+          yyyymm,
+          categoryId: meta.categoryId,
+          amount: total,
+          sources: [`${sheetName}:${cl}${planiranoRow + 1}`],
+        });
+      }
+    }
 
     for (let i = 0; i < weekRows.length; i++) {
       const wr = weekRows[i];
@@ -386,20 +450,31 @@ for (const t of transactions) {
   netTotal += t.amount;
 }
 
+const budgets = [...budgetMap.values()];
+const budgetMonths = new Set(budgets.map(b => b.yyyymm)).size;
+const budgetTotal = budgets.reduce((s, b) => s + b.amount, 0);
+
 console.log('\n========================= Summary ==========================');
 console.log(`Sheets processed:      ${stats.sheets}`);
 console.log(`Month blocks:          ${stats.monthBlocks}`);
 console.log(`Cells with data:       ${stats.cells}`);
 if (WIPE_ALL) {
-  console.log(`To delete (ALL):       ${allExistingCount}`);
+  console.log(`Transactions to wipe:  ${allExistingCount}`);
   if (manuallyLoggedCount > 0) {
-    console.log(`  ⚠  includes ${manuallyLoggedCount} manually-logged entries — these will be lost`);
+    console.log(`  ⚠  includes ${manuallyLoggedCount} manually-logged tx — these will be lost`);
+  }
+  console.log(`Budget docs to wipe:   ${allExistingBudgetRefs.length}`);
+  if (manualBudgetCount > 0) {
+    console.log(`  ⚠  includes ${manualBudgetCount} manually-set budgets — these will be lost`);
   }
 } else if (CLEAN) {
-  console.log(`To delete (imported):  ${existingImportedCount}`);
+  console.log(`Imported tx to wipe:   ${existingImportedCount}`);
+  console.log(`Imported budgets wipe: ${existingImportedBudgetRefs.length}`);
 }
 console.log(`Transactions to write: ${transactions.length}`);
-console.log(`Net amount (sum):      ${netTotal.toLocaleString('de-DE')} RSD`);
+console.log(`Budgets to write:      ${budgets.length} (across ${budgetMonths} months)`);
+console.log(`Tx net amount (sum):   ${netTotal.toLocaleString('de-DE')} RSD`);
+console.log(`Budget total (sum):    ${budgetTotal.toLocaleString('de-DE')} RSD`);
 console.log('\nBy year:');
 for (const y of Object.keys(byYear).sort()) {
   console.log(`  ${y}: ${byYear[y]}`);
@@ -418,16 +493,21 @@ if (DRY_RUN) {
 
 if (!ASSUME_YES) {
   let action;
-  if (WIPE_ALL && allExistingCount > 0) {
-    action = `DELETE ALL ${allExistingCount} transactions (incl. ${manuallyLoggedCount} manual) and write ${transactions.length} new`;
-  } else if (CLEAN && existingImportedCount > 0) {
-    action = `Delete ${existingImportedCount} prior imports and write ${transactions.length} new`;
+  if (WIPE_ALL && (allExistingCount > 0 || allExistingBudgetRefs.length > 0)) {
+    action =
+      `DELETE ALL ${allExistingCount} transactions (incl. ${manuallyLoggedCount} manual) ` +
+      `and ${allExistingBudgetRefs.length} budget docs (incl. ${manualBudgetCount} manual), ` +
+      `then write ${transactions.length} tx + ${budgets.length} budgets`;
+  } else if (CLEAN && (existingImportedCount > 0 || existingImportedBudgetRefs.length > 0)) {
+    action =
+      `Delete ${existingImportedCount} prior tx + ${existingImportedBudgetRefs.length} prior budgets, ` +
+      `then write ${transactions.length} tx + ${budgets.length} budgets`;
   } else {
-    action = `Write ${transactions.length}`;
+    action = `Write ${transactions.length} transactions + ${budgets.length} budgets`;
   }
   const rl = readline.createInterface({ input, output });
   const answer = await rl.question(
-    `\n${action} transactions to household "${householdName}"? [y/N] `,
+    `\n${action} to household "${householdName}"? [y/N] `,
   );
   rl.close();
   if (!/^y(es)?$/i.test(answer.trim())) {
@@ -439,49 +519,80 @@ if (!ASSUME_YES) {
 const BATCH_SIZE = 450; // leave headroom under the 500 hard cap
 const now = FieldValue.serverTimestamp();
 
-// 1. Wipe phase. --wipe-all deletes every transaction; --clean deletes
-// only imported=true. Both are no-ops when there's nothing to delete.
-const wipeTargets = WIPE_ALL
-  ? allExistingSnap?.docs ?? []
-  : (CLEAN ? existingImportedSnap.docs : []);
+// --- Wipe phase ---
+// Transactions: --wipe-all deletes every doc; --clean deletes only imported.
+const txWipeTargets = WIPE_ALL
+  ? (allExistingSnap?.docs.map(d => d.ref) ?? [])
+  : (CLEAN ? existingImportedSnap.docs.map(d => d.ref) : []);
 
-if (wipeTargets.length > 0) {
-  let deleted = 0;
-  for (let i = 0; i < wipeTargets.length; i += BATCH_SIZE) {
-    const slice = wipeTargets.slice(i, i + BATCH_SIZE);
+// Budgets: same logic, but the doc refs were already collected at fetch time.
+const budgetWipeTargets = WIPE_ALL
+  ? allExistingBudgetRefs
+  : (CLEAN ? existingImportedBudgetRefs : []);
+
+await batchDelete('transactions', txWipeTargets);
+await batchDelete('budgets',      budgetWipeTargets);
+
+// --- Write phase ---
+await batchWrite('transactions', transactions, t => ({
+  ref: txCol.doc(),
+  data: {
+    userId: t.userId,
+    amount: t.amount,
+    currency: t.currency,
+    categoryId: t.categoryId,
+    note: t.note,
+    occurredOn: Timestamp.fromDate(t.occurredOn),
+    createdAt: now,
+    imported: true,
+    importedAt: now,
+    importSource: t.importSource,
+  },
+}));
+
+await batchWrite('budgets', budgets, b => ({
+  ref: db.collection('households').doc(householdId)
+    .collection('budgets').doc(b.yyyymm)
+    .collection('categories').doc(b.categoryId),
+  data: {
+    amount: Math.round(b.amount),
+    imported: true,
+    importedAt: now,
+    importSource: b.sources.join(','),
+  },
+}));
+
+console.log('\n✓ Done.');
+
+// --- Helpers ---
+
+async function batchDelete(label, refs) {
+  if (refs.length === 0) return;
+  let done = 0;
+  for (let i = 0; i < refs.length; i += BATCH_SIZE) {
+    const slice = refs.slice(i, i + BATCH_SIZE);
     const batch = db.batch();
-    for (const doc of slice) batch.delete(doc.ref);
+    for (const ref of slice) batch.delete(ref);
     await batch.commit();
-    deleted += slice.length;
-    process.stdout.write(`\rDeleted ${deleted} / ${wipeTargets.length}`);
+    done += slice.length;
+    process.stdout.write(`\rDeleted ${label}: ${done} / ${refs.length}`);
   }
   process.stdout.write('\n');
 }
 
-// 2. Write the freshly-parsed transactions.
-let written = 0;
-
-for (let i = 0; i < transactions.length; i += BATCH_SIZE) {
-  const slice = transactions.slice(i, i + BATCH_SIZE);
-  const batch = db.batch();
-  for (const t of slice) {
-    const ref = txCol.doc();
-    batch.set(ref, {
-      userId: t.userId,
-      amount: t.amount,
-      currency: t.currency,
-      categoryId: t.categoryId,
-      note: t.note,
-      occurredOn: Timestamp.fromDate(t.occurredOn),
-      createdAt: now,
-      imported: true,
-      importedAt: now,
-      importSource: t.importSource,
-    });
+async function batchWrite(label, items, toOp) {
+  if (items.length === 0) return;
+  let done = 0;
+  for (let i = 0; i < items.length; i += BATCH_SIZE) {
+    const slice = items.slice(i, i + BATCH_SIZE);
+    const batch = db.batch();
+    for (const item of slice) {
+      const { ref, data } = toOp(item);
+      batch.set(ref, data);
+    }
+    await batch.commit();
+    done += slice.length;
+    process.stdout.write(`\rWritten ${label}: ${done} / ${items.length}`);
   }
-  await batch.commit();
-  written += slice.length;
-  process.stdout.write(`\rWritten ${written} / ${transactions.length}`);
+  process.stdout.write('\n');
 }
-process.stdout.write('\n');
-console.log('\n✓ Done.');
