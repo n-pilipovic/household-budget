@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 import { CategoryService } from '../../data/category.service';
 import { HouseholdService } from '../../data/household.service';
@@ -23,7 +23,6 @@ export class TodayPage {
   private readonly households = inject(HouseholdService);
   private readonly categories = inject(CategoryService);
   private readonly transactions = inject(TransactionService);
-  private readonly router = inject(Router);
 
   protected readonly user = this.auth.user;
   protected readonly household = this.households.currentHousehold;
@@ -136,11 +135,6 @@ export class TodayPage {
     // Clear editing state next tick so the sheet's close animation
     // doesn't show "Editing transaction" while collapsing.
     setTimeout(() => this.editingTx.set(null), 200);
-  }
-
-  async signOut() {
-    await this.auth.signOut();
-    await this.router.navigateByUrl('/sign-in');
   }
 
   formatAmount(n: number): string {

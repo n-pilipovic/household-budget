@@ -51,6 +51,21 @@ export class UpdateService {
       });
   }
 
+  /**
+   * Ask the service worker to check the server for a new bundle right
+   * now. No-op when SW is disabled. Returns true if a new version was
+   * found (and is being downloaded), false otherwise.
+   */
+  async checkNow(): Promise<boolean> {
+    if (!this.sw.isEnabled) return false;
+    try {
+      return await this.sw.checkForUpdate();
+    } catch (err) {
+      console.warn('checkForUpdate failed', err);
+      return false;
+    }
+  }
+
   /** Activate the waiting SW version and reload to pick up the new bundle. */
   async applyUpdate(): Promise<void> {
     if (!this.sw.isEnabled || !this.updateAvailable()) return;

@@ -247,6 +247,17 @@ export class HouseholdService {
     return { householdId: data.householdId };
   }
 
+  /** Rename the current household. Caller must be a member. */
+  async renameHousehold(newName: string): Promise<void> {
+    const h = this.currentHousehold();
+    if (!h) throw new Error('No household selected');
+    const trimmed = newName.trim();
+    if (!trimmed) throw new Error('Name cannot be empty');
+    if (trimmed === h.name) return;
+    const ref = doc(this.firestore, 'households', h.id);
+    await updateDoc(ref, { name: trimmed });
+  }
+
   /** One-shot list — used by guards. */
   async listMyHouseholds(): Promise<Household[]> {
     const u = this.auth.user();

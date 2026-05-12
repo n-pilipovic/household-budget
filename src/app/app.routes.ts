@@ -34,6 +34,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/category-detail/category-detail.page').then(m => m.CategoryDetailPage),
   },
   {
+    path: 'settings',
+    canActivate: [authGuard, householdGuard],
+    loadComponent: () => import('./pages/settings/settings.page').then(m => m.SettingsPage),
+  },
+  {
     path: '**',
     redirectTo: 'today',
   },

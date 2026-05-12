@@ -1,0 +1,243 @@
+<main class="min-h-screen bg-bg text-on-bg flex flex-col">
+  <!-- App bar -->
+  <header class="px-3 pt-4 pb-2 flex items-center max-w-md mx-auto w-full">
+    <button
+      (click)="back()"
+      class="size-9 rounded-full hover:bg-surface-2 grid place-items-center transition"
+      aria-label="Back">
+      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <h1 class="ml-2 text-[15px] font-semibold tracking-tight">Settings</h1>
+  </header>
+
+  <div class="flex-1 overflow-y-auto pb-16 max-w-md mx-auto w-full px-5">
+
+    <!-- ============================ Account ============================ -->
+    <h2 class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mt-6 mb-2 px-1">Account</h2>
+    <div class="rounded-lg bg-surface border border-border shadow-xs divide-y divide-border overflow-hidden">
+
+      <!-- Display name -->
+      @if (editing() === 'name') {
+        <form (submit)="saveEdit($event)" (keydown.escape)="cancelEdit()" class="p-4">
+          <label class="block text-xs font-medium text-on-bg-muted mb-1.5">Display name</label>
+          <input
+            type="text" enterkeyhint="done" autofocus maxlength="60" required
+            [value]="draft()" (input)="draft.set($any($event.target).value)"
+            class="w-full h-11 px-3 rounded-md bg-surface border-2 border-brand-500 ring-2 ring-brand-100 text-[15px] outline-none">
+          @if (error()) { <p class="text-xs text-danger-700 mt-2">{{ error() }}</p> }
+          <div class="flex gap-2 mt-3">
+            <button type="submit" [disabled]="busy()" class="h-9 px-4 rounded-md bg-on-bg text-bg text-sm font-medium disabled:opacity-50 hover:opacity-90 transition">
+              {{ busy() ? 'Saving…' : 'Save' }}
+            </button>
+            <button type="button" (click)="cancelEdit()" class="h-9 px-4 rounded-md border border-border bg-surface text-sm font-medium hover:bg-surface-2 transition">Cancel</button>
+          </div>
+        </form>
+      } @else {
+        <button type="button" (click)="startEditName()"
+          class="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-2/60 transition text-left">
+          <span
+            class="size-9 rounded-full text-white grid place-items-center text-sm font-semibold shrink-0"
+            [class.bg-member-1]="myColorSlot() === '1'"
+            [class.bg-member-2]="myColorSlot() === '2'">
+            {{ displayInitial() }}
+          </span>
+          <div class="flex-1 min-w-0">
+            <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Display name</p>
+            <p class="text-[15px] font-medium truncate">{{ currentDisplayName() }}</p>
+          </div>
+          <svg class="size-4 text-on-bg-muted shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      }
+
+      <!-- Email (read-only) -->
+      <div class="px-4 py-3">
+        <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Email</p>
+        <p class="text-[15px] text-on-bg-muted num">{{ user()?.email }}</p>
+      </div>
+
+      <!-- Sign out -->
+      <button type="button" (click)="signOut()"
+        class="w-full text-left px-4 py-3 hover:bg-surface-2/60 transition flex items-center justify-between gap-3">
+        <span class="text-[15px] font-medium text-danger-700">Sign out</span>
+        <svg class="size-5 text-danger-700/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
+
+    <!-- ============================ Household ============================ -->
+    <h2 class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mt-7 mb-2 px-1">Household</h2>
+    <div class="rounded-lg bg-surface border border-border shadow-xs divide-y divide-border overflow-hidden">
+
+      <!-- Household name -->
+      @if (editing() === 'household') {
+        <form (submit)="saveEdit($event)" (keydown.escape)="cancelEdit()" class="p-4">
+          <label class="block text-xs font-medium text-on-bg-muted mb-1.5">Household name</label>
+          <input
+            type="text" enterkeyhint="done" autofocus maxlength="60" required
+            [value]="draft()" (input)="draft.set($any($event.target).value)"
+            class="w-full h-11 px-3 rounded-md bg-surface border-2 border-brand-500 ring-2 ring-brand-100 text-[15px] outline-none">
+          @if (error()) { <p class="text-xs text-danger-700 mt-2">{{ error() }}</p> }
+          <div class="flex gap-2 mt-3">
+            <button type="submit" [disabled]="busy()" class="h-9 px-4 rounded-md bg-on-bg text-bg text-sm font-medium disabled:opacity-50 hover:opacity-90 transition">
+              {{ busy() ? 'Saving…' : 'Save' }}
+            </button>
+            <button type="button" (click)="cancelEdit()" class="h-9 px-4 rounded-md border border-border bg-surface text-sm font-medium hover:bg-surface-2 transition">Cancel</button>
+          </div>
+        </form>
+      } @else {
+        <button type="button" (click)="startEditHousehold()"
+          class="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-2/60 transition text-left">
+          <span class="size-9 rounded-md grid grid-cols-2 grid-rows-2 overflow-hidden ring-1 ring-border shrink-0">
+            <span class="bg-member-1"></span>
+            <span class="bg-member-2"></span>
+            <span class="bg-member-2"></span>
+            <span class="bg-member-1"></span>
+          </span>
+          <div class="flex-1 min-w-0">
+            <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Name</p>
+            <p class="text-[15px] font-medium truncate">{{ household()?.name }}</p>
+          </div>
+          <svg class="size-4 text-on-bg-muted shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      }
+
+      <!-- Members -->
+      <div class="px-4 py-3">
+        <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium mb-2">Members</p>
+        <ul class="space-y-2">
+          @for (m of members(); track m.uid) {
+            <li class="flex items-center gap-2.5">
+              <span
+                class="size-7 rounded-full text-white grid place-items-center text-xs font-semibold shrink-0"
+                [class.bg-member-1]="m.colorSlot === '1'"
+                [class.bg-member-2]="m.colorSlot === '2'">
+                {{ (m.displayName?.[0] ?? m.email?.[0] ?? '?').toUpperCase() }}
+              </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate">
+                  {{ m.displayName ?? m.email ?? 'Member' }}
+                  @if (m.isMe) { <span class="text-on-bg-faint font-normal text-xs ml-1">(you)</span> }
+                </p>
+                @if (m.displayName && m.email) {
+                  <p class="text-xs text-on-bg-muted num truncate">{{ m.email }}</p>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <!-- Invite code -->
+      <div class="px-4 py-3">
+        <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Invite code</p>
+        @if (newInviteCode()) {
+          <div class="mt-2 flex items-center gap-2">
+            <p class="num font-semibold text-lg tracking-[0.15em]">{{ newInviteCode() }}</p>
+            <button
+              type="button" (click)="copyInviteCode()"
+              class="ml-auto h-8 px-3 rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-xs font-medium inline-flex items-center gap-1.5 transition">
+              @if (inviteCopied()) {
+                <svg class="size-3.5 text-success-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Copied
+              } @else {
+                Copy
+              }
+            </button>
+          </div>
+          <p class="text-[11px] text-on-bg-faint mt-1">Expires in 7 days.</p>
+        } @else {
+          <p class="text-sm text-on-bg-muted mt-1 leading-relaxed">Generate a fresh code to invite someone new. The previous code stays valid until it expires.</p>
+        }
+        <button
+          type="button" (click)="regenerateInvite()" [disabled]="inviteBusy()"
+          class="mt-2 inline-flex items-center gap-1.5 text-sm text-brand-600 hover:text-brand-700 font-medium disabled:opacity-50">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.36 6.36M3 12a9 9 0 0 1 15.36-6.36"/><path d="M21 4v5h-5M3 20v-5h5"/></svg>
+          {{ inviteBusy() ? 'Generating…' : newInviteCode() ? 'Generate another' : 'Generate new code' }}
+        </button>
+        @if (inviteError()) {
+          <p class="text-xs text-danger-700 mt-2">{{ inviteError() }}</p>
+        }
+      </div>
+    </div>
+
+    <!-- ============================ Display ============================ -->
+    <h2 class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mt-7 mb-2 px-1">Display</h2>
+    <div class="rounded-lg bg-surface border border-border shadow-xs overflow-hidden p-4">
+      <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium mb-2">Theme</p>
+      <div class="grid grid-cols-3 gap-2">
+        <button
+          type="button" (click)="setTheme('system')"
+          class="h-11 rounded-md text-sm font-medium transition border"
+          [class.border-brand-500]="theme.mode() === 'system'"
+          [class.bg-brand-50]="theme.mode() === 'system'"
+          [class.text-brand-700]="theme.mode() === 'system'"
+          [class.border-border]="theme.mode() !== 'system'"
+          [class.text-on-bg-muted]="theme.mode() !== 'system'"
+          [class.hover:bg-surface-2]="theme.mode() !== 'system'">
+          System
+        </button>
+        <button
+          type="button" (click)="setTheme('light')"
+          class="h-11 rounded-md text-sm font-medium transition border"
+          [class.border-brand-500]="theme.mode() === 'light'"
+          [class.bg-brand-50]="theme.mode() === 'light'"
+          [class.text-brand-700]="theme.mode() === 'light'"
+          [class.border-border]="theme.mode() !== 'light'"
+          [class.text-on-bg-muted]="theme.mode() !== 'light'"
+          [class.hover:bg-surface-2]="theme.mode() !== 'light'">
+          Light
+        </button>
+        <button
+          type="button" (click)="setTheme('dark')"
+          class="h-11 rounded-md text-sm font-medium transition border"
+          [class.border-brand-500]="theme.mode() === 'dark'"
+          [class.bg-brand-50]="theme.mode() === 'dark'"
+          [class.text-brand-700]="theme.mode() === 'dark'"
+          [class.border-border]="theme.mode() !== 'dark'"
+          [class.text-on-bg-muted]="theme.mode() !== 'dark'"
+          [class.hover:bg-surface-2]="theme.mode() !== 'dark'">
+          Dark
+        </button>
+      </div>
+      <p class="text-[11px] text-on-bg-faint mt-2">
+        System follows your phone's appearance. Saved on this device.
+      </p>
+    </div>
+
+    <!-- ============================ About ============================ -->
+    <h2 class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mt-7 mb-2 px-1">About</h2>
+    <div class="rounded-lg bg-surface border border-border shadow-xs divide-y divide-border overflow-hidden">
+
+      <!-- Version -->
+      <div class="px-4 py-3 flex items-center justify-between gap-3">
+        <div>
+          <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Version</p>
+          <p class="text-[15px] font-medium num">{{ appVersion }}</p>
+        </div>
+        <button
+          type="button" (click)="checkForUpdates()" [disabled]="updateCheckBusy()"
+          class="h-9 px-3 rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-xs font-medium disabled:opacity-50 transition">
+          {{ updateCheckBusy() ? 'Checking…' : 'Check for updates' }}
+        </button>
+      </div>
+      @if (updateCheckMsg()) {
+        <p class="px-4 py-2 text-xs text-on-bg-muted">{{ updateCheckMsg() }}</p>
+      }
+
+      <!-- Source code -->
+      <a
+        href="https://github.com/n-pilipovic/household-budget"
+        target="_blank" rel="noopener"
+        class="flex items-center gap-3 px-4 py-3 hover:bg-surface-2/60 transition">
+        <div class="flex-1">
+          <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Source code</p>
+          <p class="text-[15px] font-medium num">github.com/n-pilipovic/household-budget</p>
+        </div>
+        <svg class="size-4 text-on-bg-muted shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
+      </a>
+    </div>
+
+    <p class="text-[11px] text-on-bg-faint text-center mt-8">
+      Household budget · one household, every device — synced live.
+    </p>
+  </div>
+</main>
