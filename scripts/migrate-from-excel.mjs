@@ -24,8 +24,9 @@
  * Usage:
  *   pnpm migrate -- --email=<your-email> --dry-run
  *   pnpm migrate -- --email=<your-email>
- *   pnpm migrate -- --email=<your-email> --clean       # wipe prior imports first
- *   pnpm migrate -- --email=<your-email> --wipe-all    # wipe EVERYTHING first (incl. manual)
+ *   pnpm migrate -- --email=<your-email> --clean             # wipe prior imports first
+ *   pnpm migrate -- --email=<your-email> --wipe-all          # wipe EVERYTHING first (incl. manual)
+ *   pnpm migrate -- --email=<your-email> --household-id=<id> # pick when user is in >1
  *
  * Requires firebase-admin-key.json at the repo root (download from
  * Firebase Console → Project Settings → Service accounts).
@@ -45,7 +46,10 @@ import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
 
 const args = parseArgs(process.argv.slice(2));
 if (!args.email) {
-  console.error('Usage: pnpm migrate -- --email=<your-email> [--dry-run] [--clean | --wipe-all] [--force] [--yes]');
+  console.error(
+    'Usage: pnpm migrate -- --email=<your-email> [--household-id=<id>]\n' +
+    '                       [--dry-run] [--clean | --wipe-all] [--force] [--yes]',
+  );
   process.exit(2);
 }
 const DRY_RUN = !!args['dry-run'];
@@ -102,14 +106,65 @@ if (householdsSnap.empty) {
   console.error(`No household found for ${args.email}. Create one in the app first.`);
   process.exit(2);
 }
-if (householdsSnap.size > 1) {
-  console.error(`Multiple households for ${args.email}. Disambiguation not yet supported.`);
-  process.exit(2);
-}
-const householdDoc = householdsSnap.docs[0];
+
+const householdDoc = await pickHousehold(householdsSnap.docs);
 const householdId = householdDoc.id;
 const householdName = householdDoc.data().name;
-console.log(`✓ Found household: "${householdName}" (id: ${householdId})`);
+console.log(`✓ Using household: "${householdName}" (id: ${householdId})`);
+
+/**
+ * Resolves ambiguity when the signed-in user belongs to multiple
+ * households. Order of resolution:
+ *   1. --household-id flag matches an id → use that
+ *   2. Exactly one household → use it
+ *   3. Interactive numeric prompt (unless --yes, which errors out)
+ */
+async function pickHousehold(docs) {
+  if (args['household-id']) {
+    const match = docs.find(d => d.id === args['household-id']);
+    if (match) return match;
+    console.error(`No household with id "${args['household-id']}" in your list.\n`);
+    printHouseholds(docs);
+    process.exit(2);
+  }
+  if (docs.length === 1) return docs[0];
+
+  console.log(`\nMultiple households found for ${args.email}:\n`);
+  printHouseholds(docs);
+
+  if (ASSUME_YES) {
+    console.error(
+      '\nPass --household-id=<id> to choose one non-interactively.',
+    );
+    process.exit(2);
+  }
+
+  const rl = readline.createInterface({ input, output });
+  const answer = (await rl.question(`\nWhich one? [1-${docs.length}] or paste the id: `)).trim();
+  rl.close();
+
+  const idx = parseInt(answer, 10);
+  if (Number.isInteger(idx) && idx >= 1 && idx <= docs.length) {
+    return docs[idx - 1];
+  }
+  const byId = docs.find(d => d.id === answer);
+  if (byId) return byId;
+  console.error('Invalid selection.');
+  process.exit(2);
+}
+
+function printHouseholds(docs) {
+  for (let i = 0; i < docs.length; i++) {
+    const d = docs[i];
+    const data = d.data();
+    const members = data.members?.length ?? 0;
+    const created = data.createdAt?.toDate?.()?.toISOString?.().slice(0, 10) ?? '?';
+    console.log(
+      `  [${i + 1}] ${d.id}\n` +
+      `      name: "${data.name}"  ·  ${members} member${members === 1 ? '' : 's'}  ·  created ${created}`,
+    );
+  }
+}
 
 // Count existing transactions — used for guardrails and summary.
 const txCol = db.collection('households').doc(householdId).collection('transactions');
