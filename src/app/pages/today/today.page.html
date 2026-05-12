@@ -3,10 +3,10 @@
   <header class="px-5 pt-6 pb-3 flex items-center justify-between max-w-md mx-auto w-full">
     <div class="flex items-center gap-2">
       <span class="size-7 rounded-full grid grid-cols-2 grid-rows-2 overflow-hidden ring-1 ring-border">
-        <span class="bg-user-novica"></span>
-        <span class="bg-user-nada"></span>
-        <span class="bg-user-nada"></span>
-        <span class="bg-user-novica"></span>
+        <span class="bg-member-1"></span>
+        <span class="bg-member-2"></span>
+        <span class="bg-member-2"></span>
+        <span class="bg-member-1"></span>
       </span>
       <span class="text-[15px] font-semibold tracking-tight">{{ household()?.name }}</span>
     </div>
@@ -65,8 +65,8 @@
                 [class.hover:bg-surface-2]="!isJustSynced(t.id)">
                 <span
                   class="size-9 rounded-full text-white grid place-items-center text-sm font-semibold shrink-0"
-                  [class.bg-user-novica]="colorSlotFor(t.userId) === 'novica'"
-                  [class.bg-user-nada]="colorSlotFor(t.userId) === 'nada'">
+                  [class.bg-member-1]="colorSlotFor(t.userId) === '1'"
+                  [class.bg-member-2]="colorSlotFor(t.userId) === '2'">
                   {{ displayInitialForUser(t.userId) }}
                 </span>
                 <div class="flex-1 min-w-0">
@@ -95,8 +95,8 @@
     (click)="openQuickAdd()"
     aria-label="Quick add transaction"
     class="fixed left-1/2 -translate-x-1/2 z-30 size-14 rounded-full text-white grid place-items-center shadow-lg active:scale-95 transition"
-    [class.bg-user-novica]="myColorSlot() === 'novica'"
-    [class.bg-user-nada]="myColorSlot() === 'nada'"
+    [class.bg-member-1]="myColorSlot() === '1'"
+    [class.bg-member-2]="myColorSlot() === '2'"
     style="bottom: 28px;">
     <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
   </button>

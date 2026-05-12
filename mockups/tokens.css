@@ -42,12 +42,12 @@
 
   /* ---------- User attribution colors ----------
      Two distinct hues, both pass AA on both surface and on-bg. */
-  --color-user-novica: oklch(56% 0.18 258);        /* deep cobalt */
-  --color-user-novica-soft: oklch(95% 0.04 258);
-  --color-user-novica-on: oklch(100% 0 0);
-  --color-user-nada: oklch(64% 0.16 12);           /* warm rose */
-  --color-user-nada-soft: oklch(96% 0.03 12);
-  --color-user-nada-on: oklch(100% 0 0);
+  --color-member-1: oklch(56% 0.18 258);        /* deep cobalt */
+  --color-member-1-soft: oklch(95% 0.04 258);
+  --color-member-1-on: oklch(100% 0 0);
+  --color-member-2: oklch(64% 0.16 12);           /* warm rose */
+  --color-member-2-soft: oklch(96% 0.03 12);
+  --color-member-2-on: oklch(100% 0 0);
 
   /* ---------- Radius ---------- */
   --radius-xs: 0.375rem;     /* 6px chips */
@@ -141,10 +141,10 @@
   --color-danger-500: oklch(70% 0.18 25);
   --color-danger-700: oklch(78% 0.16 25);
 
-  --color-user-novica: oklch(70% 0.16 258);
-  --color-user-novica-soft: oklch(28% 0.07 258);
-  --color-user-nada: oklch(74% 0.14 12);
-  --color-user-nada-soft: oklch(28% 0.05 12);
+  --color-member-1: oklch(70% 0.16 258);
+  --color-member-1-soft: oklch(28% 0.07 258);
+  --color-member-2: oklch(74% 0.14 12);
+  --color-member-2-soft: oklch(28% 0.05 12);
 }
 
 @layer base {

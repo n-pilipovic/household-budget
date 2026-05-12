@@ -39,8 +39,8 @@ export class TodayPage {
   protected readonly myColorSlot = computed(() => {
     const u = this.user();
     const h = this.household();
-    if (!u || !h) return 'novica';
-    return h.memberColors?.[u.uid] ?? 'novica';
+    if (!u || !h) return '1';
+    return h.memberColors?.[u.uid] ?? '1';
   });
 
   protected readonly groups = computed<FeedGroup[]>(() => {
@@ -152,9 +152,9 @@ export class TodayPage {
     return ts.toDate().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
 
-  colorSlotFor(uid: string): 'novica' | 'nada' {
+  colorSlotFor(uid: string): '1' | '2' {
     const h = this.household();
-    return (h?.memberColors?.[uid] as 'novica' | 'nada' | undefined) ?? 'novica';
+    return (h?.memberColors?.[uid] as '1' | '2' | undefined) ?? '1';
   }
 
   initialFor(t: Transaction): string {

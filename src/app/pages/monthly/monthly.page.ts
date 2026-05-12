@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   Firestore,
   Timestamp,
@@ -35,7 +35,7 @@ export interface CategoryRow {
 
 @Component({
   selector: 'app-monthly',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './monthly.page.html',
 })
 export class MonthlyPage {
@@ -272,9 +272,9 @@ export class MonthlyPage {
     return ((p?.displayName?.[0] ?? p?.email?.[0]) ?? '?').toUpperCase();
   }
 
-  colorSlotFor(uid: string): 'novica' | 'nada' {
+  colorSlotFor(uid: string): '1' | '2' {
     const h = this.household();
-    return (h?.memberColors?.[uid] as 'novica' | 'nada' | undefined) ?? 'novica';
+    return (h?.memberColors?.[uid] as '1' | '2' | undefined) ?? '1';
   }
 
   formatDay(ts: { toDate(): Date } | undefined): string {

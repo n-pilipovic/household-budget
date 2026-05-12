@@ -94,8 +94,8 @@ export class QuickAddSheet {
   protected readonly myColorSlot = computed(() => {
     const u = this.currentUser();
     const h = this.currentHousehold();
-    if (!u || !h) return 'novica';
-    return h.memberColors?.[u.uid] ?? 'novica';
+    if (!u || !h) return '1';
+    return h.memberColors?.[u.uid] ?? '1';
   });
 
   constructor() {

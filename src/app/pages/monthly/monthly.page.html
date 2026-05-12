@@ -199,6 +199,14 @@
                 </button>
               }
 
+              <!-- View 12-month history -->
+              <a
+                [routerLink]="['/category', row.category.id]"
+                class="inline-flex items-center gap-1.5 text-sm text-brand-600 hover:text-brand-700 font-medium">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 4 4 5-5"/></svg>
+                View 12 months
+              </a>
+
               <!-- Transactions -->
               @if (row.transactions.length > 0) {
                 <div>
@@ -210,8 +218,8 @@
                       <li class="flex items-center gap-2 py-2 text-sm">
                         <span
                           class="size-6 rounded-full text-white grid place-items-center text-[10px] font-semibold shrink-0"
-                          [class.bg-user-novica]="colorSlotFor(t.userId) === 'novica'"
-                          [class.bg-user-nada]="colorSlotFor(t.userId) === 'nada'">
+                          [class.bg-member-1]="colorSlotFor(t.userId) === '1'"
+                          [class.bg-member-2]="colorSlotFor(t.userId) === '2'">
                           {{ initialFor(t) }}
                         </span>
                         <p class="flex-1 min-w-0 truncate">{{ t.note || row.category.name }}</p>

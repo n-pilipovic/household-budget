@@ -17,8 +17,8 @@
       <div class="flex items-center gap-2">
         <span
           class="size-6 rounded-full text-white grid place-items-center text-[11px] font-semibold"
-          [class.bg-user-novica]="myColorSlot() === 'novica'"
-          [class.bg-user-nada]="myColorSlot() === 'nada'">
+          [class.bg-member-1]="myColorSlot() === '1'"
+          [class.bg-member-2]="myColorSlot() === '2'">
           {{ currentUser()?.displayName?.[0] || currentUser()?.email?.[0] || '?' }}
         </span>
         <p class="text-sm text-on-bg-muted">

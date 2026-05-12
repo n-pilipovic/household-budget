@@ -36,12 +36,12 @@
       --color-danger-500: oklch(60% 0.20 25);
       --color-danger-700: oklch(48% 0.18 25);
 
-      --color-user-novica: oklch(56% 0.18 258);
-      --color-user-novica-soft: oklch(95% 0.04 258);
-      --color-user-novica-on: oklch(100% 0 0);
-      --color-user-nada: oklch(64% 0.16 12);
-      --color-user-nada-soft: oklch(96% 0.03 12);
-      --color-user-nada-on: oklch(100% 0 0);
+      --color-member-1: oklch(56% 0.18 258);
+      --color-member-1-soft: oklch(95% 0.04 258);
+      --color-member-1-on: oklch(100% 0 0);
+      --color-member-2: oklch(64% 0.16 12);
+      --color-member-2-soft: oklch(96% 0.03 12);
+      --color-member-2-on: oklch(100% 0 0);
 
       --radius-xs: 0.375rem;
       --radius-sm: 0.5rem;
@@ -93,10 +93,10 @@
       --color-danger-500: oklch(70% 0.18 25);
       --color-danger-700: oklch(78% 0.16 25);
 
-      --color-user-novica: oklch(70% 0.16 258);
-      --color-user-novica-soft: oklch(28% 0.07 258);
-      --color-user-nada: oklch(74% 0.14 12);
-      --color-user-nada-soft: oklch(28% 0.05 12);
+      --color-member-1: oklch(70% 0.16 258);
+      --color-member-1-soft: oklch(28% 0.07 258);
+      --color-member-2: oklch(74% 0.14 12);
+      --color-member-2-soft: oklch(28% 0.05 12);
     }
 
     @layer base {
@@ -115,8 +115,8 @@
     /* Phone-frame helpers */
     .scrim { background: linear-gradient(180deg, oklch(0% 0 0 / 0) 0%, oklch(0% 0 0 / 0.45) 60%); }
     .row-just-synced {
-      background: var(--color-user-nada-soft);
-      box-shadow: inset 2px 0 0 var(--color-user-nada);
+      background: var(--color-member-2-soft);
+      box-shadow: inset 2px 0 0 var(--color-member-2);
     }
   </style>
 </head>
@@ -178,7 +178,7 @@
               <!-- Header -->
               <div class="px-5 pt-2 pb-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <span class="size-6 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                  <span class="size-6 rounded-full bg-member-1 text-white grid place-items-center text-[11px] font-semibold">N</span>
                   <p class="text-sm text-on-bg-muted">Logging as <span class="text-on-bg font-medium">Novica</span></p>
                 </div>
                 <button class="size-8 rounded-full hover:bg-surface-2 grid place-items-center" aria-label="Close">
@@ -263,7 +263,7 @@
               </div>
               <div class="px-5 pt-2 pb-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <span class="size-6 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                  <span class="size-6 rounded-full bg-member-1 text-white grid place-items-center text-[11px] font-semibold">N</span>
                   <p class="text-sm text-on-bg-muted">Logging as <span class="text-on-bg font-medium">Novica</span></p>
                 </div>
                 <button class="size-8 rounded-full hover:bg-surface-2 grid place-items-center">
@@ -333,7 +333,7 @@
               </div>
               <div class="px-5 pt-2 pb-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <span class="size-6 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                  <span class="size-6 rounded-full bg-member-1 text-white grid place-items-center text-[11px] font-semibold">N</span>
                   <p class="text-sm text-on-bg-muted">Logging as <span class="text-on-bg font-medium">Novica</span></p>
                 </div>
                 <button class="size-8 rounded-full hover:bg-surface-2 grid place-items-center">
@@ -442,10 +442,10 @@
             <div class="px-5 pt-2 pb-3 flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="size-7 rounded-full grid grid-cols-2 grid-rows-2 overflow-hidden ring-1 ring-border">
-                  <span class="bg-user-novica"></span>
-                  <span class="bg-user-nada"></span>
-                  <span class="bg-user-nada"></span>
-                  <span class="bg-user-novica"></span>
+                  <span class="bg-member-1"></span>
+                  <span class="bg-member-2"></span>
+                  <span class="bg-member-2"></span>
+                  <span class="bg-member-1"></span>
                 </span>
                 <span class="text-[15px] font-semibold tracking-tight">Pilipović</span>
               </div>
@@ -469,8 +469,8 @@
               <h3 class="px-5 pt-7 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium">Today</h3>
               <ul class="px-2 space-y-px">
                 <!-- Just added — Novica's coffee, with novica color highlight -->
-                <li class="flex items-center gap-3 px-3 py-3 rounded-md transition" style="background: var(--color-user-novica-soft); box-shadow: inset 2px 0 0 var(--color-user-novica);">
-                  <span class="size-9 rounded-full bg-user-novica text-white grid place-items-center text-sm font-semibold">N</span>
+                <li class="flex items-center gap-3 px-3 py-3 rounded-md transition" style="background: var(--color-member-1-soft); box-shadow: inset 2px 0 0 var(--color-member-1);">
+                  <span class="size-9 rounded-full bg-member-1 text-white grid place-items-center text-sm font-semibold">N</span>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-baseline justify-between gap-2">
                       <p class="text-[15px] font-medium truncate">coffee</p>
@@ -478,12 +478,12 @@
                     </div>
                     <div class="flex items-center gap-2 text-xs text-on-bg-muted">
                       <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 font-medium">Kafe i voda</span>
-                      <span class="text-user-novica font-medium">just now</span>
+                      <span class="text-member-1 font-medium">just now</span>
                     </div>
                   </div>
                 </li>
                 <li class="flex items-center gap-3 px-3 py-3 rounded-md">
-                  <span class="size-9 rounded-full bg-user-nada text-white grid place-items-center text-sm font-semibold">N</span>
+                  <span class="size-9 rounded-full bg-member-2 text-white grid place-items-center text-sm font-semibold">N</span>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-baseline justify-between gap-2">
                       <p class="text-[15px] font-medium truncate">kafa kod Sare</p>
@@ -513,7 +513,7 @@
 
             <!-- FAB -->
             <div class="absolute" style="bottom: 28px; left: 50%; transform: translateX(-50%);">
-              <button class="size-14 rounded-full bg-user-novica text-white grid place-items-center shadow-lg">
+              <button class="size-14 rounded-full bg-member-1 text-white grid place-items-center shadow-lg">
                 <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
               </button>
             </div>

@@ -1,0 +1,170 @@
+<main class="min-h-screen bg-bg text-on-bg flex flex-col">
+  <!-- App bar -->
+  <header class="px-3 pt-4 pb-2 flex items-center justify-between max-w-md mx-auto w-full">
+    <button
+      (click)="back()"
+      class="size-9 rounded-full hover:bg-surface-2 grid place-items-center transition"
+      aria-label="Back">
+      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <div class="text-center">
+      <p class="text-[15px] font-semibold tracking-tight leading-tight">{{ category()?.name }}</p>
+      <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">{{ category()?.group }}</p>
+    </div>
+    <div class="size-9"></div>
+  </header>
+
+  @if (category()) {
+    <div class="flex-1 overflow-y-auto pb-16 max-w-md mx-auto w-full">
+
+      <!-- KPI strip -->
+      <div class="px-5 pt-3">
+        <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">Last 12 months</p>
+        <div class="flex items-baseline gap-2 mt-1.5">
+          <span class="text-3xl font-semibold tracking-tight num">{{ formatAmount(total12mo()) }}</span>
+          <span class="text-sm text-on-bg-muted font-medium">RSD spent</span>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mt-5">
+          <div class="rounded-md bg-surface-2 px-3 py-2.5">
+            <p class="text-[10px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Avg / month</p>
+            <p class="text-base font-semibold num mt-0.5">{{ formatAmount(avgPerMonth()) }}</p>
+          </div>
+          <div class="rounded-md bg-surface-2 px-3 py-2.5">
+            <p class="text-[10px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Avg / week</p>
+            <p class="text-base font-semibold num mt-0.5">{{ formatAmount(avgPerWeek()) }}</p>
+          </div>
+          <div class="rounded-md bg-surface-2 px-3 py-2.5">
+            <p class="text-[10px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">This month</p>
+            <p class="text-base font-semibold num mt-0.5 text-brand-600">{{ formatAmount(thisMonthActual()) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="px-5 pt-7">
+        <div class="flex items-baseline justify-between mb-3">
+          <h3 class="text-sm font-semibold tracking-tight">Planned vs actual</h3>
+          <span class="text-[11px] text-on-bg-faint">12 months</span>
+        </div>
+        <div class="rounded-lg bg-surface border border-border p-3">
+          <div class="h-[120px] flex items-end gap-1.5">
+            @for (b of monthly(); track b.key) {
+              <div class="flex-1 flex flex-col items-center gap-1.5" [attr.title]="b.label + ': ' + formatAmount(b.actual) + ' / ' + formatAmount(b.planned) + ' planned'">
+                <div
+                  class="w-full max-w-[18px] h-[100px] rounded-t bg-surface-3 relative"
+                  [class.ring-2]="b.isCurrent"
+                  [class.ring-brand-300]="b.isCurrent"
+                  [class.ring-offset-1]="b.isCurrent"
+                  [class.ring-offset-surface]="b.isCurrent">
+                  <div
+                    class="absolute inset-x-0 bottom-0 rounded-t transition-all"
+                    [class.bg-success-500]="b.state === 'good' && !b.isCurrent"
+                    [class.bg-warn-500]="b.state === 'watch' && !b.isCurrent"
+                    [class.bg-danger-500]="b.state === 'bad' && !b.isCurrent"
+                    [class.bg-surface-3]="b.state === 'no-budget' && !b.isCurrent && b.actual === 0"
+                    [class.bg-on-bg]="b.state === 'no-budget' && !b.isCurrent && b.actual > 0"
+                    [class.bg-brand-500]="b.isCurrent"
+                    [class.opacity-70]="!b.isCurrent"
+                    [style.height.%]="b.fillPct * 100">
+                  </div>
+                </div>
+                <span class="text-[10px] font-medium"
+                  [class.text-on-bg-faint]="!b.isCurrent"
+                  [class.text-brand-700]="b.isCurrent">
+                  {{ b.label[0] }}
+                </span>
+              </div>
+            }
+          </div>
+          <div class="mt-3 flex items-center justify-between text-[11px] text-on-bg-muted">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex items-center gap-1"><span class="size-2 rounded-xs bg-success-500/70"></span>under</span>
+              <span class="inline-flex items-center gap-1"><span class="size-2 rounded-xs bg-warn-500/70"></span>watch</span>
+              <span class="inline-flex items-center gap-1"><span class="size-2 rounded-xs bg-danger-500/80"></span>over</span>
+            </div>
+            <span class="text-on-bg-faint">{{ monthly()[0]?.label }}–{{ monthly()[monthly().length - 1]?.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter chips -->
+      <div class="px-5 pt-6 pb-2">
+        <div class="flex items-center gap-2 overflow-x-auto -mx-5 px-5 pb-1 scrollbar-none">
+          <button
+            type="button"
+            (click)="setFilter('all')"
+            class="shrink-0 px-3 py-1.5 rounded-pill text-xs font-medium transition"
+            [class.bg-on-bg]="filter() === 'all'"
+            [class.text-bg]="filter() === 'all'"
+            [class.bg-surface-2]="filter() !== 'all'"
+            [class.text-on-bg-muted]="filter() !== 'all'"
+            [class.hover:bg-surface-3]="filter() !== 'all'">
+            All time
+          </button>
+          <button
+            type="button"
+            (click)="setFilter('this-month')"
+            class="shrink-0 px-3 py-1.5 rounded-pill text-xs font-medium transition"
+            [class.bg-on-bg]="filter() === 'this-month'"
+            [class.text-bg]="filter() === 'this-month'"
+            [class.bg-surface-2]="filter() !== 'this-month'"
+            [class.text-on-bg-muted]="filter() !== 'this-month'"
+            [class.hover:bg-surface-3]="filter() !== 'this-month'">
+            This month
+          </button>
+          <button
+            type="button"
+            (click)="setFilter('last-30')"
+            class="shrink-0 px-3 py-1.5 rounded-pill text-xs font-medium transition"
+            [class.bg-on-bg]="filter() === 'last-30'"
+            [class.text-bg]="filter() === 'last-30'"
+            [class.bg-surface-2]="filter() !== 'last-30'"
+            [class.text-on-bg-muted]="filter() !== 'last-30'"
+            [class.hover:bg-surface-3]="filter() !== 'last-30'">
+            Last 30 days
+          </button>
+        </div>
+      </div>
+
+      <!-- Transactions -->
+      <h3 class="px-5 pt-2 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium flex items-baseline justify-between">
+        <span>Transactions</span>
+        <span class="text-on-bg-faint normal-case tracking-normal text-[11px] num">{{ filteredTransactions().length }}</span>
+      </h3>
+
+      @if (filteredTransactions().length === 0) {
+        <p class="px-5 py-6 text-sm text-on-bg-muted text-center">No transactions in this range.</p>
+      } @else {
+        <ul class="px-2 space-y-px">
+          @for (t of filteredTransactions(); track t.id) {
+            <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/60 transition">
+              <span
+                class="size-9 rounded-full text-white grid place-items-center text-sm font-semibold shrink-0"
+                [class.bg-member-1]="colorSlotFor(t.userId) === '1'"
+                [class.bg-member-2]="colorSlotFor(t.userId) === '2'">
+                {{ initialFor(t) }}
+              </span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-baseline justify-between gap-2">
+                  <p class="text-[15px] font-medium truncate">{{ t.note || category()?.name }}</p>
+                  <span class="text-[15px] font-semibold num shrink-0">
+                    {{ formatAmount(t.amount) }}
+                    <span class="text-on-bg-faint font-normal text-xs">RSD</span>
+                  </span>
+                </div>
+                <p class="text-xs text-on-bg-muted num">{{ formatDay(t.occurredOn) }}</p>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  } @else {
+    <div class="flex-1 grid place-items-center px-6 text-center">
+      <div>
+        <p class="text-on-bg-muted">Category not found.</p>
+        <button (click)="back()" class="mt-3 text-sm text-brand-600 font-medium hover:text-brand-700">← Back to Monthly</button>
+      </div>
+    </div>
+  }
+</main>

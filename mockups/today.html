@@ -39,12 +39,12 @@
       --color-danger-500: oklch(60% 0.20 25);
       --color-danger-700: oklch(48% 0.18 25);
 
-      --color-user-novica: oklch(56% 0.18 258);
-      --color-user-novica-soft: oklch(95% 0.04 258);
-      --color-user-novica-on: oklch(100% 0 0);
-      --color-user-nada: oklch(64% 0.16 12);
-      --color-user-nada-soft: oklch(96% 0.03 12);
-      --color-user-nada-on: oklch(100% 0 0);
+      --color-member-1: oklch(56% 0.18 258);
+      --color-member-1-soft: oklch(95% 0.04 258);
+      --color-member-1-on: oklch(100% 0 0);
+      --color-member-2: oklch(64% 0.16 12);
+      --color-member-2-soft: oklch(96% 0.03 12);
+      --color-member-2-on: oklch(100% 0 0);
 
       --radius-xs: 0.375rem;
       --radius-sm: 0.5rem;
@@ -96,10 +96,10 @@
       --color-danger-500: oklch(70% 0.18 25);
       --color-danger-700: oklch(78% 0.16 25);
 
-      --color-user-novica: oklch(70% 0.16 258);
-      --color-user-novica-soft: oklch(28% 0.07 258);
-      --color-user-nada: oklch(74% 0.14 12);
-      --color-user-nada-soft: oklch(28% 0.05 12);
+      --color-member-1: oklch(70% 0.16 258);
+      --color-member-1-soft: oklch(28% 0.07 258);
+      --color-member-2: oklch(74% 0.14 12);
+      --color-member-2-soft: oklch(28% 0.05 12);
     }
 
     @layer base {
@@ -116,12 +116,12 @@
     }
 
     @keyframes just-synced {
-      0%   { background: var(--color-user-nada-soft); }
+      0%   { background: var(--color-member-2-soft); }
       100% { background: transparent; }
     }
     .row-just-synced {
-      background: var(--color-user-nada-soft);
-      box-shadow: inset 2px 0 0 var(--color-user-nada);
+      background: var(--color-member-2-soft);
+      box-shadow: inset 2px 0 0 var(--color-member-2);
     }
   </style>
 </head>
@@ -171,10 +171,10 @@
           <div class="px-5 pt-2 pb-3 flex items-center justify-between">
             <button class="flex items-center gap-2 -ml-1 pl-1 pr-2 py-1 rounded-md hover:bg-surface-2 transition">
               <span class="size-7 rounded-full grid grid-cols-2 grid-rows-2 overflow-hidden ring-1 ring-border">
-                <span class="bg-user-novica"></span>
-                <span class="bg-user-nada"></span>
-                <span class="bg-user-nada"></span>
-                <span class="bg-user-novica"></span>
+                <span class="bg-member-1"></span>
+                <span class="bg-member-2"></span>
+                <span class="bg-member-2"></span>
+                <span class="bg-member-1"></span>
               </span>
               <span class="text-[15px] font-semibold tracking-tight">Pilipović</span>
               <svg class="size-4 text-on-bg-faint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -216,7 +216,7 @@
             <ul class="px-2 space-y-px">
               <!-- Just synced row (Nada) -->
               <li class="flex items-center gap-3 px-3 py-3 rounded-md row-just-synced">
-                <span class="size-9 rounded-full bg-user-nada text-white grid place-items-center text-sm font-semibold">N</span>
+                <span class="size-9 rounded-full bg-member-2 text-white grid place-items-center text-sm font-semibold">N</span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-baseline justify-between gap-2">
                     <p class="text-[15px] font-medium truncate">kafa kod Sare</p>
@@ -224,13 +224,13 @@
                   </div>
                   <div class="flex items-center gap-2 text-xs text-on-bg-muted">
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted font-medium">Kafe i voda</span>
-                    <span class="text-user-nada font-medium">just now</span>
+                    <span class="text-member-2 font-medium">just now</span>
                   </div>
                 </div>
               </li>
               <!-- Novica row -->
               <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
-                <span class="size-9 rounded-full bg-user-novica text-white grid place-items-center text-sm font-semibold">N</span>
+                <span class="size-9 rounded-full bg-member-1 text-white grid place-items-center text-sm font-semibold">N</span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-baseline justify-between gap-2">
                     <p class="text-[15px] font-medium truncate">Maxi</p>
@@ -244,7 +244,7 @@
               </li>
               <!-- Novica row -->
               <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
-                <span class="size-9 rounded-full bg-user-novica text-white grid place-items-center text-sm font-semibold">N</span>
+                <span class="size-9 rounded-full bg-member-1 text-white grid place-items-center text-sm font-semibold">N</span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-baseline justify-between gap-2">
                     <p class="text-[15px] font-medium truncate">pekara</p>
@@ -258,7 +258,7 @@
               </li>
               <!-- Nada row -->
               <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
-                <span class="size-9 rounded-full bg-user-nada text-white grid place-items-center text-sm font-semibold">N</span>
+                <span class="size-9 rounded-full bg-member-2 text-white grid place-items-center text-sm font-semibold">N</span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-baseline justify-between gap-2">
                     <p class="text-[15px] font-medium truncate">ručak Vapiano</p>
@@ -276,7 +276,7 @@
             <h3 class="px-5 pt-6 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium">Yesterday</h3>
             <ul class="px-2 space-y-px">
               <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
-                <span class="size-9 rounded-full bg-user-novica text-white grid place-items-center text-sm font-semibold">N</span>
+                <span class="size-9 rounded-full bg-member-1 text-white grid place-items-center text-sm font-semibold">N</span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-baseline justify-between gap-2">
                     <p class="text-[15px] font-medium truncate">gorivo NIS</p>
@@ -289,7 +289,7 @@
                 </div>
               </li>
               <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
-                <span class="size-9 rounded-full bg-user-nada text-white grid place-items-center text-sm font-semibold">N</span>
+                <span class="size-9 rounded-full bg-member-2 text-white grid place-items-center text-sm font-semibold">N</span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-baseline justify-between gap-2">
                     <p class="text-[15px] font-medium truncate">DM apoteka</p>
@@ -307,7 +307,7 @@
             <h3 class="px-5 pt-6 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium">3 days ago</h3>
             <ul class="px-2 space-y-px">
               <li class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-2/70 transition">
-                <span class="size-9 rounded-full bg-user-novica text-white grid place-items-center text-sm font-semibold">N</span>
+                <span class="size-9 rounded-full bg-member-1 text-white grid place-items-center text-sm font-semibold">N</span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-baseline justify-between gap-2">
                     <p class="text-[15px] font-medium truncate">rata maj</p>
@@ -331,7 +331,7 @@
 
           <!-- FAB -->
           <div class="absolute" style="bottom: 28px; left: 50%; transform: translateX(-50%);">
-            <button class="size-14 rounded-full bg-user-novica text-white grid place-items-center shadow-lg active:scale-95 transition">
+            <button class="size-14 rounded-full bg-member-1 text-white grid place-items-center shadow-lg active:scale-95 transition">
               <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
             </button>
           </div>
@@ -361,10 +361,10 @@
           <header class="h-14 border-b border-border bg-surface flex items-center px-6 gap-6 shrink-0">
             <div class="flex items-center gap-2.5">
               <span class="size-7 rounded-full grid grid-cols-2 grid-rows-2 overflow-hidden ring-1 ring-border">
-                <span class="bg-user-novica"></span>
-                <span class="bg-user-nada"></span>
-                <span class="bg-user-nada"></span>
-                <span class="bg-user-novica"></span>
+                <span class="bg-member-1"></span>
+                <span class="bg-member-2"></span>
+                <span class="bg-member-2"></span>
+                <span class="bg-member-1"></span>
               </span>
               <span class="text-[14px] font-semibold tracking-tight">Pilipović</span>
             </div>
@@ -377,7 +377,7 @@
             <div class="flex-1 flex justify-center">
               <div class="w-full max-w-md">
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-user-novica text-white grid place-items-center text-[11px] font-semibold">N</span>
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-member-1 text-white grid place-items-center text-[11px] font-semibold">N</span>
                   <input type="text" placeholder="350 coffee · 2.500 market · 54.400 kredit…" class="w-full h-10 pl-11 pr-24 rounded-md bg-surface-2 border border-border focus:bg-surface focus:border-brand-300 text-sm placeholder:text-on-bg-faint outline-none transition">
                   <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-on-bg-muted font-mono">N</kbd>
                 </div>
@@ -388,7 +388,7 @@
               <button class="size-9 rounded-md hover:bg-surface-2 grid place-items-center" aria-label="Settings">
                 <svg class="size-4.5 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
               </button>
-              <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-xs font-semibold ring-2 ring-surface">N</span>
+              <span class="size-8 rounded-full bg-member-1 text-white grid place-items-center text-xs font-semibold ring-2 ring-surface">N</span>
             </div>
           </header>
 
@@ -447,16 +447,16 @@
                   <div class="px-4 pt-3 pb-1 text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium border-b border-border bg-surface-2/50">Today</div>
                   <ul class="divide-y divide-border">
                     <li class="row-just-synced flex items-center gap-3 px-4 py-3">
-                      <span class="size-8 rounded-full bg-user-nada text-white grid place-items-center text-[13px] font-semibold">N</span>
+                      <span class="size-8 rounded-full bg-member-2 text-white grid place-items-center text-[13px] font-semibold">N</span>
                       <div class="flex-1 grid grid-cols-[1fr_auto_auto] items-center gap-4 min-w-0">
                         <p class="text-sm font-medium truncate">kafa kod Sare</p>
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted text-xs font-medium">Kafe i voda</span>
                         <span class="text-sm font-semibold num w-24 text-right">350 <span class="text-on-bg-faint font-normal text-xs">RSD</span></span>
                       </div>
-                      <span class="text-xs text-user-nada font-medium w-16 text-right">just now</span>
+                      <span class="text-xs text-member-2 font-medium w-16 text-right">just now</span>
                     </li>
                     <li class="flex items-center gap-3 px-4 py-3 hover:bg-surface-2/50 transition">
-                      <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-[13px] font-semibold">N</span>
+                      <span class="size-8 rounded-full bg-member-1 text-white grid place-items-center text-[13px] font-semibold">N</span>
                       <div class="flex-1 grid grid-cols-[1fr_auto_auto] items-center gap-4 min-w-0">
                         <p class="text-sm font-medium truncate">Maxi</p>
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted text-xs font-medium">Market</span>
@@ -465,7 +465,7 @@
                       <span class="text-xs text-on-bg-muted w-16 text-right">14 min</span>
                     </li>
                     <li class="flex items-center gap-3 px-4 py-3 hover:bg-surface-2/50 transition">
-                      <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-[13px] font-semibold">N</span>
+                      <span class="size-8 rounded-full bg-member-1 text-white grid place-items-center text-[13px] font-semibold">N</span>
                       <div class="flex-1 grid grid-cols-[1fr_auto_auto] items-center gap-4 min-w-0">
                         <p class="text-sm font-medium truncate">pekara</p>
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted text-xs font-medium">Market</span>
@@ -474,7 +474,7 @@
                       <span class="text-xs text-on-bg-muted w-16 text-right">1 h</span>
                     </li>
                     <li class="flex items-center gap-3 px-4 py-3 hover:bg-surface-2/50 transition">
-                      <span class="size-8 rounded-full bg-user-nada text-white grid place-items-center text-[13px] font-semibold">N</span>
+                      <span class="size-8 rounded-full bg-member-2 text-white grid place-items-center text-[13px] font-semibold">N</span>
                       <div class="flex-1 grid grid-cols-[1fr_auto_auto] items-center gap-4 min-w-0">
                         <p class="text-sm font-medium truncate">ručak Vapiano</p>
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted text-xs font-medium">Restoran</span>
@@ -488,7 +488,7 @@
                   <div class="px-4 pt-3 pb-1 text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium border-y border-border bg-surface-2/50">Yesterday · 9 May</div>
                   <ul class="divide-y divide-border">
                     <li class="flex items-center gap-3 px-4 py-3 hover:bg-surface-2/50 transition">
-                      <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-[13px] font-semibold">N</span>
+                      <span class="size-8 rounded-full bg-member-1 text-white grid place-items-center text-[13px] font-semibold">N</span>
                       <div class="flex-1 grid grid-cols-[1fr_auto_auto] items-center gap-4 min-w-0">
                         <p class="text-sm font-medium truncate">gorivo NIS</p>
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted text-xs font-medium">Auto</span>
@@ -497,7 +497,7 @@
                       <span class="text-xs text-on-bg-muted w-16 text-right">18:22</span>
                     </li>
                     <li class="flex items-center gap-3 px-4 py-3 hover:bg-surface-2/50 transition">
-                      <span class="size-8 rounded-full bg-user-nada text-white grid place-items-center text-[13px] font-semibold">N</span>
+                      <span class="size-8 rounded-full bg-member-2 text-white grid place-items-center text-[13px] font-semibold">N</span>
                       <div class="flex-1 grid grid-cols-[1fr_auto_auto] items-center gap-4 min-w-0">
                         <p class="text-sm font-medium truncate">DM apoteka</p>
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted text-xs font-medium">Hemikalije</span>
@@ -511,7 +511,7 @@
                   <div class="px-4 pt-3 pb-1 text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium border-y border-border bg-surface-2/50">Earlier this week</div>
                   <ul class="divide-y divide-border">
                     <li class="flex items-center gap-3 px-4 py-3 hover:bg-surface-2/50 transition">
-                      <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-[13px] font-semibold">N</span>
+                      <span class="size-8 rounded-full bg-member-1 text-white grid place-items-center text-[13px] font-semibold">N</span>
                       <div class="flex-1 grid grid-cols-[1fr_auto_auto] items-center gap-4 min-w-0">
                         <p class="text-sm font-medium truncate">rata maj</p>
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted text-xs font-medium">Kredit</span>
@@ -520,7 +520,7 @@
                       <span class="text-xs text-on-bg-muted w-16 text-right">6 May</span>
                     </li>
                     <li class="flex items-center gap-3 px-4 py-3 hover:bg-surface-2/50 transition">
-                      <span class="size-8 rounded-full bg-user-nada text-white grid place-items-center text-[13px] font-semibold">N</span>
+                      <span class="size-8 rounded-full bg-member-2 text-white grid place-items-center text-[13px] font-semibold">N</span>
                       <div class="flex-1 grid grid-cols-[1fr_auto_auto] items-center gap-4 min-w-0">
                         <p class="text-sm font-medium truncate">Lidl</p>
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted text-xs font-medium">Market</span>
@@ -529,7 +529,7 @@
                       <span class="text-xs text-on-bg-muted w-16 text-right">5 May</span>
                     </li>
                     <li class="flex items-center gap-3 px-4 py-3 hover:bg-surface-2/50 transition">
-                      <span class="size-8 rounded-full bg-user-novica text-white grid place-items-center text-[13px] font-semibold">N</span>
+                      <span class="size-8 rounded-full bg-member-1 text-white grid place-items-center text-[13px] font-semibold">N</span>
                       <div class="flex-1 grid grid-cols-[1fr_auto_auto] items-center gap-4 min-w-0">
                         <p class="text-sm font-medium truncate">EPS struja</p>
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-xs bg-surface-2 text-on-bg-muted text-xs font-medium">Računi</span>

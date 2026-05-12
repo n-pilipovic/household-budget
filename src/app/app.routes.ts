@@ -29,6 +29,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/monthly/monthly.page').then(m => m.MonthlyPage),
   },
   {
+    path: 'category/:id',
+    canActivate: [authGuard, householdGuard],
+    loadComponent: () => import('./pages/category-detail/category-detail.page').then(m => m.CategoryDetailPage),
+  },
+  {
     path: '**',
     redirectTo: 'today',
   },

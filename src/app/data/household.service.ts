@@ -18,12 +18,13 @@ import {
   writeBatch,
 } from '@angular/fire/firestore';
 import { Observable, from, of, switchMap } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { SEED_CATEGORIES } from './seed-categories';
 import { generateInviteCode, normaliseInviteCode } from './invite-code';
 import type { UserProfile } from './user.service';
 
-export type UserColorSlot = 'novica' | 'nada';
+export type UserColorSlot = '1' | '2';
 
 export interface Household {
   id: string;
@@ -44,7 +45,7 @@ export interface InviteDoc {
 }
 
 const INVITE_TTL_DAYS = 7;
-const COLOR_SLOTS: readonly UserColorSlot[] = ['novica', 'nada'];
+const COLOR_SLOTS: readonly UserColorSlot[] = ['1', '2'];
 
 @Injectable({ providedIn: 'root' })
 export class HouseholdService {
@@ -65,7 +66,8 @@ export class HouseholdService {
           collection(this.firestore, 'households'),
           where('members', 'array-contains', u.uid),
         );
-        return collectionData(q, { idField: 'id' }) as Observable<Household[]>;
+        return (collectionData(q, { idField: 'id' }) as Observable<Household[]>)
+          .pipe(map(docs => docs.map(normaliseHousehold)));
       }),
     );
 
@@ -196,7 +198,7 @@ export class HouseholdService {
    * household, so they can't `getDoc(households/{hid})` under our
    * rules (read requires `auth.uid in resource.data.members`). To
    * avoid relaxing the read rule, we skip the household read and
-   * pick a color slot deterministically. Slot is hardcoded to 'nada'
+   * pick a color slot deterministically. Slot is hardcoded to '2'
    * since the MVP has at most 2 members per household; revisit when
    * household.members can exceed 2.
    */
@@ -218,7 +220,7 @@ export class HouseholdService {
     }
 
     const householdRef = doc(this.firestore, 'households', data.householdId);
-    const slot: UserColorSlot = 'nada';
+    const slot: UserColorSlot = '2';
 
     try {
       await updateDoc(householdRef, {
@@ -266,4 +268,28 @@ export class InviteError extends Error {
     super(message);
     this.name = 'InviteError';
   }
+}
+
+/**
+ * Normalise a Household doc read from Firestore: maps legacy color
+ * slot identifiers from the pre-rename era ('novica' / 'nada') onto
+ * the current neutral slot scheme ('1' / '2'). New writes always use
+ * the neutral scheme; this only kicks in for docs created before
+ * the rename. Safe to remove once all households have been migrated.
+ */
+function normaliseHousehold(h: Household): Household {
+  const src = h.memberColors;
+  if (!src) return h;
+  const fixed: { [uid: string]: UserColorSlot } = {};
+  for (const [uid, slot] of Object.entries(src)) {
+    fixed[uid] = mapLegacySlot(slot);
+  }
+  return { ...h, memberColors: fixed };
+}
+
+function mapLegacySlot(raw: unknown): UserColorSlot {
+  if (raw === '1' || raw === '2') return raw;
+  if (raw === 'novica') return '1';
+  if (raw === 'nada') return '2';
+  return '1'; // safe fallback for unexpected values
 }
