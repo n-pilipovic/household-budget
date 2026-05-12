@@ -207,11 +207,14 @@
     <h2 class="text-[11px] uppercase tracking-[0.16em] text-on-bg-faint font-medium mt-7 mb-2 px-1">About</h2>
     <div class="rounded-lg bg-surface border border-border shadow-xs divide-y divide-border overflow-hidden">
 
-      <!-- Version -->
+      <!-- Build date + commit -->
       <div class="px-4 py-3 flex items-center justify-between gap-3">
         <div>
-          <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Version</p>
-          <p class="text-[15px] font-medium num">{{ appVersion }}</p>
+          <p class="text-[11px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Updated</p>
+          <p class="text-[15px] font-medium num">{{ buildDate }}</p>
+          @if (buildCommit) {
+            <p class="text-[11px] text-on-bg-faint num">build {{ buildCommit }}</p>
+          }
         </div>
         <button
           type="button" (click)="checkForUpdates()" [disabled]="updateCheckBusy()"

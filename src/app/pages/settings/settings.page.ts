@@ -5,7 +5,7 @@ import { HouseholdService } from '../../data/household.service';
 import { ThemeService, ThemeMode } from '../../data/theme.service';
 import { UpdateService } from '../../data/update.service';
 import { UserService } from '../../data/user.service';
-import { APP_VERSION } from '../../build-info';
+import { BUILD_COMMIT, BUILD_DATE } from '../../build-info';
 
 @Component({
   selector: 'app-settings',
@@ -24,7 +24,8 @@ export class SettingsPage {
   protected readonly household = this.households.currentHousehold;
   protected readonly memberProfiles = this.households.memberProfiles;
 
-  protected readonly appVersion = APP_VERSION;
+  protected readonly buildDate = BUILD_DATE;
+  protected readonly buildCommit = BUILD_COMMIT;
 
   // ---------- Editor state ----------
   // 'name' = display name; 'household' = household rename

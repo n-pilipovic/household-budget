@@ -62,3 +62,6 @@ src/environments/environment.local.ts
 
 # Firebase CLI agent-skills lockfile — unrelated to our app, just CLI tooling
 skills-lock.json
+
+# Auto-generated at build time by scripts/gen-build-info.mjs
+/src/app/build-info.ts
