@@ -24,6 +24,7 @@
  * Usage:
  *   pnpm migrate -- --email=<your-email> --dry-run
  *   pnpm migrate -- --email=<your-email>
+ *   pnpm migrate -- --email=<your-email> --clean       # wipe prior imports first
  *
  * Requires firebase-admin-key.json at the repo root (download from
  * Firebase Console → Project Settings → Service accounts).
@@ -43,12 +44,15 @@ import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
 
 const args = parseArgs(process.argv.slice(2));
 if (!args.email) {
-  console.error('Usage: pnpm migrate -- --email=<your-email> [--dry-run] [--force] [--yes]');
+  console.error('Usage: pnpm migrate -- --email=<your-email> [--dry-run] [--clean] [--force] [--yes]');
   process.exit(2);
 }
 const DRY_RUN = !!args['dry-run'];
 const FORCE = !!args.force;
 const ASSUME_YES = !!args.yes;
+// --clean: wipe existing imported=true transactions before re-importing.
+// Manually-logged transactions (no imported flag) are preserved.
+const CLEAN = !!args.clean;
 
 function parseArgs(argv) {
   const out = {};
@@ -98,21 +102,20 @@ const householdId = householdDoc.id;
 const householdName = householdDoc.data().name;
 console.log(`✓ Found household: "${householdName}" (id: ${householdId})`);
 
-// Refuse to double-import unless --force.
-if (!FORCE) {
-  const existing = await db
-    .collection('households').doc(householdId)
-    .collection('transactions')
-    .where('imported', '==', true)
-    .limit(1)
-    .get();
-  if (!existing.empty) {
-    console.error(
-      'This household already contains imported transactions. ' +
-      'Pass --force to import again (creates duplicates).',
-    );
-    process.exit(2);
-  }
+// Count any existing imported docs — used both for the "already imported"
+// guardrail and for the --clean summary.
+const txCol = db.collection('households').doc(householdId).collection('transactions');
+const existingImportedSnap = await txCol.where('imported', '==', true).get();
+const existingImportedCount = existingImportedSnap.size;
+
+// Refuse to double-import unless --force or --clean.
+if (existingImportedCount > 0 && !FORCE && !CLEAN) {
+  console.error(
+    `This household already contains ${existingImportedCount} imported transactions.\n` +
+    `  --clean   wipe them and re-import (manual transactions are preserved)\n` +
+    `  --force   import anyway (creates duplicates)`,
+  );
+  process.exit(2);
 }
 
 // --------------------------------- Mapping -----------------------------
@@ -373,6 +376,9 @@ console.log('\n========================= Summary ==========================');
 console.log(`Sheets processed:      ${stats.sheets}`);
 console.log(`Month blocks:          ${stats.monthBlocks}`);
 console.log(`Cells with data:       ${stats.cells}`);
+if (CLEAN) {
+  console.log(`To delete (imported):  ${existingImportedCount}`);
+}
 console.log(`Transactions to write: ${transactions.length}`);
 console.log(`Net amount (sum):      ${netTotal.toLocaleString('de-DE')} RSD`);
 console.log('\nBy year:');
@@ -392,9 +398,12 @@ if (DRY_RUN) {
 // --------------------------------- Confirm + write ---------------------
 
 if (!ASSUME_YES) {
+  const action = CLEAN && existingImportedCount > 0
+    ? `Delete ${existingImportedCount} prior imports and write ${transactions.length} new`
+    : `Write ${transactions.length}`;
   const rl = readline.createInterface({ input, output });
   const answer = await rl.question(
-    `\nWrite ${transactions.length} transactions to household "${householdName}"? [y/N] `,
+    `\n${action} transactions to household "${householdName}"? [y/N] `,
   );
   rl.close();
   if (!/^y(es)?$/i.test(answer.trim())) {
@@ -403,9 +412,25 @@ if (!ASSUME_YES) {
   }
 }
 
-const txCol = db.collection('households').doc(householdId).collection('transactions');
 const BATCH_SIZE = 450; // leave headroom under the 500 hard cap
 const now = FieldValue.serverTimestamp();
+
+// 1. If --clean, delete prior imports. Manually-logged transactions
+// (no `imported` flag) are untouched.
+if (CLEAN && existingImportedCount > 0) {
+  let deleted = 0;
+  for (let i = 0; i < existingImportedSnap.docs.length; i += BATCH_SIZE) {
+    const slice = existingImportedSnap.docs.slice(i, i + BATCH_SIZE);
+    const batch = db.batch();
+    for (const doc of slice) batch.delete(doc.ref);
+    await batch.commit();
+    deleted += slice.length;
+    process.stdout.write(`\rDeleted ${deleted} / ${existingImportedCount}`);
+  }
+  process.stdout.write('\n');
+}
+
+// 2. Write the freshly-parsed transactions.
 let written = 0;
 
 for (let i = 0; i < transactions.length; i += BATCH_SIZE) {
