@@ -1,13 +1,30 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>HouseholdBudget</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Household budget</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Shared household budget — synced live across every device." />
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.webmanifest" />
+
+    <!-- Theme color (Chrome address bar, Android task switcher, etc.) -->
+    <meta name="theme-color" content="#2b5fff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f0f1a" media="(prefers-color-scheme: dark)" />
+
+    <!-- iOS home-screen integration -->
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Budget" />
+
+    <!-- Android Chrome legacy hint (theme-color above is preferred) -->
+    <meta name="mobile-web-app-capable" content="yes" />
+  </head>
+  <body>
+    <app-root></app-root>
+    <noscript>Please enable JavaScript to continue using this application.</noscript>
+  </body>
 </html>
