@@ -102,6 +102,31 @@ export class MonthlyPage {
   // Budgets for the selected month (signal-driven for live month switching).
   protected readonly monthBudgets = this.budgets.budgetsForMonth(this.monthKey);
 
+  // Top-level month metadata: starting amount (cash for the month).
+  protected readonly monthMeta = this.budgets.monthMetaFor(this.monthKey);
+  protected readonly startingAmount = computed(() => this.monthMeta()?.startingAmount ?? 0);
+  protected readonly hasStartingAmount = computed(() => this.startingAmount() > 0);
+  protected readonly remaining = computed(() => this.startingAmount() - this.totalActual());
+  protected readonly startingPct = computed(() => {
+    const s = this.startingAmount();
+    if (s <= 0) return 0;
+    return Math.min(this.totalActual() / s, 1);
+  });
+
+  /** Pace based on starting-amount cash flow, not category planned sum. */
+  protected readonly startingState = computed<CategoryRow['state']>(() => {
+    const start = this.startingAmount();
+    if (start <= 0) return 'no-budget';
+    const spent = this.totalActual();
+    if (spent > start) return 'bad';
+    const spentRatio = spent / start;
+    const timeRatio = this.isCurrentMonth()
+      ? new Date().getDate() / this.daysInMonth()
+      : 1;
+    if (spentRatio > timeRatio + 0.1) return 'watch';
+    return 'good';
+  });
+
   /** Per-category aggregation. One row per active category, in sort order. */
   protected readonly rows = computed<CategoryRow[]>(() => {
     const cats = this.categories.activeCategories();
@@ -169,6 +194,12 @@ export class MonthlyPage {
   protected readonly budgetBusy = signal(false);
   protected readonly budgetError = signal<string | null>(null);
 
+  // Inline editor state for the starting-amount header field.
+  protected readonly editingStarting = signal(false);
+  protected readonly startingDraft = signal('');
+  protected readonly startingBusy = signal(false);
+  protected readonly startingError = signal<string | null>(null);
+
   prevMonth() {
     this.selectedMonth.update(m => {
       const d = new Date(m.year, m.month - 1, 1);
@@ -234,6 +265,59 @@ export class MonthlyPage {
       this.budgetBusy.set(false);
     }
   }
+
+  // ---------- Starting amount editor ----------
+
+  startStartingEdit() {
+    this.startingError.set(null);
+    this.startingDraft.set(this.startingAmount() > 0 ? String(this.startingAmount()) : '');
+    this.editingStarting.set(true);
+  }
+
+  cancelStartingEdit() {
+    this.editingStarting.set(false);
+    this.startingDraft.set('');
+    this.startingError.set(null);
+  }
+
+  async saveStartingAmount(e: SubmitEvent) {
+    e.preventDefault();
+    if (this.startingBusy()) return;
+    const cleaned = this.startingDraft().trim().replace(/[.,]/g, '');
+    const amount = cleaned === '' ? 0 : parseInt(cleaned, 10);
+    if (!Number.isFinite(amount) || amount < 0) {
+      this.startingError.set('Enter a positive number, or leave empty to clear.');
+      return;
+    }
+    this.startingBusy.set(true);
+    this.startingError.set(null);
+    try {
+      await this.budgets.setMonthStartingAmount(this.monthKey(), amount);
+      this.cancelStartingEdit();
+    } catch (err) {
+      console.error('setMonthStartingAmount failed', err);
+      this.startingError.set(err instanceof Error ? err.message : 'Could not save.');
+    } finally {
+      this.startingBusy.set(false);
+    }
+  }
+
+  async clearStartingAmount() {
+    if (this.startingBusy()) return;
+    if (!window.confirm('Clear this month’s available amount?')) return;
+    this.startingBusy.set(true);
+    try {
+      await this.budgets.setMonthStartingAmount(this.monthKey(), 0);
+      this.cancelStartingEdit();
+    } catch (err) {
+      console.error('setMonthStartingAmount (clear) failed', err);
+      this.startingError.set(err instanceof Error ? err.message : 'Could not clear.');
+    } finally {
+      this.startingBusy.set(false);
+    }
+  }
+
+  // ---------- Category budget editor ----------
 
   async clearBudget(catId: string) {
     if (this.budgetBusy()) return;

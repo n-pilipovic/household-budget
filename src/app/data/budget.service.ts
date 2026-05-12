@@ -2,19 +2,31 @@ import { Injectable, Signal, inject } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
   Firestore,
+  Timestamp,
   collection,
   collectionData,
   deleteDoc,
+  deleteField,
   doc,
+  docData,
+  serverTimestamp,
   setDoc,
 } from '@angular/fire/firestore';
 import { Observable, combineLatest, of, switchMap } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AuthService } from '../auth/auth.service';
 import { HouseholdService } from './household.service';
 
 export interface BudgetEntry {
   categoryId: string;     // = doc id, but also denormalised for type clarity
   amount: number;
+}
+
+/** Top-level metadata on the budgets/{yyyymm} doc itself. */
+export interface MonthMeta {
+  startingAmount?: number;   // cash available for the month (income inflow)
+  updatedAt?: Timestamp;
+  updatedBy?: string;        // uid of the member who set it
 }
 
 /** A year/month key in YYYY-MM form, e.g. '2026-05'. */
@@ -29,6 +41,57 @@ export function monthKey(year: number, monthZeroIndexed: number): MonthKey {
 export class BudgetService {
   private readonly firestore = inject(Firestore);
   private readonly households = inject(HouseholdService);
+  private readonly auth = inject(AuthService);
+
+  /**
+   * Live month metadata (currently: the starting amount when income
+   * for the month arrives — usually around the 5th, give or take).
+   * Returns null when the doc doesn't exist yet.
+   */
+  monthMetaFor(month: Signal<MonthKey>): Signal<MonthMeta | null> {
+    const obs: Observable<MonthMeta | null> =
+      combineLatest([
+        toObservable(this.households.currentHousehold),
+        toObservable(month),
+      ]).pipe(
+        switchMap(([h, m]) => {
+          if (!h) return of(null);
+          const ref = doc(this.firestore, 'households', h.id, 'budgets', m);
+          return (docData(ref) as Observable<MonthMeta | undefined>)
+            .pipe(map(data => (data && Object.keys(data).length > 0) ? data : null));
+        }),
+      );
+    return toSignal(obs, { initialValue: null as MonthMeta | null });
+  }
+
+  /**
+   * Set (or clear, with amount <= 0) the starting amount for a given
+   * month. Stamps updatedAt + updatedBy so the household can see who
+   * set it.
+   */
+  async setMonthStartingAmount(month: MonthKey, amount: number): Promise<void> {
+    const h = this.households.currentHousehold();
+    const u = this.auth.user();
+    if (!h) throw new Error('No household selected');
+    if (!u) throw new Error('Not authenticated');
+    if (!month) throw new Error('Month is required');
+
+    const ref = doc(this.firestore, 'households', h.id, 'budgets', month);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      // Clear field. setDoc + merge tolerates the doc not existing.
+      await setDoc(ref, { startingAmount: deleteField() }, { merge: true });
+      return;
+    }
+    await setDoc(
+      ref,
+      {
+        startingAmount: Math.round(amount),
+        updatedAt: serverTimestamp(),
+        updatedBy: u.uid,
+      },
+      { merge: true },
+    );
+  }
 
   /**
    * Live budgets for a given month, keyed by categoryId.
