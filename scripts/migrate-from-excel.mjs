@@ -595,8 +595,36 @@ if (!ASSUME_YES) {
   }
 }
 
-const BATCH_SIZE = 450; // leave headroom under the 500 hard cap
+const BATCH_SIZE = 450;       // headroom under Firestore's 500-op hard cap
+const THROTTLE_MS = 1000;     // sleep between batches → ≈450 wps, under
+                              // the per-collection sustained-write limit
+const MAX_RETRIES = 5;        // re-try transient RESOURCE_EXHAUSTED /
+const BACKOFF_BASE_MS = 5000; // DEADLINE_EXCEEDED / UNAVAILABLE errors
 const now = FieldValue.serverTimestamp();
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function commitBatchWithRetry(buildBatch) {
+  let attempt = 0;
+  while (true) {
+    try {
+      const batch = db.batch();
+      buildBatch(batch);
+      await batch.commit();
+      return;
+    } catch (err) {
+      const code = err?.code;
+      const transient = code === 8 /* RESOURCE_EXHAUSTED */
+                     || code === 4 /* DEADLINE_EXCEEDED */
+                     || code === 14 /* UNAVAILABLE */;
+      if (!transient || attempt >= MAX_RETRIES) throw err;
+      const wait = BACKOFF_BASE_MS * 2 ** attempt;
+      process.stdout.write(`\n  hit gRPC code ${code}, retry ${attempt + 1}/${MAX_RETRIES} after ${wait}ms\n`);
+      await sleep(wait);
+      attempt++;
+    }
+  }
+}
 
 // --- Wipe phase ---
 // Transactions: --wipe-all deletes every doc; --clean deletes only imported.
@@ -650,11 +678,12 @@ async function batchDelete(label, refs) {
   let done = 0;
   for (let i = 0; i < refs.length; i += BATCH_SIZE) {
     const slice = refs.slice(i, i + BATCH_SIZE);
-    const batch = db.batch();
-    for (const ref of slice) batch.delete(ref);
-    await batch.commit();
+    await commitBatchWithRetry(batch => {
+      for (const ref of slice) batch.delete(ref);
+    });
     done += slice.length;
     process.stdout.write(`\rDeleted ${label}: ${done} / ${refs.length}`);
+    if (done < refs.length) await sleep(THROTTLE_MS);
   }
   process.stdout.write('\n');
 }
@@ -664,14 +693,15 @@ async function batchWrite(label, items, toOp) {
   let done = 0;
   for (let i = 0; i < items.length; i += BATCH_SIZE) {
     const slice = items.slice(i, i + BATCH_SIZE);
-    const batch = db.batch();
-    for (const item of slice) {
-      const { ref, data } = toOp(item);
-      batch.set(ref, data);
-    }
-    await batch.commit();
+    await commitBatchWithRetry(batch => {
+      for (const item of slice) {
+        const { ref, data } = toOp(item);
+        batch.set(ref, data);
+      }
+    });
     done += slice.length;
     process.stdout.write(`\rWritten ${label}: ${done} / ${items.length}`);
+    if (done < items.length) await sleep(THROTTLE_MS);
   }
   process.stdout.write('\n');
 }
