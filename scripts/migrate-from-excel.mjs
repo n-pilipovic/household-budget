@@ -604,15 +604,29 @@ const BACKOFF_BASE_MS = 10000; // 10s, 20s, 40s, 80s, 160s, 320s
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 /**
- * Detects transient quota / throttling errors across the various ways
- * google-gax surfaces them: a numeric gRPC code OR a wrapper
- * GoogleError whose message names the underlying status.
+ * Detects transient errors worth retrying. Covers three families:
+ *  - Quota/throttling     (RESOURCE_EXHAUSTED, DEADLINE_EXCEEDED, UNAVAILABLE)
+ *  - gRPC transport flake (INTERNAL / RST_STREAM, TLS record corruption,
+ *                          socket resets — common when a long-running
+ *                          script keeps a gRPC connection half-idle)
+ *  - DNS / network blip   (EAI_AGAIN, ENOTFOUND, ETIMEDOUT)
  */
 function isTransientError(err) {
   if (!err) return false;
-  if (err.code === 8 || err.code === 4 || err.code === 14) return true;
+  if (err.code === 8 || err.code === 4 || err.code === 13 || err.code === 14) return true;
   const msg = String(err.message || '');
-  return /RESOURCE_EXHAUSTED|DEADLINE_EXCEEDED|UNAVAILABLE|Total timeout/.test(msg);
+  return /RESOURCE_EXHAUSTED|DEADLINE_EXCEEDED|UNAVAILABLE|Total timeout/i.test(msg)
+      || /RST_STREAM|decryption failed|bad record mac|stream error/i.test(msg)
+      || /ECONNRESET|socket hang up|EPIPE|ETIMEDOUT|ENOTFOUND|EAI_AGAIN/i.test(msg);
+}
+
+/** Network-level errors need longer cool-downs so the gRPC connection
+ *  pool can drop the bad socket and dial a fresh one. */
+function isNetworkError(err) {
+  const msg = String(err?.message || '');
+  return err?.code === 13
+      || /RST_STREAM|decryption failed|bad record mac|stream error/i.test(msg)
+      || /ECONNRESET|socket hang up|EPIPE|ETIMEDOUT|ENOTFOUND|EAI_AGAIN/i.test(msg);
 }
 
 async function commitBatchWithRetry(buildBatch) {
@@ -625,8 +639,13 @@ async function commitBatchWithRetry(buildBatch) {
       return;
     } catch (err) {
       if (!isTransientError(err) || attempt >= MAX_RETRIES) throw err;
-      const wait = BACKOFF_BASE_MS * 2 ** attempt;
-      process.stdout.write(`\n  transient error: ${err.code ?? '?'} ${String(err.message || '').split('\n')[0]}\n` +
+      // Network-level failures (TLS corruption, RST_STREAM, socket reset)
+      // need a longer pause so the gRPC connection pool can replace the
+      // bad connection. Quota errors recover faster.
+      const baseWait = isNetworkError(err) ? 30000 : BACKOFF_BASE_MS;
+      const wait = baseWait * 2 ** attempt;
+      const head = String(err.message || '').split('\n')[0].slice(0, 200);
+      process.stdout.write(`\n  transient error: code=${err.code ?? '?'} — ${head}\n` +
                            `  retry ${attempt + 1}/${MAX_RETRIES} after ${wait}ms\n`);
       await sleep(wait);
       attempt++;
