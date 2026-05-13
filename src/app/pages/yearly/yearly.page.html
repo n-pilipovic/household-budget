@@ -1,0 +1,150 @@
+<main class="min-h-screen bg-bg text-on-bg flex flex-col">
+  <!-- App bar -->
+  <header class="px-3 pt-4 pb-2 flex items-center justify-between max-w-md mx-auto w-full">
+    <button
+      (click)="back()"
+      class="size-9 rounded-full hover:bg-surface-2 grid place-items-center transition"
+      aria-label="Back to Today">
+      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+
+    <div class="flex items-center gap-1">
+      <button
+        (click)="prevYear()"
+        class="size-9 rounded-md hover:bg-surface-2 grid place-items-center transition"
+        aria-label="Previous year">
+        <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <button
+        (click)="goToCurrentYear()"
+        [disabled]="isCurrentYear()"
+        class="px-3 py-1.5 rounded-md hover:bg-surface-2 disabled:hover:bg-transparent disabled:cursor-default text-[15px] font-semibold tracking-tight">
+        {{ selectedYear() }}
+      </button>
+      <button
+        (click)="nextYear()"
+        class="size-9 rounded-md hover:bg-surface-2 grid place-items-center transition"
+        aria-label="Next year">
+        <svg class="size-4 text-on-bg-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="size-9"></div>
+  </header>
+
+  <div class="flex-1 overflow-y-auto pb-16 max-w-md mx-auto w-full">
+
+    <!-- Hero KPI card -->
+    <div class="mx-5 rounded-lg bg-surface border border-border shadow-xs p-5">
+      <p class="text-xs uppercase tracking-[0.14em] text-on-bg-faint font-medium">
+        @if (isCurrentYear()) {
+          {{ selectedYear() }} so far
+        } @else {
+          {{ selectedYear() }}
+        }
+      </p>
+      <div class="grid grid-cols-3 gap-3 mt-3">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Earned</p>
+          <p class="text-xl font-semibold num mt-0.5">{{ formatAmount(totalEarned()) }}</p>
+          <p class="text-[10px] text-on-bg-faint mt-0.5">RSD</p>
+        </div>
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Spent</p>
+          <p class="text-xl font-semibold num mt-0.5">{{ formatAmount(totalSpent()) }}</p>
+          <p class="text-[10px] text-on-bg-faint mt-0.5">RSD</p>
+        </div>
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.14em] text-on-bg-faint font-medium">Net</p>
+          <p class="text-xl font-semibold num mt-0.5"
+            [class.text-success-700]="netResult() > 0"
+            [class.text-danger-700]="netResult() < 0">
+            {{ formatSigned(netResult()) }}
+          </p>
+          <p class="text-[10px] text-on-bg-faint mt-0.5">RSD</p>
+        </div>
+      </div>
+      <p class="text-[11px] text-on-bg-faint mt-3">
+        {{ transactionCount() }} transaction{{ transactionCount() === 1 ? '' : 's' }} ·
+        Earned counts only months where you set the cash-inflow amount.
+      </p>
+    </div>
+
+    <!-- Monthly breakdown -->
+    <h3 class="px-5 pt-7 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium">By month</h3>
+    <ul class="px-2">
+      @for (m of monthly(); track m.key) {
+        <li class="px-3 py-3 rounded-md hover:bg-surface-2/40 transition">
+          <div class="flex items-baseline justify-between gap-2 mb-1">
+            <p class="text-[14px] font-semibold tracking-tight w-12 shrink-0">{{ m.label }}</p>
+            <div class="flex-1 min-w-0 grid grid-cols-3 gap-3 text-right">
+              <span class="text-[12px] text-on-bg-muted num">
+                {{ m.earned > 0 ? formatAmount(m.earned) : '—' }}
+              </span>
+              <span class="text-[12px] num"
+                [class.text-on-bg]="m.spent > 0"
+                [class.text-on-bg-faint]="m.spent === 0">
+                {{ m.spent > 0 ? formatAmount(m.spent) : '—' }}
+              </span>
+              <span class="text-[13px] font-semibold num"
+                [class.text-success-700]="m.net > 0"
+                [class.text-danger-700]="m.net < 0"
+                [class.text-on-bg-faint]="m.net === 0">
+                {{ m.net !== 0 ? formatSigned(m.net) : '—' }}
+              </span>
+            </div>
+          </div>
+          <!-- Parallel bars: earned (success) above, spent (brand) below -->
+          @if (m.earned > 0 || m.spent > 0) {
+            <div class="space-y-0.5 mt-0.5">
+              <div class="h-1 rounded-pill bg-surface-3 overflow-hidden">
+                <div class="h-full rounded-pill bg-success-500/70"
+                  [style.width.%]="pct(m.earned, monthlyMax())"></div>
+              </div>
+              <div class="h-1 rounded-pill bg-surface-3 overflow-hidden">
+                <div class="h-full rounded-pill bg-brand-500"
+                  [style.width.%]="pct(m.spent, monthlyMax())"></div>
+              </div>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+
+    <div class="px-5 pt-1 pb-2 flex items-center gap-4 text-[10px] text-on-bg-muted">
+      <span class="inline-flex items-center gap-1.5">
+        <span class="size-2 rounded-xs bg-success-500/70"></span>earned
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <span class="size-2 rounded-xs bg-brand-500"></span>spent
+      </span>
+    </div>
+
+    <!-- By-group breakdown -->
+    @if (groupBreakdown().length > 0) {
+      <h3 class="px-5 pt-6 pb-2 text-xs uppercase tracking-[0.16em] text-on-bg-faint font-medium">
+        Spending by group
+      </h3>
+      <ul class="px-2">
+        @for (g of groupBreakdown(); track g.slug) {
+          <li class="px-3 py-3">
+            <div class="flex items-baseline justify-between gap-2 mb-1">
+              <p class="text-[14px] font-semibold tracking-tight">{{ g.name }}</p>
+              <span class="text-[13px] font-semibold num">{{ formatAmount(g.total) }}</span>
+            </div>
+            <div class="h-1.5 rounded-pill bg-surface-3 overflow-hidden">
+              <div class="h-full rounded-pill bg-on-bg/70"
+                [style.width.%]="pct(g.total, maxGroupTotal())"></div>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (transactionCount() === 0 && totalEarned() === 0) {
+      <p class="px-5 pt-12 text-center text-on-bg-muted">
+        Nothing recorded for {{ selectedYear() }}.
+      </p>
+    }
+  </div>
+</main>
